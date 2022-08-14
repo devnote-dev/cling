@@ -1,0 +1,9 @@
+name: cli-cr
+description: ""
+version: 0.1.0
+crystal: 1.5.0
+
+authors:
+  - Devonte W <https://github.com/devnote-dev>
+
+license: MIT
