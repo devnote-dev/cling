@@ -1,5 +1,5 @@
 module CLI
-  alias MappedArgs = Array({Symbol, String, String?})
+  alias MappedArgs = Array({kind: Symbol, name: String, value: String?})
 
   class Parser
     @reader : Char::Reader
@@ -48,26 +48,26 @@ module CLI
     private def validate : MappedArgs
       validated = MappedArgs.new
 
-      @parsed.each do |(kind, name, value)|
-        case kind
+      @parsed.each do |arg|
+        case arg[:kind]
         when :short
-          if !@short_long && name.size > 1
-            raise "cannot assign value to multiple short flags" if value
-            args = name.each_char.map { |c| {:short, c.to_s, nil} }.to_a
+          if !@short_long && arg[:name].size > 1
+            raise "cannot assign value to multiple short flags" if arg[:value]
+            args = arg[:name].each_char.map { |c| {kind: :short, name: c.to_s, value: nil} }.to_a
             validated += args
           else
-            validated << {:short, name, value}
+            validated << arg
           end
         when :long
-          break if name.empty?
-          if !@long_short && name.size == 1
-            raise "invalid long flag '#{name}'"
+          break if arg[:name].empty?
+          if !@long_short && arg[:name].size == 1
+            raise "invalid long flag '#{arg[:name]}'"
           else
-            validated << {:long, name, value}
+            validated << arg
           end
         else
-          break if name == "--"
-          validated << {:argument, name, value}
+          break if arg[:name] == "--"
+          validated << arg
         end
       end
 
@@ -106,16 +106,16 @@ module CLI
       if long
         if option.includes? '='
           name, value = option.split '='
-          @parsed << {:long, name, value}
+          @parsed << {kind: :long, name: name, value: value}
         else
-          @parsed << {:long, option, nil}
+          @parsed << {kind: :long, name: option, value: nil}
         end
       else
         if option.includes? '='
           name, value = option.split '='
-          @parsed << {:short, name, value}
+          @parsed << {kind: :short, name: name, value: value}
         else
-          @parsed << {:short, option, nil}
+          @parsed << {kind: :short, name: option, value: nil}
         end
       end
     end
@@ -138,11 +138,11 @@ module CLI
         end
       end
 
-      @parsed << {:argument, value, nil}
+      @parsed << {kind: :argument, name: "", value: value}
     end
 
     private def read_string : Nil
-      @parsed << {:argument, "", read_string_raw}
+      @parsed << {kind: :argument, name: "", value: read_string_raw}
     end
 
     private def read_string_raw : String
