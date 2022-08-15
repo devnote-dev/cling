@@ -1,3 +1,4 @@
+require "./application"
 require "./argument"
 require "./option"
 require "./parser"
