@@ -1,39 +1,34 @@
-# cli-cr
-
-TODO: Write a description here
+# CLI.cr
+Yet another Crystal command line interface framework!
 
 ## Installation
-
 1. Add the dependency to your `shard.yml`:
-
-   ```yaml
-   dependencies:
-     cli-cr:
-       github: your-github-user/cli-cr
-   ```
+```yaml
+dependencies:
+  cli:
+    github: devnote-dev/cli.cr
+```
 
 2. Run `shards install`
 
 ## Usage
-
 ```crystal
-require "cli-cr"
+require "cli"
 ```
 
-TODO: Write usage instructions here
-
 ## Development
-
-TODO: Write development instructions here
+TODO.
 
 ## Contributing
-
-1. Fork it (<https://github.com/your-github-user/cli-cr/fork>)
+1. Fork it (<https://github.com/devnote-dev/cli.cr/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
 
 ## Contributors
+- [Devonte W](https://github.com/devnote-dev) - creator and maintainer
 
-- [devnote-dev](https://github.com/your-github-user) - creator and maintainer
+This repository is managed under the GNU AGPL v3 license.
+
+© 2022 devnote-dev

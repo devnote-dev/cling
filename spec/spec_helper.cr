@@ -1,2 +1,2 @@
 require "spec"
-require "../src/cli-cr"
+require "../src/cli"

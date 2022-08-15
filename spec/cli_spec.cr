@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Cli::Cr do
+describe CLI do
   # TODO: Write tests
 
   it "works" do

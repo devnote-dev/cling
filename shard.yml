@@ -1,8 +1,9 @@
-name: cli-cr
-description: ""
+name: cli
+description: expandable command line interface framework
 version: 0.1.0
 crystal: 1.5.0
 
+repository: https://github.com/devnote-dev/cli.cr
 authors:
   - Devonte W <https://github.com/devnote-dev>
 
