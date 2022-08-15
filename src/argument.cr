@@ -3,7 +3,7 @@ module CLI
     getter name : String
     getter description : String?
     getter value : String
-    getter default = nil
+    getter default : Any = nil
 
     def initialize(@name, @description, @value, @default)
     end
@@ -20,9 +20,9 @@ module CLI
         else
           raise "Invalid argument value for Bool"
         end
-      {% elsif T in %w(Int8 Int16 Int32 Int64) %}
+      {% elsif T.in? %w(Int8 Int16 Int32 Int64) %}
         @value.to_i{{ T.id.stringify[3..] }}
-      {% elsif T in %w(Float32 Float64) %}
+      {% elsif T.in? %w(Float32 Float64) %}
         @value.to_f{{ T.id.stringify[5..] }}
       {% else %}
         {% if T.responds_to?(:arg_parse) %}
