@@ -42,7 +42,36 @@ module CLI
         end
       end
 
-      @parsed
+      validate
+    end
+
+    private def validate : MappedArgs
+      validated = MappedArgs.new
+
+      @parsed.each do |(kind, name, value)|
+        case kind
+        when :short
+          if !@short_long && name.size > 1
+            raise "cannot assign value to multiple short flags" if value
+            args = name.each_char.map { |c| {:short, c.to_s, nil} }.to_a
+            validated += args
+          else
+            validated << {:short, name, value}
+          end
+        when :long
+          break if name.empty?
+          if !@long_short && name.size == 1
+            raise "invalid long flag '#{name}'"
+          else
+            validated << {:long, name, value}
+          end
+        else
+          break if name == "--"
+          validated << {:argument, name, value}
+        end
+      end
+
+      validated
     end
 
     private def read_option : Nil
@@ -84,10 +113,9 @@ module CLI
       else
         if option.includes? '='
           name, value = option.split '='
-          raise "cannot assign value to multiple short flags" if name.size > 1
           @parsed << {:short, name, value}
         else
-          option.each_char { |c| @parsed << {:short, c.to_s, nil} }
+          @parsed << {:short, option, nil}
         end
       end
     end
