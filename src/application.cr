@@ -50,10 +50,10 @@ module CLI
       end
 
       cmd.setup
-      parsed_args, parsed_options = validate cmd, args, options
+      parsed_args, parsed_opts = validate cmd, args, options
 
       begin
-        cmd.execute parsed_args, parsed_options
+        cmd.execute parsed_args, parsed_opts
       rescue ex
         cmd.on_error ex
       end
@@ -63,9 +63,50 @@ module CLI
                          args : MappedArgs,
                          options : MappedArgs) : {ArgsInput, OptionsInput}
       parsed_args = {} of String => Argument
-      parsed_options = [] of Option
+      invalid_args = [] of String
 
-      # TODO
+      valid_args = args[...cmd.arguments.values.select(&.required?).size]
+      invalid_args = args.reject(&.in?(valid_args)).map(&.[:value].not_nil!)
+      cmd.on_invalid_arguments(invalid_args) unless invalid_args.empty?
+
+      cmd.arguments.each.with_index do |(name, arg), index|
+        if raw = args[index]?
+          arg.value = raw[:value]
+          parsed_args[name] = arg
+        else
+          break
+        end
+      end
+
+      parsed_opts = [] of Option
+      invalid_opts = [] of String
+
+      options.each do |raw|
+        if raw[:kind] == :short
+          if opt = cmd.options.find { |o| o.short == raw[:name] }
+            opt.value = raw[:value]
+            parsed_opts << opt
+          else
+            invalid_opts << raw[:name]
+          end
+        else
+          if opt = cmd.options.find { |o| o.long == raw[:name] }
+            opt.value = raw[:value]
+            parsed_opts << opt
+          else
+            invalid_opts << raw[:name]
+          end
+        end
+      end
+      cmd.on_invalid_options(invalid_opts) unless invalid_opts.empty?
+
+      missing_args = cmd.arguments.reject(&.in?(parsed_args)).values
+      cmd.on_missing_arguments(missing_args) unless missing_args.empty?
+
+      missing_opts = cmd.options.reject &.in?(parsed_opts)
+      cmd.on_missing_options(missing_opts) unless missing_opts.empty?
+
+      {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
     end
 
     def default_command : String?
@@ -85,16 +126,18 @@ module CLI
       @help_template || generate_help_template
     end
 
-    def help_template=(@help_template : String)
+    def help_template=(@help_template : String?)
     end
 
     private def generate_help_template : String
       template = String.build do |str|
         if header = @header
           str << header << '\n'
+          str << '\n' if @description
         end
         if desc = @description
           str << desc << '\n'
+          str << '\n' unless @commands.empty?
         end
 
         unless @commands.empty?

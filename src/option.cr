@@ -3,10 +3,14 @@ module CLI
     property long : String
     property short : String?
     property description : String?
-    property value : String
+    property? required : Bool
+    property kind : ValueKind
+    property value : String?
     property default : Any = nil
 
-    def initialize(@long, @short, @description, @value, @default)
+    def initialize(@long, @short = nil, @description = nil, @required = false,
+                   @kind = :none, @default = nil)
+      @value = nil
     end
 
     def to_s(io : IO) : Nil
@@ -14,7 +18,11 @@ module CLI
     end
 
     def inspect(io : IO) : Nil
-      io << "#<Option long:" << @long << " short:" << @short << ">"
+      io << "#<Option @long:"
+      @long.inspect io
+      io << " @short:"
+      @short.inspect io
+      io << ">"
     end
 
     def parse(type : T.class) : T forall T
@@ -50,23 +58,23 @@ module CLI
     end
 
     def [](name : String) : Option
-      @options[name]
+      @options.find! { |o| o.short == name || o.long == name }
     end
 
     def []?(name : String) : Option?
-      @options[name]?
+      @options.find { |o| o.short == name || o.long == name }
     end
 
     def has?(name : String) : Bool
-      !@options[name]?.nil?
+      !@options.has_key?
     end
 
-    def get(name : String) : String
-      @options[name].value
+    def get(name : String) : String?
+      self[name].value
     end
 
     def get(name : String, type : T.class) : T forall T
-      @options[name].parse type
+      self[name].parse type
     end
   end
 end

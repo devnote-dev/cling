@@ -2,10 +2,13 @@ module CLI
   struct Argument
     property name : String
     property description : String?
-    property value : String
-    property default : Any = nil
+    property? required : Bool
+    property kind : ValueKind
+    property value : String?
+    property default : Any
 
-    def initialize(@name, @description, @value, @default)
+    def initialize(@name, @description = nil, @required = false, @kind = :none, @default = nil)
+      @value = nil
     end
 
     def to_s(io : IO) : Nil
@@ -13,7 +16,9 @@ module CLI
     end
 
     def inspect(io : IO) : Nil
-      io << "#<Argument:" << @name << ">"
+      io << "#<Argument:"
+      @name.inspect io
+      io << ">"
     end
 
     def parse(type : T.class) : T forall T
