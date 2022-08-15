@@ -11,15 +11,13 @@ module CLI
     property footer : String?
     property version : String?
     property help_message : String?
-    @help_template : String?
-
     property commands : Hash(String, Command)
-    property default_command : String?
 
     def initialize(*, @allow_long_short = false, @allow_short_long = false,
                    @parse_string_input = true, @string_delimiters = ['"', '\''],
-                   @option_delimiter = '-', @header, @description, @footer,
-                   @help_message, @help_template)
+                   @option_delimiter = '-', @header = nil, @description = nil,
+                   @footer = nil, @help_message = nil, @help_template = nil)
+      @commands = {} of String => Command
     end
 
     def run(input : String | Array(String)) : Nil
@@ -70,11 +68,24 @@ module CLI
       # TODO
     end
 
+    def default_command : String?
+      @default_command
+    end
+
+    def default_command=(name : String)
+      raise "Unknown command '#{name}'" unless @commands.has_key? name
+      @default_command = name
+    end
+
+    def add_command(cmd : Command) : Nil
+      @commands[cmd.name.not_nil!] = cmd
+    end
+
     def help_template : String
       @help_template || generate_help_template
     end
 
-    def help_template=(@help_template)
+    def help_template=(@help_template : String)
     end
 
     private def generate_help_template : String
@@ -88,7 +99,7 @@ module CLI
 
         unless @commands.empty?
           str << "Commands:\n"
-          max_space = @commands.sum(1) &.name.size
+          max_space = @commands.sum(1) { |c| c.name.size }
 
           @commands.each do |cmd|
             str << '\t' << cmd.name

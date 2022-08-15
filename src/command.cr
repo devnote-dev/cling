@@ -1,13 +1,13 @@
 module CLI
   abstract class Command
-    property name : String
+    property name : String?
     property usage : Array(String)
     property description : String?
     property short_help : String?
     property arguments : Hash(String, Argument)
     property options : Hash(String, Option)
 
-    def initialize(@name)
+    def initialize
       @usage = [] of String
       @arguments = {} of String => Argument
       @options = {} of String => Option
@@ -27,7 +27,9 @@ module CLI
       @options[long] = Option.new(long, short, description, "", default)
     end
 
-    abstract def setup : Nil
+    def setup : Nil
+      raise "A name must be set for the command" unless @name
+    end
 
     abstract def execute(args, options) : Nil
 
