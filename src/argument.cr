@@ -1,11 +1,19 @@
 module CLI
   struct Argument
-    getter name : String
-    getter description : String?
-    getter value : String
-    getter default : Any = nil
+    property name : String
+    property description : String?
+    property value : String
+    property default : Any = nil
 
     def initialize(@name, @description, @value, @default)
+    end
+
+    def to_s(io : IO) : Nil
+      io << @name
+    end
+
+    def inspect(io : IO) : Nil
+      io << "#<Argument:" << @name << ">"
     end
 
     def parse(type : T.class) : T forall T

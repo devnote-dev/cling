@@ -15,8 +15,36 @@ module CLI
       setup
     end
 
+    def add_argument(name : String, description : String? = nil, default = nil) : Nil
+      @arguments[name] = Argument.new(name, description, "", default)
+    end
+
+    def add_option(long : String, description : String? = nil, default = nil) : Nil
+      @options[long] = Option.new(long, nil, description, "", default)
+    end
+
+    def add_option(short : String, long : String, description : String? = nil, default = nil) : Nil
+      @options[long] = Option.new(long, short, description, "", default)
+    end
+
     abstract def setup : Nil
 
     abstract def execute(args, options) : Nil
+
+    def on_invalid_arguments(args : Array(Argument)) : NoReturn
+      raise "Invalid arguments: #{args.map(&.name).join(',')}"
+    end
+
+    def on_missing_argument(arg : Argument) : NoReturn
+      raise "Missing required argument '#{arg}'"
+    end
+
+    def on_missing_option(op : Option) : NoReturn
+      raise "Missing required option '#{op}'"
+    end
+
+    def on_command_error(ex : Exception) : NoReturn
+      raise ex
+    end
   end
 end

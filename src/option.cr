@@ -1,12 +1,20 @@
 module CLI
   struct Option
-    getter long : String
-    getter short : String?
-    getter description : String?
-    getter value : String
-    getter default : Any = nil
+    property long : String
+    property short : String?
+    property description : String?
+    property value : String
+    property default : Any = nil
 
     def initialize(@long, @short, @description, @value, @default)
+    end
+
+    def to_s(io : IO) : Nil
+      @long
+    end
+
+    def inspect(io : IO) : Nil
+      io << "#<Option long:" << @long << " short:" << @short << ">"
     end
 
     def parse(type : T.class) : T forall T
