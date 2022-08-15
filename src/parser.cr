@@ -5,7 +5,8 @@ module CLI
     @reader : Char::Reader
     @parsed : MappedArgs
 
-    def initialize(*, @delim : Char = '-')
+    def initialize(@short_long : Bool, @long_short : Bool, @parse_string : Bool,
+                   @string_delimiters : Array(Char), @option_delimiter : Char)
       @reader = uninitialized Char::Reader
       @parsed = MappedArgs.new
     end
@@ -19,23 +20,25 @@ module CLI
 
       loop do
         case char = @reader.current_char
+        when '\0'
+          break
         when ' '
           @reader.next_char
           next
         when '-'
-          if @delim == '-'
+          if @option_delimiter == '-'
             read_option
           else
             read_argument
           end
-        when @delim
+        when @option_delimiter
           read_option
-        when '"', '\''
-          read_string
-        when '\0'
-          break
         else
-          read_argument
+          if char.in?(@string_delimiters) && @parse_string
+            read_string
+          else
+            read_argument
+          end
         end
       end
 
@@ -44,7 +47,7 @@ module CLI
 
     private def read_option : Nil
       long = false
-      if @reader.peek_next_char == @delim
+      if @reader.peek_next_char == @option_delimiter
         long = true
         @reader.pos += 2
       else
@@ -59,12 +62,14 @@ module CLI
           when ' '
             @reader.next_char
             break
-          when '"', '\''
-            str << read_string_raw
-            break
           else
-            str << char
-            @reader.next_char
+            if char.in?(@string_delimiters) && @parse_string
+              str << read_string_raw
+              break
+            else
+              str << char
+              @reader.next_char
+            end
           end
         end
       end
@@ -112,7 +117,6 @@ module CLI
       @parsed << {:argument, "", read_string_raw}
     end
 
-    # TODO: custom string delimiters
     private def read_string_raw : String
       delim = @reader.current_char
       escaped = false
@@ -125,10 +129,12 @@ module CLI
             raise "unterminated quote string" # TODO: optional error override?
           when '\\'
             escaped = !escaped
+            @reader.next_char
           when delim
             if escaped
               escaped = false
               str << char
+              @reader.next_char
             else
               @reader.next_char
               break
