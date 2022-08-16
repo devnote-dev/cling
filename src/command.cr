@@ -17,18 +17,13 @@ module CLI
     end
 
     def add_argument(name : String, description : String? = nil, required : Bool = false,
-                     kind : ValueKind = :none, default = nil) : Nil
-      @arguments[name] = Argument.new(name, description, required, kind, default)
+                     kind : ValueKind = :none) : Nil
+      @arguments[name] = Argument.new(name, description, required, kind)
     end
 
-    def add_option(long : String, desc : String? = nil, required : Bool = false,
-                   kind : ValueKind = :none, default = nil) : Nil
-      @options << Option.new(long, nil, desc, required, kind, default)
-    end
-
-    def add_option(short : String, long : String, desc : String? = nil,
-                   required : Bool = false, kind : ValueKind = :none, default = nil) : Nil
-      @options << Option.new(long, short, desc, required, kind, default)
+    def add_option(long : String, *, short : String? = nil, desc : String? = nil,
+                   required : Bool = false, kind : ValueKind = :none) : Nil
+      @options << Option.new(long, short, desc, required, kind)
     end
 
     def setup : Nil

@@ -5,39 +5,13 @@ module CLI
     property? required : Bool
     property kind : ValueKind
     property value : String?
-    property default : Any
 
-    def initialize(@name, @description = nil, @required = false, @kind = :none, @default = nil)
+    def initialize(@name, @description = nil, @required = false, @kind = :none)
       @value = nil
     end
 
     def to_s(io : IO) : Nil
       io << @name
-    end
-
-    def parse(type : T.class) : T forall T
-      {% if T.is_a? Nil %}
-        nil
-      {% elsif T.is_a? String %}
-        @value
-      {% elsif T.is_a? Bool %}
-        case @value
-        when "true" then true
-        when "false" then false
-        else
-          raise "Invalid argument value for Bool"
-        end
-      {% elsif T.in? %w(Int8 Int16 Int32 Int64) %}
-        @value.to_i{{ T.id.stringify[3..] }}
-      {% elsif T.in? %w(Float32 Float64) %}
-        @value.to_f{{ T.id.stringify[5..] }}
-      {% else %}
-        {% if T.responds_to?(:arg_parse) %}
-          {{ T.id }}.arg_parse @value
-        {% else %}
-          raise "Cannot parse argument to type {{ T.id.stringify }}"
-        {% end %}
-      {% end %}
     end
   end
 
