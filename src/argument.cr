@@ -33,12 +33,8 @@ module CLI
       !@arguments[name]?.nil?
     end
 
-    def get(name : String) : String
-      @arguments[name].value
-    end
-
-    def get(name : String, type : T.class) : T forall T
-      @arguments[name].parse type
+    def get(name : String) : String?
+      self[name]?.try &.value
     end
   end
 end

@@ -100,10 +100,14 @@ module CLI
       end
       cmd.on_invalid_options(invalid_opts) unless invalid_opts.empty?
 
-      missing_args = cmd.arguments.reject(&.in?(parsed_args)).values
+      missing_args = cmd.arguments
+        .select { |_, v| v.required? }
+        .reject { |k, _| parsed_args.has_key? k }
+        .values
+
       cmd.on_missing_arguments(missing_args) unless missing_args.empty?
 
-      missing_opts = cmd.options.select(&.required?).reject &.in?(parsed_opts)
+      missing_opts = cmd.options.select(&.required?).reject(&.in?(parsed_opts))
       cmd.on_missing_options(missing_opts) unless missing_opts.empty?
 
       {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
