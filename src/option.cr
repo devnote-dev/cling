@@ -17,14 +17,6 @@ module CLI
       @long
     end
 
-    def inspect(io : IO) : Nil
-      io << "#<Option @long:"
-      @long.inspect io
-      io << " @short:"
-      @short.inspect io
-      io << ">"
-    end
-
     def parse(type : T.class) : T forall T
       {% if T.is_a? Nil %}
         nil

@@ -15,12 +15,6 @@ module CLI
       io << @name
     end
 
-    def inspect(io : IO) : Nil
-      io << "#<Argument:"
-      @name.inspect io
-      io << ">"
-    end
-
     def parse(type : T.class) : T forall T
       {% if T.is_a? Nil %}
         nil
