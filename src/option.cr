@@ -11,8 +11,12 @@ module CLI
       @value = nil
     end
 
+    def to_s : String
+      @short || @long
+    end
+
     def to_s(io : IO) : Nil
-      @long
+      io << to_s
     end
   end
 

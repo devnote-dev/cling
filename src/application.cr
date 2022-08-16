@@ -50,7 +50,7 @@ module CLI
       end
 
       cmd.setup
-      parsed_args, parsed_opts = validate cmd, args, options
+      parsed_args, parsed_opts = validate cmd, results
 
       begin
         cmd.execute parsed_args, parsed_opts
@@ -59,9 +59,8 @@ module CLI
       end
     end
 
-    private def validate(cmd : Command,
-                         args : MappedArgs,
-                         options : MappedArgs) : {ArgsInput, OptionsInput}
+    private def validate(cmd : Command, mapped : MappedArgs) : {ArgsInput, OptionsInput}
+      args, options = mapped.partition { |a| a[:kind] == :argument }
       parsed_args = {} of String => Argument
       invalid_args = [] of String
 
@@ -109,6 +108,25 @@ module CLI
 
       missing_opts = cmd.options.select(&.required?).reject(&.in?(parsed_opts))
       cmd.on_missing_options(missing_opts) unless missing_opts.empty?
+
+      parsed_opts.each do |opt|
+        if opt.kind.string?
+          if opt.value.nil?
+            index = mapped.index { |a| a[:name] == opt.to_s }
+            raise "Option '#{opt.to_s}' requires a value" unless index
+
+            arg = mapped
+              .select { |a| a[:kind] == :argument }
+              .tally.reject { |_, i| i <= index }
+              .keys.first
+
+            raise "Option '#{opt.to_s}' requires a value" unless arg
+            opt.value = arg[:value]
+          end
+        else
+          raise "Option '#{opt.to_s}' does not accept a value" unless opt.value.nil?
+        end
+      end
 
       {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
     end
