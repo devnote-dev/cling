@@ -1,5 +1,6 @@
 module CLI
   abstract class Command
+    @application : Application
     property name : String?
     property usage : Array(String)
     property description : String?
@@ -7,7 +8,7 @@ module CLI
     property arguments : Hash(String, Argument)
     property options : Array(Option)
 
-    def initialize
+    def initialize(@application)
       @usage = [] of String
       @arguments = {} of String => Argument
       @options = [] of Option
@@ -20,14 +21,14 @@ module CLI
       @arguments[name] = Argument.new(name, description, required, kind, default)
     end
 
-    def add_option(long : String, description : String? = nil, required : Bool = false,
+    def add_option(long : String, desc : String? = nil, required : Bool = false,
                    kind : ValueKind = :none, default = nil) : Nil
-      @options << Option.new(long, nil, description, required, kind, default)
+      @options << Option.new(long, nil, desc, required, kind, default)
     end
 
-    def add_option(short : String, long : String, description : String? = nil,
+    def add_option(short : String, long : String, desc : String? = nil,
                    required : Bool = false, kind : ValueKind = :none, default = nil) : Nil
-      @options << Option.new(long, short, description, required, kind, default)
+      @options << Option.new(long, short, desc, required, kind, default)
     end
 
     def setup : Nil

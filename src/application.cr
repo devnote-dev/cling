@@ -103,7 +103,7 @@ module CLI
       missing_args = cmd.arguments.reject(&.in?(parsed_args)).values
       cmd.on_missing_arguments(missing_args) unless missing_args.empty?
 
-      missing_opts = cmd.options.reject &.in?(parsed_opts)
+      missing_opts = cmd.options.select(&.required?).reject &.in?(parsed_opts)
       cmd.on_missing_options(missing_opts) unless missing_opts.empty?
 
       {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
@@ -118,7 +118,8 @@ module CLI
       @default_command = name
     end
 
-    def add_command(cmd : Command) : Nil
+    def add_command(command : Command.class) : Nil
+      cmd = command.new self
       @commands[cmd.name.not_nil!] = cmd
     end
 
