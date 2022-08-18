@@ -7,6 +7,8 @@ module CLI
     property kind : ValueKind
     property value : String?
 
+    def_equals @long, @short
+
     def initialize(@long, @short = nil, @description = nil, @required = false, @kind = :none)
       @value = nil
     end
