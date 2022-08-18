@@ -1,7 +1,5 @@
 module CLI
   class Application
-    property? allow_long_short : Bool
-    property? allow_short_long : Bool
     property? parse_string_input : Bool
     property string_delimiters : Array(Char)
     property option_delimiter : Char
@@ -13,8 +11,7 @@ module CLI
     property help_message : String?
     property commands : Hash(String, Command)
 
-    def initialize(*, @allow_long_short = false, @allow_short_long = false,
-                   @parse_string_input = true, @string_delimiters = ['"', '\''],
+    def initialize(*, @parse_string_input = true, @string_delimiters = ['"', '\''],
                    @option_delimiter = '-', @header = nil, @description = nil,
                    @footer = nil, @help_message = nil, @help_template = nil)
       @commands = {} of String => Command
@@ -22,111 +19,90 @@ module CLI
 
     def run(input : String | Array(String)) : Nil
       parser = Parser.new(
-        @allow_short_long,
-        @allow_long_short,
         @parse_string_input,
         @string_delimiters,
         @option_delimiter
       )
       results = parser.parse input
-
-      args, options = results.partition { |a| a[:kind] == :argument }
+      first_arg = results.select { |_, a| a[:kind] == :argument }.first_value?
       cmd : Command
 
-      unless args.empty?
-        if found = @commands[args[0][:value]]?
+      if arg = first_arg
+        if found = @commands[arg[:value]]?
           cmd = found
-        elsif default = @default_command
-          cmd = @commands[default]
         else
-          raise "no command has been set to handle input"
+          if default = @default_command
+            cmd = @commands[default]
+          else
+            raise "No default command has been set"
+          end
         end
       else
-        unless default = @default_command
-          raise "No default command has been set to run"
+        if default = @default_command
+          cmd = @commands[default]
+        else
+          raise "No default command has been set"
         end
-
-        cmd = @commands[default]
       end
 
-      cmd.setup
-      parsed_args, parsed_opts = validate cmd, results
+      args, opts = validate cmd, results
 
       begin
-        cmd.execute parsed_args, parsed_opts
+        cmd.execute args, opts
       rescue ex
         cmd.on_error ex
       end
     end
 
-    private def validate(cmd : Command, mapped : MappedArgs) : {ArgsInput, OptionsInput}
-      args, options = mapped.partition { |a| a[:kind] == :argument }
-      parsed_args = {} of String => Argument
-      invalid_args = [] of String
-
-      valid_args = args[...cmd.arguments.values.select(&.required?).size]
-      invalid_args = args.reject(&.in?(valid_args)).map(&.[:value].not_nil!)
-      cmd.on_invalid_arguments(invalid_args) unless invalid_args.empty?
-
-      cmd.arguments.each.with_index do |(name, arg), index|
-        if raw = args[index]?
-          arg.value = raw[:value]
-          parsed_args[name] = arg
-        else
-          break
-        end
-      end
-
+    private def validate(cmd : Command, parsed : Hash(Int32, ParsedArg)) : {ArgsInput, OptionsInput}
+      options = parsed.reject { |_, a| a[:kind] == :argument }
       parsed_opts = [] of Option
       invalid_opts = [] of String
 
-      options.each do |raw|
-        if raw[:kind] == :short
-          if opt = cmd.options.find { |o| o.short == raw[:name] }
-            opt.value = raw[:value]
+      options.each do |i, option|
+        if opt = cmd.options.find { |o| o.short == option[:name] || o.long == option[:name] }
+          case opt.kind
+          when .none?
+            raise "Option '#{opt.to_s}' takes no arguments" if option[:value]
             parsed_opts << opt
-          else
-            invalid_opts << raw[:name]
+          when .string?
+            if value = option[:value]
+              opt.value = value
+              parsed_opts << opt
+            else
+              next_args = parsed
+                .select { |k, _| k > i }
+                .select { |_, a| a[:kind] == :argument }
+
+              raise "Missing argument for option '#{opt.to_s}'" if next_args.empty?
+              arg = parsed.delete next_args.keys.first
+              opt.value = arg.not_nil![:value]
+              parsed_opts << opt
+            end
           end
         else
-          if opt = cmd.options.find { |o| o.long == raw[:name] }
-            opt.value = raw[:value]
-            parsed_opts << opt
-          else
-            invalid_opts << raw[:name]
-          end
+          invalid_opts << option[:name]
         end
       end
+
       cmd.on_invalid_options(invalid_opts) unless invalid_opts.empty?
-
-      missing_args = cmd.arguments
-        .select { |_, v| v.required? }
-        .reject { |k, _| parsed_args.has_key? k }
-        .values
-
-      cmd.on_missing_arguments(missing_args) unless missing_args.empty?
 
       missing_opts = cmd.options.select(&.required?).reject(&.in?(parsed_opts))
       cmd.on_missing_options(missing_opts) unless missing_opts.empty?
 
-      parsed_opts.each do |opt|
-        if opt.kind.string?
-          if opt.value.nil?
-            index = mapped.index { |a| a[:name] == opt.to_s }
-            raise "Option '#{opt.to_s}' requires a value" unless index
+      arguments = parsed.select { |_, a| a[:kind] == :argument }
+      parsed_args = {} of String => Argument
+      missing_args = [] of Argument
 
-            arg = mapped
-              .select { |a| a[:kind] == :argument }
-              .tally.reject { |_, i| i <= index }
-              .keys.first
-
-            raise "Option '#{opt.to_s}' requires a value" unless arg
-            opt.value = arg[:value]
-          end
+      cmd.arguments.values.each_with_index do |argument, i|
+        if arg = arguments[i]?
+          argument.value = arg[:value]
         else
-          raise "Option '#{opt.to_s}' does not accept a value" unless opt.value.nil?
+          missing_args << argument if argument.required?
         end
       end
+
+      cmd.on_missing_arguments(missing_args) unless missing_args.empty?
 
       {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
     end
