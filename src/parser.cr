@@ -1,21 +1,22 @@
 module CLI
-  alias MappedArgs = Array({kind: Symbol, name: String, value: String?})
+  alias ParsedArg = {kind: Symbol, name: String, value: String?}
 
   class Parser
     @reader : Char::Reader
-    @parsed : MappedArgs
+    @parsed : Array(ParsedArg)
 
-    def initialize(@short_long : Bool, @long_short : Bool, @parse_string : Bool,
-                   @string_delimiters : Array(Char), @option_delimiter : Char)
+    def initialize(@parse_string : Bool,
+                   @string_delimiters : Array(Char),
+                   @option_delimiter : Char)
       @reader = uninitialized Char::Reader
-      @parsed = MappedArgs.new
+      @parsed = [] of ParsedArg
     end
 
-    def parse(input : Array(String)) : MappedArgs
+    def parse(input : Array(String)) : Hash(Int32, ParsedArg)
       parse input.join(' ')
     end
 
-    def parse(input : String) : MappedArgs
+    def parse(input : String) : Hash(Int32, ParsedArg)
       @reader = Char::Reader.new input
 
       loop do
@@ -45,29 +46,20 @@ module CLI
       validate
     end
 
-    private def validate : MappedArgs
-      validated = MappedArgs.new
+    private def validate : Hash(Int32, ParsedArg)
+      validated = {} of Int32 => ParsedArg
 
-      @parsed.each do |arg|
-        case arg[:kind]
-        when :short
-          if !@short_long && arg[:name].size > 1
-            raise "cannot assign value to multiple short flags" if arg[:value]
-            args = arg[:name].each_char.map { |c| {kind: :short, name: c.to_s, value: nil} }.to_a
-            validated += args
+      @parsed.each_with_index do |arg, index|
+        if arg[:kind] == :short
+          if arg[:name].size > 1
+            raise "cannot assign to multiple short flags" if arg[:value]
+            flags = arg[:name].each_char.map { |c| {kind: :short, name: c.to_s, value: nil} }.to_a
+            validated.merge flags.each_with_index.to_h.invert
           else
-            validated << arg
-          end
-        when :long
-          break if arg[:name].empty?
-          if !@long_short && arg[:name].size == 1
-            raise "invalid long flag '#{arg[:name]}'"
-          else
-            validated << arg
+            validated[index] = arg
           end
         else
-          break if arg[:name] == "--"
-          validated << arg
+          validated[index] = arg
         end
       end
 
