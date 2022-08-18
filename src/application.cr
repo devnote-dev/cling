@@ -10,6 +10,7 @@ module CLI
     property version : String?
     property help_message : String?
     property commands : Hash(String, Command)
+    @default : String?
 
     def initialize(*, @parse_string_input = true, @string_delimiters = ['"', '\''],
                    @option_delimiter = '-', @header = nil, @description = nil,
@@ -31,14 +32,14 @@ module CLI
         if found = @commands[arg[:value]]?
           cmd = found
         else
-          if default = @default_command
+          if default = @default
             cmd = @commands[default]
           else
             raise "No default command has been set"
           end
         end
       else
-        if default = @default_command
+        if default = @default
           cmd = @commands[default]
         else
           raise "No default command has been set"
@@ -107,17 +108,11 @@ module CLI
       {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
     end
 
-    def default_command : String?
-      @default_command
-    end
+    def add_command(command : Command.class, *, default : Bool = false) : Nil
+      raise "A default command has already been set" if default && @default
 
-    def default_command=(name : String)
-      raise "Unknown command '#{name}'" unless @commands.has_key? name
-      @default_command = name
-    end
-
-    def add_command(command : Command.class) : Nil
       cmd = command.new self
+      @default = cmd.name if default
       @commands[cmd.name.not_nil!] = cmd
     end
 
