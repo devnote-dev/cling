@@ -22,8 +22,8 @@ module CLI
     end
 
     def add_option(long : String, *, short : String? = nil, desc : String? = nil,
-                   required : Bool = false, kind : ValueKind = :none) : Nil
-      @options << Option.new(long, short, desc, required, kind)
+                   required : Bool = false, kind : ValueKind = :none, default : String? = nil) : Nil
+      @options << Option.new(long, short, desc, required, kind, default)
     end
 
     def setup : Nil

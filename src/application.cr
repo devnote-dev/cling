@@ -75,10 +75,14 @@ module CLI
                 .select { |k, _| k > i }
                 .select { |_, a| a[:kind] == :argument }
 
-              raise "Missing argument for option '#{opt.to_s}'" if next_args.empty?
-              arg = parsed.delete next_args.keys.first
-              opt.value = arg.not_nil![:value]
-              parsed_opts << opt
+              if next_args.empty?
+                raise "Missing argument for option '#{opt.to_s}'" unless opt.has_default?
+                parsed_opts << opt
+              else
+                arg = parsed.delete next_args.keys.first
+                opt.value = arg.not_nil![:value]
+                parsed_opts << opt
+              end
             end
           end
         else
@@ -87,6 +91,9 @@ module CLI
       end
 
       cmd.on_invalid_options(invalid_opts) unless invalid_opts.empty?
+
+      default_opts = cmd.options.reject(&.in?(parsed_opts)).select(&.has_default?)
+      parsed_opts += default_opts
 
       missing_opts = cmd.options.select(&.required?).reject(&.in?(parsed_opts))
       cmd.on_missing_options(missing_opts) unless missing_opts.empty?

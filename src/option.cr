@@ -6,11 +6,14 @@ module CLI
     property? required : Bool
     property kind : ValueKind
     property value : String?
+    property? has_default : Bool
 
     def_equals @long, @short
 
-    def initialize(@long, @short = nil, @description = nil, @required = false, @kind = :none)
-      @value = nil
+    def initialize(@long, @short = nil, @description = nil, @required = false, @kind = :none,
+                   default : String? = nil)
+      @value = default
+      @has_default = default ? true : false
     end
 
     def to_s : String
