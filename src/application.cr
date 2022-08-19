@@ -25,17 +25,20 @@ module CLI
         @option_delimiter
       )
       results = parser.parse input
-      first_arg = results.select { |_, a| a[:kind] == :argument }.first_value?
+      first_arg = results.select { |_, a| a[:kind] == :argument }.first?
       cmd : Command
 
       if arg = first_arg
-        if found = @commands[arg[:value]]?
+        if found = @commands[arg[1][:value]]?
           cmd = found
+          results.delete arg[0]
+          results = results.to_a.map { |(key, val)| {key - 1, val} }.to_h
         else
           if default = @default
             cmd = @commands[default]
           else
-            raise "No default command has been set"
+            puts help_template
+            exit 1
           end
         end
       else
@@ -105,6 +108,7 @@ module CLI
       cmd.arguments.values.each_with_index do |argument, i|
         if arg = arguments[i]?
           argument.value = arg[:value]
+          parsed_args[argument.name] = argument
         else
           missing_args << argument if argument.required?
         end
@@ -143,11 +147,11 @@ module CLI
 
         unless @commands.empty?
           str << "Commands:\n"
-          max_space = @commands.sum(1) { |c| c.name.size }
+          max_space = @commands.keys.sum(2) { |n| n.size }
 
-          @commands.each do |cmd|
-            str << '\t' << cmd.name
-            str << ' ' * (max_size - cmd.name.size)
+          @commands.each do |name, cmd|
+            str << '\t' << name
+            str << " " * (max_space - name.size)
             str << cmd.short_help << '\n'
           end
 
