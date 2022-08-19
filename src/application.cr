@@ -158,19 +158,19 @@ module CLI
 
         unless @commands.empty?
           str << "Commands:"
-          max_space = @commands.keys.sum(2) { |n| n.size }
+          max_space = @commands.keys.map(&.size).max + 4
 
           @commands.each do |name, cmd|
             str << "\n\t" << name
             str << " " * (max_space - name.size)
-            str << cmd.short_help << '\n'
+            str << cmd.short_help
           end
 
           str << '\n'
         end
 
         if footer = @footer
-          str << footer
+          str << '\n' << footer
         end
       end
 

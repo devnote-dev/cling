@@ -90,7 +90,7 @@ module CLI
 
         unless @arguments.empty?
           str << "Arguments:"
-          max_space = @arguments.keys.sum(2) { |n| n.size }
+          max_space = @arguments.keys.map(&.size).max + 4
 
           @arguments.each do |name, arg|
             str << "\n\t" << name
@@ -103,17 +103,15 @@ module CLI
 
         unless @options.empty?
           str << "Options:"
-          max_space = @options.sum(2) do |option|
-            option.long.size + ((s = option.short) ? s.size : 0)
-          end
+          max_space = @options.map { |o| 2 + o.long.size + (o.short ? 2 : 0) }.max + 2
 
           @options.each do |option|
             delim = @application.option_delimiter
-            name_size = option.long.size + ((s = option.short) ? s.size : 0)
+            name_size = 2 + option.long.size + (option.short ? 2 : -2)
 
             str << "\n\t"
             if short = option.short
-              str << delim << short << ' '
+              str << delim << short << ", "
             end
 
             str << (delim.to_s * 2) << option.long
@@ -129,7 +127,7 @@ module CLI
         end
 
         if footer = @application.footer
-          str << footer
+          str << '\n' << footer
         end
       end
 
