@@ -8,13 +8,12 @@ module CLI
     property description : String?
     property footer : String?
     property version : String?
-    property help_message : String?
     property commands : Hash(String, Command)
     @default : String?
 
     def initialize(*, @parse_string_input = true, @string_delimiters = ['"', '\''],
                    @option_delimiter = '-', @header = nil, @description = nil,
-                   @footer = nil, @help_message = nil, @help_template = nil)
+                   @footer = nil, @help_template = nil)
       @commands = {} of String => Command
     end
 
@@ -33,6 +32,19 @@ module CLI
           cmd = found
           results.delete arg[0]
           results = results.to_a.map { |(key, val)| {key - 1, val} }.to_h
+        elsif arg[1][:value] == "help"
+          if index = results[arg[0] + 1]?
+            if target = @commands[index[:value].not_nil!]?
+              puts target.help_template
+              exit 0
+            else
+              puts help_template
+              exit 1
+            end
+          else
+            puts help_template
+            exit 0
+          end
         else
           if default = @default
             cmd = @commands[default]
@@ -137,25 +149,28 @@ module CLI
     private def generate_help_template : String
       template = String.build do |str|
         if header = @header
-          str << header << '\n'
-          str << '\n' if @description
+          str << header << "\n\n"
         end
+
         if desc = @description
-          str << desc << '\n'
-          str << '\n' unless @commands.empty?
+          str << desc << "\n\n"
         end
 
         unless @commands.empty?
-          str << "Commands:\n"
+          str << "Commands:"
           max_space = @commands.keys.sum(2) { |n| n.size }
 
           @commands.each do |name, cmd|
-            str << '\t' << name
+            str << "\n\t" << name
             str << " " * (max_space - name.size)
             str << cmd.short_help << '\n'
           end
 
           str << '\n'
+        end
+
+        if footer = @footer
+          str << footer
         end
       end
 
