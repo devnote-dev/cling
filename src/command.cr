@@ -32,10 +32,6 @@ module CLI
 
     abstract def execute(args, options) : Nil
 
-    def on_invalid_arguments(args : Array(String)) : NoReturn
-      raise "Invalid arguments: #{args.join(", ")}"
-    end
-
     def on_invalid_options(options : Array(String)) : NoReturn
       raise "Invalid options: #{options.join(", ")}"
     end

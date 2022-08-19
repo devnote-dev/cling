@@ -69,7 +69,7 @@ module CLI
           if default = @default
             cmd = @commands[default]
           else
-            on_command_not_found arg[:value].not_nil!
+            on_command_not_found arg[:value] || arg[:name]
             exit 1
           end
         end
@@ -134,7 +134,7 @@ module CLI
       missing_opts = cmd.options.select(&.required?).reject(&.in?(parsed_opts))
       cmd.on_missing_options(missing_opts) unless missing_opts.empty?
 
-      arguments = parsed.select { |_, a| a[:kind] == :argument }
+      arguments = parsed.values.select { |a| a[:kind] == :argument }.each_with_index.to_h.invert
       parsed_args = {} of String => Argument
       missing_args = [] of Argument
 
