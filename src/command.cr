@@ -49,7 +49,15 @@ module CLI
     end
 
     def help_template : String
-      @help_template || generate_help_template
+      if tmpl = @help_template
+        tmpl = tmpl.gsub "$header", @application.header
+        tmpl = tmpl.gsub "$name", @name
+        tmpl = tmpl.gsub "$description", @description
+        tmpl = tmpl.gsub "$footer", @application.footer
+        tmpl.gsub "$usage", @usage.join '\n'
+      else
+        generate_help_template
+      end
     end
 
     def help_template=(@help_template : String?)

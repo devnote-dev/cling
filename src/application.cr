@@ -166,7 +166,13 @@ module CLI
     end
 
     def help_template : String
-      @help_template || generate_help_template
+      if tmpl = @help_template
+        tmpl = tmpl.gsub "$header", @header
+        tmpl = tmpl.gsub "$description", @description
+        tmpl.gsub "$footer", @footer
+      else
+        generate_help_template
+      end
     end
 
     def help_template=(@help_template : String?)
