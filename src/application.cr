@@ -160,6 +160,10 @@ module CLI
       @commands[cmd.name.not_nil!] = cmd
     end
 
+    def add_commands(*commands : Command.class) : Nil
+      commands.each &->add_command(Command.class)
+    end
+
     def help_template : String
       @help_template || generate_help_template
     end
@@ -204,7 +208,6 @@ module CLI
     end
 
     def on_no_main_command : Nil
-      puts "Error: no main command has been set\n\n"
       puts help_template
     end
   end
