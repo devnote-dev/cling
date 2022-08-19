@@ -111,6 +111,8 @@ module CLI
           @usage.each do |use|
             str << "\n\t" << use
           end
+
+          str << "\n\n"
         end
 
         unless @arguments.empty?
