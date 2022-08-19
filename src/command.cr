@@ -2,6 +2,7 @@ module CLI
   abstract class Command
     @application : Application
     property name : String?
+    property aliases : Array(String)
     property usage : Array(String)
     property description : String?
     property short_help : String?
@@ -9,6 +10,7 @@ module CLI
     property options : Array(Option)
 
     def initialize(@application)
+      @aliases = [] of String
       @usage = [] of String
       @arguments = {} of String => Argument
       @options = [] of Option

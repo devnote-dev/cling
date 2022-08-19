@@ -30,8 +30,8 @@ module CLI
       if needs_help
         arg = results.values.select { |a| a[:kind] == :argument && a[:value] != "help" }.first?
         if arg
-          if target = @commands[arg[:value].not_nil!]?
-            puts target.help_template
+          if target = @commands.find { |n, c| n == arg[:value]? || arg[:value].in?(c.aliases) }
+            puts target[1].help_template
             exit
           else
             if arg[:value] == "help"
@@ -62,8 +62,8 @@ module CLI
       cmd : Command
 
       if arg = first_arg
-        if found = @commands[arg[:value]]?
-          cmd = found
+        if found = @commands.find { |n, c| n == arg[:value]? || arg[:value].in?(c.aliases) }
+          cmd = found[1]
           results.shift
           results = results.to_a.map { |(key, val)| {key - 1, val} }.to_h
         else
