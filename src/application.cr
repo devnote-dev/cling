@@ -6,6 +6,7 @@ module CLI
 
     property header : String?
     property description : String?
+    property line_fold : Int32
     property footer : String?
     property version : String?
     property commands : Hash(String, Command)
@@ -13,7 +14,7 @@ module CLI
 
     def initialize(*, @parse_string_input = true, @string_delimiters = ['"', '\''],
                    @option_delimiter = '-', @header = nil, @description = nil,
-                   @footer = nil, @help_template = nil)
+                   @line_fold = 70, @footer = nil, @help_template = nil)
       @commands = {} of String => Command
     end
 
@@ -178,7 +179,26 @@ module CLI
         end
 
         if desc = @description
-          str << desc << "\n\n"
+          if desc.size > @line_fold
+            value = String.build do |v|
+              count = 0
+              desc.split.each do |word|
+                count += word.size + 1
+                if count > @line_fold
+                  v << '\n'
+                  count = word.size + 1
+                end
+
+                v << word << ' '
+              end
+            end
+
+            str << value.strip
+          else
+            str << desc
+          end
+
+          str << "\n\n"
         end
 
         unless @commands.empty?

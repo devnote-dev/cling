@@ -62,7 +62,26 @@ module CLI
         end
 
         if desc = @description
-          str << desc << "\n\n"
+          if desc.size > @application.line_fold
+            value = String.build do |v|
+              count = 0
+              desc.split.each do |word|
+                count += word.size + 1
+                if count > @application.line_fold
+                  v << '\n'
+                  count = word.size + 1
+                end
+
+                v << word << ' '
+              end
+            end
+
+            str << value.strip
+          else
+            str << desc
+          end
+
+          str << "\n\n"
         end
 
         str << "Usage:"
