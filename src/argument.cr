@@ -36,5 +36,9 @@ module CLI
     def get(name : String) : String?
       self[name]?.try &.value
     end
+
+    def get!(name : String) : String
+      get(name).not_nil!
+    end
   end
 end
