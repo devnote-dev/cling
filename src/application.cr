@@ -24,32 +24,52 @@ module CLI
         @option_delimiter
       )
       results = parser.parse input
-      first_arg = results.select { |_, a| a[:kind] == :argument }.first?
+
+      needs_help = results.values.any? { |a| a[:name].in?("h", "help") || a[:value] == "help" }
+      if needs_help
+        arg = results.values.select { |a| a[:kind] == :argument && a[:value] != "help" }.first?
+        if arg
+          if target = @commands[arg[:value].not_nil!]?
+            puts target.help_template
+            exit
+          else
+            if arg[:value] == "help"
+              on_no_main_command
+            else
+              on_command_not_found arg[:value].not_nil!
+            end
+            exit 1
+          end
+        else
+          on_no_main_command
+          exit 1
+        end
+      end
+
+      first_arg : ParsedArg? = nil
+      results.each do |i, arg|
+        if prev = results[i - 1]?
+          next unless prev[:kind] == :argument
+          first_arg = arg
+          break
+        else
+          first_arg = arg
+          break
+        end
+      end
+
       cmd : Command
 
       if arg = first_arg
-        if found = @commands[arg[1][:value]]?
+        if found = @commands[arg[:value]]?
           cmd = found
-          results.delete arg[0]
+          results.shift
           results = results.to_a.map { |(key, val)| {key - 1, val} }.to_h
-        elsif arg[1][:value] == "help"
-          if index = results[arg[0] + 1]?
-            if target = @commands[index[:value].not_nil!]?
-              puts target.help_template
-              exit 0
-            else
-              puts help_template
-              exit 1
-            end
-          else
-            puts help_template
-            exit 0
-          end
         else
           if default = @default
             cmd = @commands[default]
           else
-            puts help_template
+            on_command_not_found arg[:value].not_nil!
             exit 1
           end
         end
@@ -57,7 +77,8 @@ module CLI
         if default = @default
           cmd = @commands[default]
         else
-          raise "No default command has been set"
+          on_no_main_command
+          exit 1
         end
       end
 
@@ -175,6 +196,16 @@ module CLI
       end
 
       template
+    end
+
+    def on_command_not_found(name : String) : Nil
+      puts "Error: command '#{name}' not found\n\n"
+      puts help_template
+    end
+
+    def on_no_main_command : Nil
+      puts "Error: no main command has been set\n\n"
+      puts help_template
     end
   end
 end
