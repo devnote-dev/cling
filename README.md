@@ -1,5 +1,5 @@
 # CLI.cr
-Yet another Crystal command line interface framework!
+Yet another Crystal command line interface library.
 
 ## Installation
 1. Add the dependency to your `shard.yml`:
@@ -14,10 +14,50 @@ dependencies:
 ## Usage
 ```crystal
 require "cli"
-```
 
-## Development
-TODO.
+class MainCmd < CLI::Command
+  def setup
+    @name = "greet"
+    @description = "Greets a person"
+    add_argument "name", desc: "the name of person to greet", required: true
+    add_option "caps", short: "c", desc: "greet with capitals"
+  end
+
+  def execute(args, options) : Nil
+    msg = "Hello, #{args.get("name")}!"
+
+    if options.has? "caps"
+      puts msg.upcase
+    else
+      puts msg
+    end
+  end
+end
+
+app = CLI::Application.new
+app.add_command MainCmd, default: true
+
+app.run ARGV
+```
+```shell
+$ crystal greet.cr -h
+Greets a person
+
+Usage:
+        greet <arguments> [options]
+
+Arguments:
+        person    the person to greet
+
+Options:
+        -c, --caps  greet with capitals
+
+$ crystal greet.cr Dev
+Hello, Dev!
+
+$ crystal greet.cr -c Dev
+HELLO, DEV!
+```
 
 ## Contributing
 1. Fork it (<https://github.com/devnote-dev/cli.cr/fork>)
