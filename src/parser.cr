@@ -1,23 +1,44 @@
 module CLI
-  alias ParsedArg = {kind: Symbol, name: String, value: String?}
-
   class Parser
+    struct Options
+      property parse_string : Bool
+      # TODO
+      # property parse_escape : Bool
+      property option_delim : Char
+      property string_delims : Set(Char)
+
+      def initialize(*, @parse_string : Bool = true, @option_delim : Char = '-',
+                     @string_delims : Set(Char) = Set{'"', '\''})
+      end
+    end
+
+    enum ResultKind
+      Argument
+      ShortFlag
+      LongFlag
+    end
+
+    struct Result
+      getter kind : ResultKind
+      getter value : String
+
+      def initialize(@kind, @value)
+      end
+    end
+
     @reader : Char::Reader
-    @parsed : Array(ParsedArg)
+    @options : Options
 
-    def initialize(@parse_string : Bool,
-                   @string_delimiters : Array(Char),
-                   @option_delimiter : Char)
-      @reader = uninitialized Char::Reader
-      @parsed = [] of ParsedArg
-    end
-
-    def parse(input : Array(String)) : Hash(Int32, ParsedArg)
-      parse input.join(' ')
-    end
-
-    def parse(input : String) : Hash(Int32, ParsedArg)
+    def initialize(input : String, @options : Options)
       @reader = Char::Reader.new input
+    end
+
+    def self.new(input : Array(String), options : Options)
+      new input.join(' '), options
+    end
+
+    def parse : Hash(Int32, Result)
+      results = [] of Result
 
       loop do
         case char = @reader.current_char
@@ -25,57 +46,51 @@ module CLI
           break
         when ' '
           @reader.next_char
-          next
         when '-'
-          if @option_delimiter == '-'
-            read_option
+          if @options.option_delim == '-'
+            results << read_option
           else
-            read_argument
+            results << read_argument
           end
-        when @option_delimiter
-          read_option
+        when @options.option_delim
+          results << read_option
         else
-          if char.in?(@string_delimiters) && @parse_string
-            read_string
+          if @options.string_delims.includes?(char) && @options.parse_string
+            results << read_string
           else
-            read_argument
+            results << read_argument
           end
         end
       end
 
-      validate
-    end
-
-    private def validate : Hash(Int32, ParsedArg)
-      validated = {} of Int32 => ParsedArg
-
-      @parsed.each_with_index do |arg, index|
-        if arg[:kind] == :short
-          if arg[:name].size > 1
-            raise "cannot assign to multiple short flags" if arg[:value]
-            flags = arg[:name].each_char.map { |c| {kind: :short, name: c.to_s, value: nil} }.to_a
-            validated.merge flags.each_with_index.to_h.invert
+      validated = results.reject &.kind.short_flag?
+      results.select(&.kind.short_flag?).each do |res|
+        if res.value.size > 1
+          if res.value.includes? '='
+            name = res.value.split('=').first
+            raise "Cannot assign to multiple short flags" unless name.size == 1
+            validated += name.chars.map { |c| Result.new(:short_flag, c.to_s) }
           else
-            validated[index] = arg
+            validated += res.value.chars.map { |c| Result.new(:short_flag, c.to_s) }
           end
         else
-          validated[index] = arg
+          validated << res
         end
       end
 
-      validated
+      validated.each_with_index.to_h.invert
     end
 
-    private def read_option : Nil
+    private def read_option : Result
       long = false
-      if @reader.peek_next_char == @option_delimiter
+      if @reader.peek_next_char == @options.option_delim
         long = true
         @reader.pos += 2
       else
         @reader.next_char
       end
 
-      option = String.build do |str|
+      value = String.build do |str|
         loop do
           case char = @reader.current_char
           when '\0'
@@ -84,7 +99,7 @@ module CLI
             @reader.next_char
             break
           else
-            if char.in?(@string_delimiters) && @parse_string
+            if @options.string_delims.includes?(char) && @options.parse_string
               str << read_string_raw
               break
             else
@@ -95,24 +110,10 @@ module CLI
         end
       end
 
-      if long
-        if option.includes? '='
-          name, value = option.split '='
-          @parsed << {kind: :long, name: name, value: value}
-        else
-          @parsed << {kind: :long, name: option, value: nil}
-        end
-      else
-        if option.includes? '='
-          name, value = option.split '='
-          @parsed << {kind: :short, name: name, value: value}
-        else
-          @parsed << {kind: :short, name: option, value: nil}
-        end
-      end
+      Result.new((long ? ResultKind::LongFlag : ResultKind::ShortFlag), value)
     end
 
-    private def read_argument : Nil
+    private def read_argument : Result
       value = String.build do |str|
         loop do
           case char = @reader.current_char
@@ -121,8 +122,6 @@ module CLI
           when ' '
             @reader.next_char
             break
-          when '='
-            raise "unexpected character '=' in argument"
           else
             str << char
             @reader.next_char
@@ -130,11 +129,11 @@ module CLI
         end
       end
 
-      @parsed << {kind: :argument, name: "", value: value}
+      Result.new :argument, value
     end
 
-    private def read_string : Nil
-      @parsed << {kind: :argument, name: "", value: read_string_raw}
+    private def read_string : Result
+      Result.new :argument, read_string_raw
     end
 
     private def read_string_raw : String
@@ -142,11 +141,11 @@ module CLI
       escaped = false
       @reader.next_char
 
-      value = String.build do |str|
+      String.build do |str|
         loop do
           case char = @reader.current_char
           when '\0'
-            raise "unterminated quote string" # TODO: optional error override?
+            raise "Unterminated quote string"
           when '\\'
             escaped = !escaped
             @reader.next_char
@@ -165,8 +164,6 @@ module CLI
           end
         end
       end
-
-      value
     end
   end
 end

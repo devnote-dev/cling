@@ -1,54 +1,127 @@
 module CLI
-  struct Option
+  class Option
     property long : String
-    property short : String?
+    property short : Char?
     property description : String?
     property? required : Bool
-    property kind : ValueKind
+    getter? has_value : Bool
+    property default : Value::Type
     property value : String?
-    property? has_default : Bool
 
     def_equals @long, @short
 
-    def initialize(@long, @short = nil, @description = nil, @required = false, @kind = :none,
-                   default : String? = nil)
-      @value = default
-      @has_default = default ? true : false
-    end
-
-    def to_s : String
-      @short || @long
+    def initialize(@long : String, @short : Char? = nil, @description : String? = nil,
+                   @required : Bool = false, @has_value : Bool = false, @default : Value::Type = nil)
+      @value = nil
     end
 
     def to_s(io : IO) : Nil
-      io << to_s
-    end
-  end
-
-  class OptionsInput
-    property options : Array(Option)
-
-    def initialize(@options)
+      io << @short || @long
     end
 
-    def [](name : String) : Option
-      @options.find! { |o| o.short == name || o.long == name }
+    def has_default? : Bool
+      !@default.nil?
     end
 
-    def []?(name : String) : Option?
-      @options.find { |o| o.short == name || o.long == name }
-    end
+    class Value
+      alias Type = String | Int64 | Float64 | Bool | Nil | Array(Type) | Hash(Type, Type)
 
-    def has?(name : String) : Bool
-      !self[name]?.nil?
-    end
+      getter raw : Type
 
-    def get(name : String) : String?
-      self[name]?.try &.value
-    end
+      def initialize(@raw)
+      end
 
-    def get!(name : String) : String
-      get(name).not_nil!
+      def to_s(io : IO) : Nil
+        @raw.to_s io
+      end
+
+      def size : Int32
+        case value = @raw
+        when Array
+          value.size
+        when Hash
+          value.size
+        else
+          raise "Cannot get size of type #{value.class}"
+        end
+      end
+
+      {% for name, type in {
+        "s" => String,
+        "i" => Int,
+        "i64" => Int,
+        "f" => Float,
+        "f64" => Float,
+        "bool" => Bool,
+        "a" => Array(Type),
+        "h" => Hash(Type, Type)
+      } %}
+      def as_{{ name.id }} : {{ type }}
+        @raw.as({{ type }}){% if {"i", "i64", "f", "f64"}.includes?(name) %}.to_{{ name.id }}{% end %}
+      end
+
+      def as_{{ name.id }}? : {{ type }}?
+        @raw.as?({{ type }}){% if {"i", "i64", "f", "f64"}.includes?(name) %}.to_{{ name.id }}?{% end %}
+      end
+      {% end %}
+
+      def as_nil : Nil
+        @raw.as(Nil)
+      end
+
+      def [](index : Int32) : Type
+        case value = @raw
+        when Array
+          value[index]
+        else
+          raise "Cannot get index of type #{value.class}"
+        end
+      end
+
+      def []?(index : Int32) : Type
+        case value = @raw
+        when Array
+          value[index]?
+        else
+          raise "Cannot get index of type #{value.class}"
+        end
+      end
+
+      def [](index : Range) : Type
+        case value = @raw
+        when Array
+          value[index]
+        else
+          raise "Cannot get index of type #{value.class}"
+        end
+      end
+
+      def []?(index : Range) : Type
+        case value = @raw
+        when Array
+          value[index]?
+        else
+          raise "Cannot get index of type #{value.class}"
+        end
+      end
+
+      def [](key : String) : Type
+        case value = @raw
+        when Hash
+          value[index]
+        else
+          raise "Cannot get index of type #{value.class}"
+        end
+      end
+
+      def []?(key : String) : Type
+        case value = @raw
+        when Hash
+          value[index]
+        else
+          raise "Cannot get index of type #{value.class}"
+        end
+      end
     end
   end
 end
