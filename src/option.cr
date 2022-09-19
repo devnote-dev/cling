@@ -6,7 +6,7 @@ module CLI
     property? required : Bool
     getter? has_value : Bool
     property default : Value::Type
-    property value : String?
+    property value : Value?
 
     def_equals @long, @short
 
@@ -21,6 +21,10 @@ module CLI
 
     def has_default? : Bool
       !@default.nil?
+    end
+
+    def is?(name : String) : Bool
+      @short.to_s == name || @long == name
     end
 
     class Value
