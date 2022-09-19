@@ -21,8 +21,17 @@ module CLI
     struct Result
       getter kind : ResultKind
       getter value : String
+      getter? string : Bool
 
-      def initialize(@kind, @value)
+      def initialize(@kind, @value, *, @string = false)
+      end
+
+      def parse_value : String
+        if @value.includes? '='
+          @value.split('=').first
+        else
+          @value
+        end
       end
     end
 
@@ -67,9 +76,8 @@ module CLI
       results.select(&.kind.short_flag?).each do |res|
         if res.value.size > 1
           if res.value.includes? '='
-            name = res.value.split('=').first
-            raise "Cannot assign to multiple short flags" unless name.size == 1
-            validated += name.chars.map { |c| Result.new(:short_flag, c.to_s) }
+            raise "Cannot assign to multiple short flags" unless res.parse_value.size == 1
+            validated += res.parse_value.chars.map { |c| Result.new(:short_flag, c.to_s) }
           else
             validated += res.value.chars.map { |c| Result.new(:short_flag, c.to_s) }
           end
@@ -133,7 +141,7 @@ module CLI
     end
 
     private def read_string : Result
-      Result.new :argument, read_string_raw
+      Result.new :argument, read_string_raw, string: true
     end
 
     private def read_string_raw : String
