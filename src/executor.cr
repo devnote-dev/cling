@@ -91,7 +91,7 @@ module CLI
       command : Command,
       results : Hash(Int32, Parser::Result)
     ) : Hash(String, Argument)
-      arguments = results.select { |_, v| v.kind.argument? }
+      arguments = results.values.select { |v| v.kind.argument? }
       parsed_args = {} of String => Argument
       missing_args = [] of String
 
@@ -105,7 +105,7 @@ module CLI
       end
 
       command.on_missing_args.call(missing_args) unless missing_args.empty?
-      unknown_args = arguments.values[command.arguments.size...].map &.value
+      unknown_args = arguments[command.arguments.size...].map &.value
       command.on_unknown_args.call(unknown_args) unless unknown_args.empty?
 
       parsed_args
