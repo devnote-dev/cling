@@ -43,7 +43,16 @@ module CLI
     end
 
     def self.new(input : Array(String), options : Options)
-      new input.join(' '), options
+      args = input.map do |a|
+        if a.includes?(' ') && options.string_delims.none? { |d| a.includes?(d) }
+          d = options.string_delims.first
+          d.to_s + a + d.to_s
+        else
+          a
+        end
+      end
+
+      new args.join(' '), options
     end
 
     def parse : Hash(Int32, Result)
@@ -64,7 +73,7 @@ module CLI
         when @options.option_delim
           results << read_option
         else
-          if @options.string_delims.includes?(char) && @options.parse_string
+          if char.in?(@options.string_delims) && @options.parse_string
             results << read_string
           else
             results << read_argument
@@ -72,8 +81,13 @@ module CLI
         end
       end
 
-      validated = results.reject &.kind.short_flag?
-      results.select(&.kind.short_flag?).each do |res|
+      validated = [] of Result
+      results.each do |res|
+        if res.kind.argument?
+          validated << res
+          next
+        end
+
         if res.value.size > 1
           if res.value.includes? '='
             raise "Cannot assign to multiple short flags" unless res.parse_value.size == 1
@@ -104,7 +118,6 @@ module CLI
           when '\0'
             break
           when ' '
-            @reader.next_char
             break
           else
             if @options.string_delims.includes?(char) && @options.parse_string
