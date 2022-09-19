@@ -116,12 +116,12 @@ module CLI
       Executor.new(self).handle(results)
     end
 
-    def pre_run(args, options) : Nil
+    def pre_run(args : ArgsInput, options : OptionsInput) : Nil
     end
 
-    abstract def run(args, options) : Nil
+    abstract def run(args : ArgsInput, options : OptionsInput) : Nil
 
-    def post_run(args, options) : Nil
+    def post_run(args : ArgsInput, options : OptionsInput) : Nil
     end
 
     def on_error(&block : Exception ->)

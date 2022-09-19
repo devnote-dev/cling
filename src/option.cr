@@ -132,4 +132,43 @@ module CLI
       end
     end
   end
+
+  class OptionsInput
+    getter options : Hash(String, Option)
+
+    def initialize(@options)
+    end
+
+    def [](key : String) : Option
+      @options[key]
+    end
+
+    def [](key : Char) : Option
+      @options.values.find! &.short.==(key)
+    end
+
+    def []?(key : String) : Option?
+      @options[key]?
+    end
+
+    def []?(key : Char) : Option?
+      @options.values.find &.short.==(key)
+    end
+
+    def has?(key : String) : Bool
+      @options.has_key? key
+    end
+
+    def has?(key : Char) : Bool
+      !self[key]?.nil?
+    end
+
+    def get(key : String | Char) : Option::Value?
+      self[key]?.try &.value
+    end
+
+    def get!(key : String | Char) : Option::Value
+      self[key].value
+    end
+  end
 end

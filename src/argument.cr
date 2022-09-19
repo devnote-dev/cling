@@ -15,4 +15,32 @@ module CLI
       io << @name
     end
   end
+
+  class ArgsInput
+    getter args : Hash(String, Argument)
+
+    def initialize(@args)
+    end
+
+    def [](key : String) : Argument
+      @args[key]
+    end
+
+    def []?(key : String) : Argument?
+      @args[key]?
+    end
+
+    def has?(key : String) : Bool
+      @args.has_key? key
+    end
+
+    def get(key : String) : String?
+      @args[key]?.try &.value
+    end
+
+    def get!(key : String) : String
+      @args[key].value.not_nil!
+    end
+  end
 end
+

@@ -34,7 +34,7 @@ module CLI
     def get_options_in_position(
       command : Command,
       results : Hash(Int32, Parser::Result)
-    ) : {Hash(Int32, Parser::Result), Hash(String, Option)}
+    ) : {Hash(Int32, Parser::Result), OptionsInput}
       options = results.reject { |_, v| v.kind.argument? }
       parsed_opts = {} of String => Option
       unknown_opts = [] of String
@@ -84,13 +84,13 @@ module CLI
 
       command.on_missing_opts.call(missing_opts) unless missing_opts.empty?
 
-      {results, parsed_opts}
+      {results, OptionsInput.new(parsed_opts)}
     end
 
     def get_args_in_position(
       command : Command,
       results : Hash(Int32, Parser::Result)
-    ) : Hash(String, Argument)
+    ) : ArgsInput
       arguments = results.values.select { |v| v.kind.argument? }
       parsed_args = {} of String => Argument
       missing_args = [] of String
@@ -108,7 +108,7 @@ module CLI
       unknown_args = arguments[command.arguments.size...].map &.value
       command.on_unknown_args.call(unknown_args) unless unknown_args.empty?
 
-      parsed_args
+      ArgsInput.new parsed_args
     end
   end
 end
