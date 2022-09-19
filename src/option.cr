@@ -50,6 +50,10 @@ module CLI
         end
       end
 
+      def ==(other : Type) : Bool
+        @raw == other
+      end
+
       {% for name, type in {
         "s" => String,
         "i" => Int,
