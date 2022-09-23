@@ -17,9 +17,12 @@ module CLI::Executor
     full_args = args.select { |_, v| v.kind.argument? && !v.string? }
     return command if full_args.empty?
     return command if command.children.empty?
+
     if cmd = command.children[full_args.first[1].value]?
       args.delete full_args.first[0]
       resolve_command cmd, args
+    elsif !command.arguments.empty?
+      command
     else
       nil
     end
