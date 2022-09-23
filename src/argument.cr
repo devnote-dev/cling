@@ -43,4 +43,3 @@ module CLI
     end
   end
 end
-

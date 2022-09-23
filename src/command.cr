@@ -24,8 +24,7 @@ module CLI
                    @header : String? = nil, @summary : String? = nil, @description : String? = nil,
                    @footer : String? = nil, @parent : Command? = nil, children : Array(Command)? = nil,
                    arguments : Hash(String, Argument)? = nil, options : Hash(String, Option)? = nil,
-                   @hidden : Bool = false, @inherit_borders : Bool = true,
-                   @inherit_options : Bool = true)
+                   @hidden : Bool = false, @inherit_borders : Bool = true, @inherit_options : Bool = true)
       @aliases = aliases || [] of String
       @usage = usage || [] of String
       @children = children || {} of String => Command
@@ -112,7 +111,7 @@ module CLI
     def execute(input : Array(String), *, parser : Parser? = nil) : Nil
       parser ||= Parser.new(input, Parser::Options.new)
       results = parser.parse
-      Executor.new(self).handle(results)
+      Executor.handle self, results
     end
 
     def pre_run(args : ArgsInput, options : OptionsInput) : Nil
