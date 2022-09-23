@@ -49,7 +49,7 @@ module CLI::Executor
 
             if next_args.empty?
               # should call invalid_opts but it's not implemented yet
-              raise "Missing argument for option '#{opt}'" unless opt.has_default?
+              raise ArgumentError.new "Missing argument for option '#{opt}'" unless opt.has_default?
               opt.value = Option::Value.new opt.default
               parsed_opts[opt.long] = opt
             else
@@ -60,7 +60,7 @@ module CLI::Executor
             end
           end
         else
-          raise "Option '#{opt}' takes no arguments" if res.value.includes? '='
+          raise ArgumentError.new "Option '#{opt}' takes no arguments" if res.value.includes? '='
           parsed_opts[opt.long] = opt
         end
       else

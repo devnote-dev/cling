@@ -90,7 +90,7 @@ module CLI
 
         if res.value.size > 1
           if res.value.includes? '='
-            raise "Cannot assign to multiple short flags" unless res.parse_value.size == 1
+            raise ParseError.new "Cannot assign to multiple short flags" unless res.parse_value.size == 1
             validated += res.parse_value.chars.map { |c| Result.new(:short_flag, c.to_s) }
           else
             validated += res.value.chars.map { |c| Result.new(:short_flag, c.to_s) }
@@ -166,7 +166,7 @@ module CLI
         loop do
           case char = @reader.current_char
           when '\0'
-            raise "Unterminated quote string"
+            raise ParseError.new "Unterminated quote string"
           when '\\'
             escaped = !escaped
             @reader.next_char
