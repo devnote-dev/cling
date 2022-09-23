@@ -6,14 +6,10 @@ module CLI
     end
 
     def handle(results : Hash(Int32, Parser::Result)) : Nil
-      args = results.select { |_, v| v.kind.argument? && !v.string? }
-      unless cmd = resolve_command @main, args
-        raise "Command Not Found"
-      end
+      cmd, raw_args = resolve_command @main, results
+      raise "Command not found" unless cmd
 
-      res, opts = get_options_in_position cmd, results
-      args = get_args_in_position cmd, res
-
+      args, opts = get_in_position cmd, raw_args
       begin
         cmd.pre_run args, opts
         cmd.run args, opts
@@ -23,18 +19,25 @@ module CLI
       end
     end
 
-    def resolve_command(command : Command, args : Hash(Int32, Parser::Result)) : Command?
-      return command if command.children.empty? || args.empty?
-      if cmd = command.children[args.first[1].value]?
-        args.shift
+    def resolve_command(
+      command : Command,
+      args : Hash(Int32, Parser::Result)
+    ) : {Command?, Hash(Int32, Parser::Result)}
+      full_args = args.select { |_, v| v.kind.argument? && !v.string? }
+      return {command, args} if full_args.empty?
+      return {command, args} if command.children.empty?
+      if cmd = command.children[full_args.first[1].value]?
+        args.delete full_args.first[0]
         resolve_command cmd, args
+      else
+        {nil, args}
       end
     end
 
-    def get_options_in_position(
+    private def get_in_position(
       command : Command,
       results : Hash(Int32, Parser::Result)
-    ) : {Hash(Int32, Parser::Result), OptionsInput}
+    ) : {ArgsInput, OptionsInput}
       options = results.reject { |_, v| v.kind.argument? }
       parsed_opts = {} of String => Option
       unknown_opts = [] of String
@@ -84,13 +87,6 @@ module CLI
 
       command.on_missing_opts.call(missing_opts) unless missing_opts.empty?
 
-      {results, OptionsInput.new(parsed_opts)}
-    end
-
-    def get_args_in_position(
-      command : Command,
-      results : Hash(Int32, Parser::Result)
-    ) : ArgsInput
       arguments = results.values.select { |v| v.kind.argument? }
       parsed_args = {} of String => Argument
       missing_args = [] of String
@@ -108,7 +104,7 @@ module CLI
       unknown_args = arguments[command.arguments.size...].map &.value
       command.on_unknown_args.call(unknown_args) unless unknown_args.empty?
 
-      ArgsInput.new parsed_args
+      {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
     end
   end
 end
