@@ -1,9 +1,9 @@
 module CLI::Executor
   def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
-    cmd, raw = resolve_command command, results
-    raise "Command not found" unless cmd
+    args, opts, parsed = get_in_position command, results
+    cmd = resolve_command command, parsed
+    raise NotFoundError.new unless cmd
 
-    args, opts = get_in_position cmd, raw
     begin
       cmd.pre_run args, opts
       cmd.run args, opts
@@ -13,25 +13,22 @@ module CLI::Executor
     end
   end
 
-  def self.resolve_command(
-    command : Command,
-    args : Hash(Int32, Parser::Result)
-  ) : {Command?, Hash(Int32, Parser::Result)}
+  def self.resolve_command(command : Command, args : Hash(Int32, Parser::Result)) : Command?
     full_args = args.select { |_, v| v.kind.argument? && !v.string? }
-    return {command, args} if full_args.empty?
-    return {command, args} if command.children.empty?
+    return command if full_args.empty?
+    return command if command.children.empty?
     if cmd = command.children[full_args.first[1].value]?
       args.delete full_args.first[0]
       resolve_command cmd, args
     else
-      {nil, args}
+      nil
     end
   end
 
   private def self.get_in_position(
     command : Command,
     results : Hash(Int32, Parser::Result)
-  ) : {ArgsInput, OptionsInput}
+  ) : {ArgsInput, OptionsInput, Hash(Int32, Parser::Result)}
     options = results.reject { |_, v| v.kind.argument? }
     parsed_opts = {} of String => Option
     unknown_opts = [] of String
@@ -43,21 +40,18 @@ module CLI::Executor
             opt.value = Option::Value.new res.value.split('=', 2).last
             parsed_opts[opt.long] = opt
           else
-            next_args = results
-              .select { |k, _| k > i }
-              .select { |_, v| v.kind.argument? }
-
-            if next_args.empty?
-              # should call invalid_opts but it's not implemented yet
-              raise ArgumentError.new "Missing argument for option '#{opt}'" unless opt.has_default?
-              opt.value = Option::Value.new opt.default
-              parsed_opts[opt.long] = opt
-            else
-              arg = next_args.first
-              results.delete arg[0]
-              opt.value = Option::Value.new arg[1].value
-              parsed_opts[opt.long] = opt
+            if arg = results[i + 1]?
+              if arg.kind.argument?
+                opt.value = Option::Value.new arg.value
+                parsed_opts[opt.long] = opt
+                results.delete(i + 1)
+                next
+              end
             end
+
+            raise ArgumentError.new "Missing argument for option '#{opt}'" unless opt.has_default?
+            opt.value = Option::Value.new opt.default
+            parsed_opts[opt.long] = opt
           end
         else
           raise ArgumentError.new "Option '#{opt}' takes no arguments" if res.value.includes? '='
@@ -98,6 +92,6 @@ module CLI::Executor
     unknown_args = arguments[command.arguments.size...].map &.value
     command.on_unknown_args.call(unknown_args) unless unknown_args.empty?
 
-    {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts)}
+    {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts), results}
   end
 end
