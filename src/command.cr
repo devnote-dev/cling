@@ -49,6 +49,8 @@ module CLI
       @on_unknown_opts = ->(opts : Array(String)) do
         raise %(Unknown option#{"s" if opts.size > 1}: #{opts.join(", ")})
       end
+
+      setup
     end
 
     abstract def setup : Nil
@@ -67,22 +69,20 @@ module CLI
     def help_template=(@help_template : String?)
     end
 
-    def add_command(command : Command.class) : Nil
-      cmd = command.new parent: self
-      cmd.setup
+    def add_command(command : Command) : Nil
+      raise "Duplicate command '#{command.name}'" if @children.has_key? command.name
 
-      raise "Duplicate command '#{cmd.name}'" if @children.has_key? cmd.name
-
-      if cmd.inherit_borders?
-        cmd.header = @header
-        cmd.footer = @footer
+      command.parent = self
+      if command.inherit_borders?
+        command.header = @header
+        command.footer = @footer
       end
 
-      cmd.options += @options if cmd.inherit_options
-      @children[cmd.name] = cmd
+      command.options.merge! @options if command.inherit_options?
+      @children[command.name] = command
     end
 
-    def add_commands(*commands : Command.class) : Nil
+    def add_commands(*commands : Command) : Nil
       commands.each { |c| add_command(c) }
     end
 
@@ -110,7 +110,6 @@ module CLI
     end
 
     def execute(input : Array(String), *, parser : Parser? = nil) : Nil
-      setup
       parser ||= Parser.new(input, Parser::Options.new)
       results = parser.parse
       Executor.new(self).handle(results)
