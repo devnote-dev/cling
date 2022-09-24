@@ -132,10 +132,10 @@ module CLI
     def on_missing_arguments(&@on_missing_args : Array(String) ->)
     end
 
-    def on_unknown_arguments(&on_unknown_args : Array(String) ->)
+    def on_unknown_arguments(&@on_unknown_args : Array(String) ->)
     end
 
-    def on_missing_options(&on_missing_opts : Array(String) ->)
+    def on_missing_options(&@on_missing_opts : Array(String) ->)
     end
 
     def on_unknown_options(&@on_unknown_opts : Array(String) ->)

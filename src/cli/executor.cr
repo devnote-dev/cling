@@ -15,8 +15,7 @@ module CLI::Executor
 
   def self.resolve_command(command : Command, args : Hash(Int32, Parser::Result)) : Command?
     full_args = args.select { |_, v| v.kind.argument? && !v.string? }
-    return command if full_args.empty?
-    return command if command.children.empty?
+    return command if full_args.empty? || command.children.empty?
 
     key, res = full_args.first
     if cmd = command.children.values.find &.is?(res.value)
