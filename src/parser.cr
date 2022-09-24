@@ -19,8 +19,8 @@ module CLI
     end
 
     struct Result
-      getter kind : ResultKind
-      getter value : String
+      property kind : ResultKind
+      property value : String
       getter? string : Bool
 
       def initialize(@kind, @value, *, @string = false)
@@ -28,7 +28,7 @@ module CLI
 
       def parse_value : String
         if @value.includes? '='
-          @value.split('=').first
+          @value.split('=', 2).first
         else
           @value
         end
@@ -88,10 +88,13 @@ module CLI
           next
         end
 
-        if res.value.size > 1
+        if res.parse_value.size > 1
           if res.value.includes? '='
-            raise ParseError.new "Cannot assign to multiple short flags" unless res.parse_value.size == 1
-            validated += res.parse_value.chars.map { |c| Result.new(:short_flag, c.to_s) }
+            flags = res.parse_value.chars.map { |c| Result.new(:short_flag, c.to_s) }
+            opt = flags[-1]
+            opt.value += "=" + res.value.split('=', 2).last
+            flags[-1] = opt
+            validated += flags
           else
             validated += res.value.chars.map { |c| Result.new(:short_flag, c.to_s) }
           end
