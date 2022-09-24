@@ -1,6 +1,12 @@
 module CLI
   class Formatter
     struct Options
+      property option_delim : Char
+      property show_defaults : Bool
+      property show_required : Bool
+
+      def initialize(*, @option_delim : Char = '-', @show_defaults : Bool  = true, @show_required : Bool = true)
+      end
     end
 
     property command : Command
@@ -87,7 +93,7 @@ module CLI
           str << "\n\t" << name
           str << " " * (max_space - name.size)
           str << arg.description
-          str << " (required)" if arg.required?
+          str << " (required)" if @options.show_required && arg.required?
         end
       end
     end
@@ -101,21 +107,24 @@ module CLI
         str << "Options:"
         max_space = options.map { |o| 2 + o.long.size + (o.short ? 2 : 0) }.max + 2
 
-        delim = "-" # TODO: change this to match config
+        delim = @options.option_delim.to_s * 2
         options.each do |opt|
           name_size = 2 + opt.long.size + (opt.short ? 2 : -2)
 
           str << "\n\t"
           if short = opt.short
-            str << delim << short << ", "
+            str << delim[0] << short << ", "
           end
 
-          str << (delim * 2) << opt.long
+          str << delim << opt.long
           str << " " * (max_space - name_size)
           str << opt.description
+          str << " (required)" if @options.show_required && opt.required?
 
-          if opt.has_default? && (default = opt.default.to_s) && !default.blank?
-            str << " (default: " << default << ')'
+          if @options.show_defaults
+            if opt.has_default? && (default = opt.default.to_s) && !default.blank?
+              str << " (default: " << default << ')'
+            end
           end
         end
       end
