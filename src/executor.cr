@@ -18,8 +18,9 @@ module CLI::Executor
     return command if full_args.empty?
     return command if command.children.empty?
 
-    if cmd = command.children[full_args.first[1].value]?
-      args.delete full_args.first[0]
+    key, res = full_args.first
+    if cmd = command.children.values.find &.is?(res.value)
+      args.delete key
       resolve_command cmd, args
     elsif !command.arguments.empty?
       command

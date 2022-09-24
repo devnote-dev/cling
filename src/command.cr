@@ -61,6 +61,10 @@ module CLI
     def name=(@name : String)
     end
 
+    def is?(name : String) : Bool
+      @name == name || @aliases.includes? name
+    end
+
     def help_template : String
       @help_template
     end
@@ -108,7 +112,7 @@ module CLI
       @options[long] = Option.new(long, short, desc, required, has_value, default)
     end
 
-    def execute(input : Array(String), *, parser : Parser? = nil) : Nil
+    def execute(input : String | Array(String), *, parser : Parser? = nil) : Nil
       parser ||= Parser.new(input, Parser::Options.new)
       results = parser.parse
       Executor.handle self, results
@@ -122,24 +126,19 @@ module CLI
     def post_run(args : ArgsInput, options : OptionsInput) : Nil
     end
 
-    def on_error(&block : Exception ->)
-      @on_error = block
+    def on_error(&@on_error : Exception ->)
     end
 
-    def on_missing_arguments(&block : Array(String) ->)
-      @on_missing_args = block
+    def on_missing_arguments(&@on_missing_args : Array(String) ->)
     end
 
-    def on_unknown_arguments(&block : Array(String) ->)
-      @on_unknown_args = block
+    def on_unknown_arguments(&on_unknown_args : Array(String) ->)
     end
 
-    def on_missing_options(&block : Array(String) ->)
-      @on_missing_opts = block
+    def on_missing_options(&on_missing_opts : Array(String) ->)
     end
 
-    def on_unknown_options(&block : Array(String) ->)
-      @on_missing_opts = block
+    def on_unknown_options(&@on_unknown_opts : Array(String) ->)
     end
   end
 end
