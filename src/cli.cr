@@ -2,6 +2,7 @@ require "./argument"
 require "./command"
 require "./errors"
 require "./executor"
+require "./formatter"
 require "./option"
 require "./parser"
 
