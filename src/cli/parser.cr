@@ -83,7 +83,7 @@ module CLI
 
       validated = [] of Result
       results.each do |res|
-        if res.kind.argument?
+        unless res.kind.short_flag?
           validated << res
           next
         end
