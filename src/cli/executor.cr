@@ -9,7 +9,7 @@ module CLI::Executor
       cmd.run args, opts
       cmd.post_run args, opts
     rescue ex
-      cmd.on_error.call ex
+      cmd.on_error ex
     end
   end
 
@@ -65,7 +65,7 @@ module CLI::Executor
       end
     end
 
-    command.on_unknown_opts.call(unknown_opts) unless unknown_opts.empty?
+    command.on_unknown_options(unknown_opts) unless unknown_opts.empty?
     default_opts = command.options
       .select { |_, v| v.has_default? }
       .reject { |k, _| parsed_opts.has_key?(k) }
@@ -76,7 +76,7 @@ module CLI::Executor
       .keys
       .reject { |k| parsed_opts.has_key?(k) }
 
-    command.on_missing_opts.call(missing_opts) unless missing_opts.empty?
+    command.on_missing_options(missing_opts) unless missing_opts.empty?
 
     arguments = results.values.select { |v| v.kind.argument? }
     parsed_args = {} of String => Argument
@@ -91,9 +91,10 @@ module CLI::Executor
       end
     end
 
-    command.on_missing_args.call(missing_args) unless missing_args.empty?
+    # command.on_missing_args.call(missing_args) unless missing_args.empty?
+    command.on_missing_arguments(missing_args) unless missing_args.empty?
     unknown_args = arguments[command.arguments.size...].map &.value
-    command.on_unknown_args.call(unknown_args) unless unknown_args.empty?
+    command.on_unknown_arguments(unknown_args) unless unknown_args.empty?
 
     {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts), results}
   end

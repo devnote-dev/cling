@@ -13,11 +13,6 @@ module CLI
     property? hidden : Bool
     property? inherit_borders : Bool
     property? inherit_options : Bool
-    getter on_error : Exception ->
-    getter on_missing_args : Array(String) ->
-    getter on_unknown_args : Array(String) ->
-    getter on_missing_opts : Array(String) ->
-    getter on_unknown_opts : Array(String) ->
     @help_template : String?
 
     def initialize(*, aliases : Array(String)? = nil, usage : Array(String)? = nil,
@@ -30,24 +25,6 @@ module CLI
       @children = children || {} of String => Command
       @arguments = arguments || {} of String => Argument
       @options = options || {} of String => Option
-
-      @on_error = ->(ex : Exception) { raise ex }
-
-      @on_missing_args = ->(args : Array(String)) do
-        raise ArgumentError.new %(Missing required argument#{"s" if args.size > 1}: #{args.join(", ")})
-      end
-
-      @on_unknown_args = ->(args : Array(String)) do
-        raise ArgumentError.new %(Unknown argument#{"s" if args.size > 1}: #{args.join(", ")})
-      end
-
-      @on_missing_opts = ->(opts : Array(String)) do
-        raise ArgumentError.new %(Missing required option#{"s" if opts.size > 1}: #{opts.join(", ")})
-      end
-
-      @on_unknown_opts = ->(opts : Array(String)) do
-        raise ArgumentError.new %(Unknown option#{"s" if opts.size > 1}: #{opts.join(", ")})
-      end
 
       setup
     end
@@ -126,19 +103,24 @@ module CLI
     def post_run(args : ArgsInput, options : OptionsInput) : Nil
     end
 
-    def on_error(&@on_error : Exception ->)
+    def on_error(ex : Exception)
+      raise ex
     end
 
-    def on_missing_arguments(&@on_missing_args : Array(String) ->)
+    def on_missing_arguments(args : Array(String))
+      raise ArgumentError.new %(Missing required argument#{"s" if args.size > 1}: #{args.join(", ")})
     end
 
-    def on_unknown_arguments(&@on_unknown_args : Array(String) ->)
+    def on_unknown_arguments(args : Array(String))
+      raise ArgumentError.new %(Unknown argument#{"s" if args.size > 1}: #{args.join(", ")})
     end
 
-    def on_missing_options(&@on_missing_opts : Array(String) ->)
+    def on_missing_options(options : Array(String))
+      raise ArgumentError.new %(Missing required option#{"s" if options.size > 1}: #{options.join(", ")})
     end
 
-    def on_unknown_options(&@on_unknown_opts : Array(String) ->)
+    def on_unknown_options(options : Array(String))
+      raise ArgumentError.new %(Unknown option#{"s" if options.size > 1}: #{options.join(", ")})
     end
   end
 end
