@@ -51,6 +51,9 @@ module CLI
 
     def add_command(command : Command) : Nil
       raise ArgumentError.new "Duplicate command '#{command.name}'" if @children.has_key? command.name
+      command.aliases.each do |a|
+        raise ArgumentError.new "Duplicate command alias '#{a}'" if @children.values.any? &.is? a
+      end
 
       command.parent = self
       if command.inherit_borders?
