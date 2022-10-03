@@ -1,13 +1,37 @@
 module CLI::Executor
+  private struct Result
+    getter parsed_opts : OptionsInput
+    getter unknown_opts : Array(String)
+    getter missing_opts : Array(String)
+    getter parsed_args : ArgsInput
+    getter unknown_args : Array(String)
+    getter missing_args : Array(String)
+
+    def initialize(parsed_opts, @unknown_opts, @missing_opts, parsed_args, @unknown_args, @missing_args)
+      @parsed_opts = OptionsInput.new parsed_opts
+      @parsed_args = ArgsInput.new parsed_args
+    end
+  end
+
   def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
-    args, opts, parsed = get_in_position command, results
-    cmd = resolve_command command, parsed
+    results, pos = get_in_position command, results
+    cmd = resolve_command command, pos
     raise NotFoundError.new unless cmd
 
     begin
-      cmd.pre_run args, opts
-      cmd.run args, opts
-      cmd.post_run args, opts
+      res = cmd.pre_run results.parsed_args, results.parsed_opts
+      unless res.nil?
+        return unless res
+      end
+    rescue ex
+      cmd.on_error ex
+    end
+
+    finalize cmd, results
+
+    begin
+      cmd.run results.parsed_args, results.parsed_opts
+      cmd.post_run results.parsed_args, results.parsed_opts
     rescue ex
       cmd.on_error ex
     end
@@ -28,10 +52,7 @@ module CLI::Executor
     end
   end
 
-  private def self.get_in_position(
-    command : Command,
-    results : Hash(Int32, Parser::Result)
-  ) : {ArgsInput, OptionsInput, Hash(Int32, Parser::Result)}
+  private def self.get_in_position(command : Command, results : Hash(Int32, Parser::Result)) : {Result, Hash(Int32, Parser::Result)}
     options = results.reject { |_, v| v.kind.argument? }
     parsed_opts = {} of String => Option
     unknown_opts = [] of String
@@ -65,7 +86,6 @@ module CLI::Executor
       end
     end
 
-    command.on_unknown_options(unknown_opts) unless unknown_opts.empty?
     default_opts = command.options
       .select { |_, v| v.has_default? }
       .reject { |k, _| parsed_opts.has_key?(k) }
@@ -75,8 +95,6 @@ module CLI::Executor
       .select { |_, v| v.required? }
       .keys
       .reject { |k| parsed_opts.has_key?(k) }
-
-    command.on_missing_options(missing_opts) unless missing_opts.empty?
 
     arguments = results.values.select { |v| v.kind.argument? }
     parsed_args = {} of String => Argument
@@ -91,11 +109,19 @@ module CLI::Executor
       end
     end
 
-    # command.on_missing_args.call(missing_args) unless missing_args.empty?
-    command.on_missing_arguments(missing_args) unless missing_args.empty?
-    unknown_args = arguments[command.arguments.size...].map &.value
-    command.on_unknown_arguments(unknown_args) unless unknown_args.empty?
+    unknown_args = if arguments.empty?
+        [] of String
+      else
+        arguments[(command.arguments.size - parsed_args.size)...].map &.value
+      end
 
-    {ArgsInput.new(parsed_args), OptionsInput.new(parsed_opts), results}
+    {Result.new(parsed_opts, unknown_opts, missing_opts, parsed_args, unknown_args, missing_args), results}
+  end
+
+  private def self.finalize(command : Command, res : Result) : Nil
+    command.on_unknown_options(res.unknown_opts) unless res.unknown_opts.empty?
+    command.on_missing_options(res.missing_opts) unless res.missing_opts.empty?
+    command.on_missing_arguments(res.missing_args) unless res.missing_args.empty?
+    command.on_unknown_arguments(res.unknown_args) unless res.unknown_args.empty?
   end
 end
