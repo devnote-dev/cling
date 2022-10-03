@@ -15,7 +15,7 @@ module CLI
     def initialize(@command : Command, @options : Options)
     end
 
-    def generate_template : String
+    def generate : String
       String.build do |str|
         if header = @command.header
           str << header << "\n\n"

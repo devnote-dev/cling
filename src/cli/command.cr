@@ -38,8 +38,8 @@ module CLI
     def name=(@name : String)
     end
 
-    def is?(name : String) : Bool
-      @name == name || @aliases.includes? name
+    def is?(name n : String) : Bool
+      @name == n || @aliases.includes? n
     end
 
     def help_template : String
@@ -98,7 +98,7 @@ module CLI
       Executor.handle self, results
     end
 
-    def pre_run(args : ArgsInput, options : OptionsInput) : Nil
+    def pre_run(args : ArgsInput, options : OptionsInput) : Bool?
     end
 
     abstract def run(args : ArgsInput, options : OptionsInput) : Nil
