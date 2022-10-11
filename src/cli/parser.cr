@@ -103,7 +103,7 @@ module CLI
         end
       end
 
-      validated.each_with_index.to_h.invert
+      validated.each_with_index.map { |r, i| {i, r} }.to_h
     end
 
     private def read_option : Result

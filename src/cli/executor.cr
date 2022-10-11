@@ -104,6 +104,7 @@ module CLI::Executor
       if res = arguments[i]?
         arg.value = res.value
         parsed_args[arg.name] = arg
+        results.delete i
       else
         missing_args << arg.name if arg.required?
       end
@@ -112,7 +113,7 @@ module CLI::Executor
     unknown_args = if arguments.empty?
         [] of String
       else
-        arguments[(command.arguments.size - parsed_args.size)...].map &.value
+        arguments[parsed_args.size...].map &.value
       end
 
     {Result.new(parsed_opts, unknown_opts, missing_opts, parsed_args, unknown_args, missing_args), results}
