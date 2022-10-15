@@ -1,6 +1,6 @@
 module CLI
   struct Value
-    alias Type = String | Int64 | Float64 | Bool | Nil | Array(Type) | Hash(Type, Type)
+    alias Type = String | Number::Primitive | Bool | Nil | Array(Type) | Hash(Type, Type)
 
     getter raw : Type
 
@@ -29,19 +29,45 @@ module CLI
     {% for name, type in {
       "s" => String,
       "i" => Int,
-      "i64" => Int,
       "f" => Float,
-      "f64" => Float,
       "bool" => Bool,
       "a" => Array(Type),
       "h" => Hash(Type, Type)
     } %}
     def as_{{ name.id }} : {{ type }}
-      @raw.as({{ type }}){% if {"i", "i64", "f", "f64"}.includes?(name) %}.to_{{ name.id }}{% end %}
+      @raw.as({{ type }})
     end
 
     def as_{{ name.id }}? : {{ type }}?
-      @raw.as?({{ type }}){% if {"i", "i64", "f", "f64"}.includes?(name) %}.to_{{ name.id }}?{% end %}
+      @raw.as?({{ type }})
+    end
+    {% end %}
+
+    {% for base in %w(8 16 32 64 128) %}
+    def as_i{{ base.id }} : Int{{ base.id }}
+      @raw.as(Int{{ base.id }}).to_i{{ base.id }}
+    end
+
+    def as_i{{ base.id }}? : Int{{ base.id }}?
+      @raw.as?(Int{{ base.id }}).try &.to_i{{ base.id }}?
+    end
+
+    def as_u{{ base.id }} : Int{{ base.id }}
+      @raw.as(UInt{{ base.id }}).to_u{{ base.id }}
+    end
+
+    def as_u{{ base.id }}? : Int{{ base.id }}?
+      @raw.as?(UInt{{ base.id }}).try &.to_u{{ base.id }}?
+    end
+    {% end %}
+
+    {% for base in %w(32 64) %}
+    def as_f{{ base.id }} : Float{{ base.id }}
+      @raw.as(Float{{ base.id }}).to_f{{ base.id }}
+    end
+
+    def as_f{{ base.id }}? : Float{{ base.id }}?
+      @raw.as?(Float{{ base.id }}).try &.to_f{{ base.id }}?
     end
     {% end %}
 
