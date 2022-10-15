@@ -10,7 +10,6 @@ describe CLI::Value do
 
     # currently broken
     # CLI::Value.new(%w[foo bar baz]).should be_a CLI::Value
-    # CLI::Value.new({0 => false, 1 => true}).should be_a CLI::Value
   end
 
   it "compares values" do
@@ -22,7 +21,6 @@ describe CLI::Value do
 
     # also broken
     # CLI::Value.new(%[foo bar baz]).should eq ["foo", "bar", "baz"]
-    # CLI::Value.new({0 => false, 1 => true}).should eq({0 => false, 1 => true})
   end
 
   it "asserts types" do

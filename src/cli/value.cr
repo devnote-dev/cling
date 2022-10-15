@@ -1,6 +1,6 @@
 module CLI
   struct Value
-    alias Type = String | Number::Primitive | Bool | Nil | Array(Type) | Hash(Type, Type)
+    alias Type = String | Number::Primitive | Bool | Nil # | Array(Type)
 
     getter raw : Type
 
