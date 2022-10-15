@@ -61,12 +61,12 @@ module CLI::Executor
       if opt = command.options.values.find &.is? res.parse_value
         if opt.has_value?
           if res.value.includes? '='
-            opt.value = Option::Value.new res.value.split('=', 2).last
+            opt.value = Value.new res.value.split('=', 2).last
             parsed_opts[opt.long] = opt
           else
             if arg = results[i + 1]?
               if arg.kind.argument?
-                opt.value = Option::Value.new arg.value
+                opt.value = Value.new arg.value
                 parsed_opts[opt.long] = opt
                 results.delete(i + 1)
                 next
@@ -74,7 +74,7 @@ module CLI::Executor
             end
 
             raise ArgumentError.new "Missing argument for option '#{opt}'" unless opt.has_default?
-            opt.value = Option::Value.new opt.default
+            opt.value = Value.new opt.default
             parsed_opts[opt.long] = opt
           end
         else

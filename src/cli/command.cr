@@ -75,14 +75,14 @@ module CLI
     end
 
     def add_option(long : String, *, desc : String? = nil, required : Bool = false,
-                   has_value : Bool = false, default : Option::Value::Type = nil) : Nil
+                   has_value : Bool = false, default : Value::Type = nil) : Nil
       raise ArgumentError.new "Duplicate flag option '#{long}'" if @options.has_key? long
 
       @options[long] = Option.new(long, nil, desc, required, has_value, default)
     end
 
     def add_option(short : Char, long : String, *, desc : String? = nil, required : Bool = false,
-                   has_value : Bool = false, default : Option::Value::Type = nil) : Nil
+                   has_value : Bool = false, default : Value::Type = nil) : Nil
       raise ArgumentError.new "Duplicate flag option '#{long}'" if @options.has_key? long
 
       if op = @options.values.find { |o| o.short == short }
