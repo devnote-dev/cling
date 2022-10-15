@@ -2,7 +2,7 @@ require "./spec_helper"
 
 describe CLI::Parser do
   it "parses standard input arguments" do
-    parser = CLI::Parser.new %(these --are "some" -c arguments), CLI::Parser::Options.new
+    parser = CLI::Parser.new %(these --are "some" -c arguments)
     results = parser.parse
 
     results[0].kind.should eq CLI::Parser::ResultKind::Argument
@@ -25,7 +25,7 @@ describe CLI::Parser do
   end
 
   it "parses a string argument" do
-    parser = CLI::Parser.new %w(--test "string argument" -t), CLI::Parser::Options.new
+    parser = CLI::Parser.new %w(--test "string argument" -t)
     results = parser.parse
 
     results[0].kind.should eq CLI::Parser::ResultKind::LongFlag
@@ -35,7 +35,7 @@ describe CLI::Parser do
   end
 
   it "parses an option argument" do
-    parser = CLI::Parser.new %(--name=foo -k=bar), CLI::Parser::Options.new
+    parser = CLI::Parser.new %(--name=foo -k=bar)
     results = parser.parse
 
     results[0].kind.should eq CLI::Parser::ResultKind::LongFlag

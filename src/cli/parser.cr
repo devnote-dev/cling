@@ -38,11 +38,11 @@ module CLI
     @reader : Char::Reader
     @options : Options
 
-    def initialize(input : String, @options : Options)
+    def initialize(input : String, @options : Options = Options.new)
       @reader = Char::Reader.new input
     end
 
-    def self.new(input : Array(String), options : Options)
+    def self.new(input : Array(String), options : Options = Options.new)
       args = input.map do |a|
         if a.includes?(' ') && options.string_delims.none? { |d| a.includes?(d) }
           d = options.string_delims.first

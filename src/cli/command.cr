@@ -93,7 +93,7 @@ module CLI
     end
 
     def execute(input : String | Array(String), *, parser : Parser? = nil) : Nil
-      parser ||= Parser.new(input, Parser::Options.new)
+      parser ||= Parser.new input
       results = parser.parse
       Executor.handle self, results
     end
