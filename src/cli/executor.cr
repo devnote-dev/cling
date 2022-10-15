@@ -102,7 +102,7 @@ module CLI::Executor
 
     command.arguments.values.each_with_index do |arg, i|
       if res = arguments[i]?
-        arg.value = res.value
+        arg.value = Value.new res.value
         parsed_args[arg.name] = arg
         results.delete i
       else

@@ -4,7 +4,7 @@ module CLI
     property description : String?
     property? required : Bool
     property? has_value : Bool
-    property value : String?
+    property value : Value?
 
     def initialize(@name : String, @description : String? = nil, @required : Bool = false)
       @has_value = false
@@ -34,12 +34,12 @@ module CLI
       @args.has_key? key
     end
 
-    def get(key : String) : String?
-      @args[key]?.try &.value
+    def get(key : String | Char) : Value?
+      self[key]?.try &.value
     end
 
-    def get!(key : String) : String
-      @args[key].value.not_nil!
+    def get!(key : String | Char) : Value
+      self[key].value.not_nil!
     end
   end
 end

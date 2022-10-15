@@ -58,12 +58,12 @@ module CLI
       !self[key]?.nil?
     end
 
-    def get(key : String | Char) : Option::Value?
+    def get(key : String | Char) : Value?
       self[key]?.try &.value
     end
 
-    def get!(key : String | Char) : Option::Value
-      self[key].value
+    def get!(key : String | Char) : Value
+      self[key].value.not_nil!
     end
   end
 end
