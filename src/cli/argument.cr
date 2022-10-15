@@ -16,7 +16,7 @@ module CLI
     end
   end
 
-  class ArgsInput
+  struct ArgsInput
     getter args : Hash(String, Argument)
 
     def initialize(@args)

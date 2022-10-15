@@ -28,7 +28,7 @@ module CLI
     end
   end
 
-  class OptionsInput
+  struct OptionsInput
     getter options : Hash(String, Option)
 
     def initialize(@options)

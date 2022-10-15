@@ -1,6 +1,6 @@
 module CLI
   class Formatter
-    struct Options
+    class Options
       property option_delim : Char
       property show_defaults : Bool
       property show_required : Bool

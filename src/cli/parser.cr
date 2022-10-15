@@ -1,6 +1,6 @@
 module CLI
   class Parser
-    struct Options
+    class Options
       property parse_string : Bool
       # TODO
       # property parse_escape : Bool
@@ -18,7 +18,7 @@ module CLI
       LongFlag
     end
 
-    struct Result
+    class Result
       property kind : ResultKind
       property value : String
       getter? string : Bool
