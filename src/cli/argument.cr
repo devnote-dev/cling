@@ -41,5 +41,13 @@ module CLI
     def get!(key : String | Char) : Value
       self[key].value.not_nil!
     end
+
+    def empty? : Bool
+      @args.empty?
+    end
+
+    def size : Int32
+      @args.size
+    end
   end
 end
