@@ -12,13 +12,13 @@ module CLI
 
     def pre_run(args, options)
       if args.empty? && options.empty?
-        puts Formatter.new(self, Formatter::Options.new).generate
+        Formatter.new(self, Formatter::Options.new).generate.to_s(stdout)
         return false
       end
 
       case options
       when .has? "help"
-        puts Formatter.new(self, Formatter::Options.new).generate
+        Formatter.new(self, Formatter::Options.new).generate.to_s(stdout)
 
         false
       when .has? "version"

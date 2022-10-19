@@ -13,6 +13,9 @@ module CLI
     property? hidden : Bool
     property? inherit_borders : Bool
     property? inherit_options : Bool
+    property stdin : IO = STDIN
+    property stdout : IO = STDOUT
+    property stderr : IO = STDERR
     @help_template : String?
 
     def initialize(*, aliases : Array(String)? = nil, usage : Array(String)? = nil,
