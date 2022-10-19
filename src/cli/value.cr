@@ -26,22 +26,38 @@ module CLI
       @raw == other
     end
 
-    {% for name, type in {
-      "s" => String,
-      "i" => Int,
-      "f" => Float,
-      "bool" => Bool,
-      "a" => Array(Type),
-      "h" => Hash(Type, Type)
-    } %}
-    def as_{{ name.id }} : {{ type }}
-      @raw.as({{ type }})
+    def as_s : String
+      @raw.as(String)
     end
 
-    def as_{{ name.id }}? : {{ type }}?
-      @raw.as?({{ type }})
+    def as_i : Int
+      @raw.to_s.to_i
     end
-    {% end %}
+
+    def as_f : Float
+      @raw.to_s.to_f
+    end
+
+    def as_bool : Bool
+      if @raw.is_a? Bool
+        @raw.as(Bool)
+      else
+        case @raw.to_s
+        when "true"   then true
+        when "false"  then false
+        else
+          raise TypeCastError.new "cast from #{@raw.class} to Bool failed"
+        end
+      end
+    end
+
+    def as_nil : Nil
+      @raw.as(Nil)
+    end
+
+    def as_a : Array(Type)
+      @raw.as(Array)
+    end
 
     {% for base in %w(8 16 32 64 128) %}
     def as_i{{ base.id }} : Int{{ base.id }}
@@ -52,11 +68,11 @@ module CLI
       @raw.as?(Int{{ base.id }}).try &.to_i{{ base.id }}?
     end
 
-    def as_u{{ base.id }} : Int{{ base.id }}
+    def as_u{{ base.id }} : UInt{{ base.id }}
       @raw.as(UInt{{ base.id }}).to_u{{ base.id }}
     end
 
-    def as_u{{ base.id }}? : Int{{ base.id }}?
+    def as_u{{ base.id }}? : UInt{{ base.id }}?
       @raw.as?(UInt{{ base.id }}).try &.to_u{{ base.id }}?
     end
     {% end %}
@@ -70,10 +86,6 @@ module CLI
       @raw.as?(Float{{ base.id }}).try &.to_f{{ base.id }}?
     end
     {% end %}
-
-    def as_nil : Nil
-      @raw.as(Nil)
-    end
 
     def [](index : Int32) : Type
       case value = @raw
