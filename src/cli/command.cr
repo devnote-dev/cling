@@ -1,22 +1,63 @@
 module CLI
   abstract class Command
-    property aliases : Array(String)
-    property usage : Array(String)
+    # The name of the command. This is the only required field of a command and cannot be empty or
+    # blank.
+    getter name : String
+
+    # An array of aliases for the command.
+    getter aliases : Array(String)
+
+    # An array of usage strings to display in generated help templates.
+    getter usage : Array(String)
+
+    # A header message to display at the top of generated help templates.
     property header : String?
+
+    # The summary of the command to show in generated help templates.
     property summary : String?
+
+    # The description of the command to show for specific help with the command.
     property description : String?
+
+    # A footer message to display at the bottom of generated help templates.
     property footer : String?
+
+    # The parent of the command of which the current command inherits from.
     property parent : Command?
-    property children : Hash(String, Command)
-    property arguments : Hash(String, Argument)
-    property options : Hash(String, Option)
+
+    # A hash of commands that belong and inherit from the parent command.
+    getter children : Hash(String, Command)
+
+    # A hash of arguments belonging to the command. These arguments are parsed at execution time
+    # and can be accessed in the `pre_run`, `run`, and `post_run` methods via `ArgsInput`.
+    getter arguments : Hash(String, Argument)
+
+    # A hash of flag options belonging to the command. These options are parsed at execution time
+    # and can be accessed in the `pre_run`, `run`, and `post_run` methods via `OptionsInput`.
+    getter options : Hash(String, Option)
+
+    # Whether the command should be hidden from generated help templates.
     property? hidden : Bool
+
+    # Whether the command should inherit the `header` and `footer` strings from the parent command.
     property? inherit_borders : Bool
+
+    # Whether the command should inherit the options from the parent command.
     property? inherit_options : Bool
+
+    # TODO: inherit_streams
+
+    # The standard input stream for commands (defaults to `STDIN`). This is a helper method for
+    # custom commands and is only used by the `MainCommand` helper class.
     property stdin : IO = STDIN
+
+    # The standard output stream for commands (defaults to `STDOUT`). This is a helper method for
+    # custom commands and is only used by the `MainCommand` helper class.
     property stdout : IO = STDOUT
+
+    # The standard error stream for commands (defaults to `STDERR`). This is a helper method for
+    # custom commands and is only used by the `MainCommand` helper class.
     property stderr : IO = STDERR
-    @help_template : String?
 
     def initialize(*, aliases : Array(String)? = nil, usage : Array(String)? = nil,
                    @header : String? = nil, @summary : String? = nil, @description : String? = nil,
@@ -37,11 +78,12 @@ module CLI
     # values are optional including the help message.
     abstract def setup : Nil
 
-    def name : String
-      @name || raise CommandError.new "No name has been set for command"
-    end
+    # Sets the name of the command. This cannot be an empty or blank value.
+    def name=(name : String)
+      raise ArgumentError.new "Command name cannot be empty" if name.empty?
+      raise ArgumentError.new "Command name cannot be blank" if name.blank?
 
-    def name=(@name : String)
+      @name = name
     end
 
     # Returns `true` if the argument matches the command name or any aliases.
@@ -52,13 +94,7 @@ module CLI
     # Returns the help template for this command. By default, one is generated interally unless
     # this method is overridden.
     def help_template : String
-      @help_template
-    end
-
-    # TODO: remove this in favor of abstraction
-
-    # :nodoc:
-    def help_template=(@help_template : String?)
+      Formatter.new(self).generate
     end
 
     # Adds a command as a subcommand to the parent. The command can then be referenced by specifying it as the
@@ -84,11 +120,13 @@ module CLI
       commands.each { |c| add_command(c) }
     end
 
+    # Adds an argument to the command.
     def add_argument(name : String, *, desc : String? = nil, required : Bool = false) : Nil
       raise ArgumentError.new "Duplicate argument '#{name}'" if @arguments.has_key? name
       @arguments[name] = Argument.new(name, desc, required)
     end
 
+    # Adds a long flag option to the command.
     def add_option(long : String, *, desc : String? = nil, required : Bool = false,
                    has_value : Bool = false, default : Value::Type = nil) : Nil
       raise ArgumentError.new "Duplicate flag option '#{long}'" if @options.has_key? long
@@ -96,6 +134,7 @@ module CLI
       @options[long] = Option.new(long, nil, desc, required, has_value, default)
     end
 
+    # Adds a short flag option to the command.
     def add_option(short : Char, long : String, *, desc : String? = nil, required : Bool = false,
                    has_value : Bool = false, default : Value::Type = nil) : Nil
       raise ArgumentError.new "Duplicate flag option '#{long}'" if @options.has_key? long
@@ -107,36 +146,56 @@ module CLI
       @options[long] = Option.new(long, short, desc, required, has_value, default)
     end
 
+    # Executes the command with the given input and parser (see `Parser`).
     def execute(input : String | Array(String), *, parser : Parser? = nil) : Nil
       parser ||= Parser.new input
       results = parser.parse
       Executor.handle self, results
     end
 
+    # A hook method to run once the command/subcommands, arguments and options have been parsed.
+    # This has access to the parsed arguments and options from the command line. This is useful if
+    # you want to implement checks for specific flags outside of the main `run` method, such as
+    # `-v`/`--version` flags or `-h`/`--help` flags.
+    #
+    # Accepts a `Bool` or `nil` argument as a return to specify whether the command should continue
+    # to run once finished (`true` or `nil` to continue, `false` to stop).
     def pre_run(args : ArgsInput, options : OptionsInput) : Bool?
     end
 
+    # The main point of execution for the command, where arguments and options can be accessed.
     abstract def run(args : ArgsInput, options : OptionsInput) : Nil
 
+    # A hook method to run once the `pre_run` and main `run` methods have been executed.
     def post_run(args : ArgsInput, options : OptionsInput) : Nil
     end
 
+    # A hook method for when the command raises an exception during execution. By default, this
+    # raises the exception.
     def on_error(ex : Exception)
       raise ex
     end
 
+    # A hook method for when the command receives missing arguments during execution. By default,
+    # this raises an `ArgumentError`.
     def on_missing_arguments(args : Array(String))
       raise ArgumentError.new %(Missing required argument#{"s" if args.size > 1}: #{args.join(", ")})
     end
 
+    # A hook method for when the command receives unknown arguments during execution. By default,
+    # this raises an `ArgumentError`.
     def on_unknown_arguments(args : Array(String))
       raise ArgumentError.new %(Unknown argument#{"s" if args.size > 1}: #{args.join(", ")})
     end
 
+    # A hook method for when the command receives missing options that are required during execution.
+    # By default, this raises an `ArgumentError`.
     def on_missing_options(options : Array(String))
       raise ArgumentError.new %(Missing required option#{"s" if options.size > 1}: #{options.join(", ")})
     end
 
+    # A hook method for when the command receives unknown options during execution. By default,
+    # this raises an `ArgumentError`.
     def on_unknown_options(options : Array(String))
       raise ArgumentError.new %(Unknown option#{"s" if options.size > 1}: #{options.join(", ")})
     end
