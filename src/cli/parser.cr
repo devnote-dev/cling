@@ -182,7 +182,7 @@ module CLI
         loop do
           case char = @reader.current_char
           when '\0'
-            raise ParseError.new "Unterminated quote string"
+            raise ParserError.new "Unterminated quote string"
           when '\\'
             escaped = !escaped
             @reader.next_char

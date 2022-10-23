@@ -75,8 +75,8 @@ module CLI
     # The name of the command. This is the only required field of a command and cannot be empty or
     # blank.
     def name : String
-      raise ArgumentError.new "Command name cannot be empty" if @name.empty?
-      raise ArgumentError.new "Command name cannot be blank" if @name.blank?
+      raise CommandError.new "Command name cannot be empty" if @name.empty?
+      raise CommandError.new "Command name cannot be blank" if @name.blank?
 
       @name
     end
@@ -118,9 +118,9 @@ module CLI
     # Adds a command as a subcommand to the parent. The command can then be referenced by specifying it as the
     # first argument in the command line.
     def add_command(command : Command) : Nil
-      raise ArgumentError.new "Duplicate command '#{command.name}'" if @children.has_key? command.name
+      raise CommandError.new "Duplicate command '#{command.name}'" if @children.has_key? command.name
       command.aliases.each do |a|
-        raise ArgumentError.new "Duplicate command alias '#{a}'" if @children.values.any? &.is? a
+        raise CommandError.new "Duplicate command alias '#{a}'" if @children.values.any? &.is? a
       end
 
       command.parent = self
@@ -146,14 +146,14 @@ module CLI
 
     # Adds an argument to the command.
     def add_argument(name : String, *, desc : String? = nil, required : Bool = false) : Nil
-      raise ArgumentError.new "Duplicate argument '#{name}'" if @arguments.has_key? name
+      raise CommandError.new "Duplicate argument '#{name}'" if @arguments.has_key? name
       @arguments[name] = Argument.new(name, desc, required)
     end
 
     # Adds a long flag option to the command.
     def add_option(long : String, *, desc : String? = nil, required : Bool = false,
                    has_value : Bool = false, default : Value::Type = nil) : Nil
-      raise ArgumentError.new "Duplicate flag option '#{long}'" if @options.has_key? long
+      raise CommandError.new "Duplicate flag option '#{long}'" if @options.has_key? long
 
       @options[long] = Option.new(long, nil, desc, required, has_value, default)
     end
@@ -161,10 +161,10 @@ module CLI
     # Adds a short flag option to the command.
     def add_option(short : Char, long : String, *, desc : String? = nil, required : Bool = false,
                    has_value : Bool = false, default : Value::Type = nil) : Nil
-      raise ArgumentError.new "Duplicate flag option '#{long}'" if @options.has_key? long
+      raise CommandError.new "Duplicate flag option '#{long}'" if @options.has_key? long
 
       if op = @options.values.find { |o| o.short == short }
-        raise ArgumentError.new "Flag '#{op.long}' already has the short option '#{short}'"
+        raise CommandError.new "Flag '#{op.long}' already has the short option '#{short}'"
       end
 
       @options[long] = Option.new(long, short, desc, required, has_value, default)
@@ -205,25 +205,25 @@ module CLI
     # A hook method for when the command receives missing arguments during execution. By default,
     # this raises an `ArgumentError`.
     def on_missing_arguments(args : Array(String))
-      raise ArgumentError.new %(Missing required argument#{"s" if args.size > 1}: #{args.join(", ")})
+      raise CommandError.new %(Missing required argument#{"s" if args.size > 1}: #{args.join(", ")})
     end
 
     # A hook method for when the command receives unknown arguments during execution. By default,
     # this raises an `ArgumentError`.
     def on_unknown_arguments(args : Array(String))
-      raise ArgumentError.new %(Unknown argument#{"s" if args.size > 1}: #{args.join(", ")})
+      raise CommandError.new %(Unknown argument#{"s" if args.size > 1}: #{args.join(", ")})
     end
 
     # A hook method for when the command receives missing options that are required during execution.
     # By default, this raises an `ArgumentError`.
     def on_missing_options(options : Array(String))
-      raise ArgumentError.new %(Missing required option#{"s" if options.size > 1}: #{options.join(", ")})
+      raise CommandError.new %(Missing required option#{"s" if options.size > 1}: #{options.join(", ")})
     end
 
     # A hook method for when the command receives unknown options during execution. By default,
     # this raises an `ArgumentError`.
     def on_unknown_options(options : Array(String))
-      raise ArgumentError.new %(Unknown option#{"s" if options.size > 1}: #{options.join(", ")})
+      raise CommandError.new %(Unknown option#{"s" if options.size > 1}: #{options.join(", ")})
     end
   end
 end

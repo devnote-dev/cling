@@ -1,16 +1,17 @@
 module CLI
+  # The base error for this module.
   class Error < Exception
   end
 
+  # An error raised from a command, or argument/option in a command.
   class CommandError < Error
   end
 
-  class NotFoundError < CommandError
-    def initialize
-      super "Command not found"
-    end
+  # An error raised during a command execution.
+  class ExecutionError < Error
   end
 
-  class ParseError < Error
+  # An error raised during the command line parsing process.
+  class ParserError < Error
   end
 end

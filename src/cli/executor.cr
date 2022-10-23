@@ -36,7 +36,7 @@ module CLI::Executor
   # arguments and options.
   def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
     cmd = resolve_command command, pointerof(results)
-    raise NotFoundError.new unless cmd
+    raise CommandError.new "Command '#{results.keys.first}' not found" unless cmd
 
     executed = get_in_position command, results
 
@@ -95,12 +95,12 @@ module CLI::Executor
               end
             end
 
-            raise ArgumentError.new "Missing argument for option '#{opt}'" unless opt.has_default?
+            raise ExecutionError.new "Missing argument for option '#{opt}'" unless opt.has_default?
             opt.value = Value.new opt.default
             parsed_opts[opt.long] = opt
           end
         else
-          raise ArgumentError.new "Option '#{opt}' takes no arguments" if res.value.includes? '='
+          raise ExecutionError.new "Option '#{opt}' takes no arguments" if res.value.includes? '='
           parsed_opts[opt.long] = opt
         end
       else

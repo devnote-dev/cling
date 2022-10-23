@@ -21,7 +21,7 @@ module CLI
       when Hash
         value.size
       else
-        raise "Cannot get size of type #{value.class}"
+        raise ArgumentError.new "Cannot get size of type #{value.class}"
       end
     end
 
@@ -120,7 +120,7 @@ module CLI
       when Array
         value[index]?
       else
-        raise "Cannot get index of type #{value.class}"
+        raise ArgumentError.new "Cannot get index of type #{value.class}"
       end
     end
 
@@ -130,7 +130,7 @@ module CLI
       when Array
         value[index]
       else
-        raise "Cannot get index of type #{value.class}"
+        raise ArgumentError.new "Cannot get index of type #{value.class}"
       end
     end
 
@@ -140,7 +140,7 @@ module CLI
       when Array
         value[index]?
       else
-        raise "Cannot get index of type #{value.class}"
+        raise ArgumentError.new "Cannot get index of type #{value.class}"
       end
     end
 
@@ -150,7 +150,7 @@ module CLI
       when Hash
         value[index]
       else
-        raise "Cannot get index of type #{value.class}"
+        raise ArgumentError.new "Cannot get index of type #{value.class}"
       end
     end
 
@@ -161,7 +161,7 @@ module CLI
       when Hash
         value[index]?
       else
-        raise "Cannot get index of type #{value.class}"
+        raise ArgumentError.new "Cannot get index of type #{value.class}"
       end
     end
   end
