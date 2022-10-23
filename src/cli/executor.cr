@@ -14,12 +14,13 @@ module CLI::Executor
   end
 
   def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
-    results, pos = get_in_position command, results
-    cmd = resolve_command command, pos
+    cmd = resolve_command command, pointerof(results)
     raise NotFoundError.new unless cmd
 
+    executed = get_in_position command, results
+
     begin
-      res = cmd.pre_run results.parsed_args, results.parsed_opts
+      res = cmd.pre_run executed.parsed_args, executed.parsed_opts
       unless res.nil?
         return unless res
       end
@@ -27,23 +28,23 @@ module CLI::Executor
       cmd.on_error ex
     end
 
-    finalize cmd, results
+    finalize cmd, executed
 
     begin
-      cmd.run results.parsed_args, results.parsed_opts
-      cmd.post_run results.parsed_args, results.parsed_opts
+      cmd.run executed.parsed_args, executed.parsed_opts
+      cmd.post_run executed.parsed_args, executed.parsed_opts
     rescue ex
       cmd.on_error ex
     end
   end
 
-  def self.resolve_command(command : Command, args : Hash(Int32, Parser::Result)) : Command?
-    full_args = args.select { |_, v| v.kind.argument? && !v.string? }
+  private def self.resolve_command(command : Command, args : Hash(Int32, Parser::Result)*) : Command?
+    full_args = args.value.select { |_, v| v.kind.argument? && !v.string? }
     return command if full_args.empty? || command.children.empty?
 
     key, res = full_args.first
     if cmd = command.children.values.find &.is?(res.value)
-      args.delete key
+      args.value.delete key
       resolve_command cmd, args
     elsif !command.arguments.empty?
       command
@@ -52,7 +53,7 @@ module CLI::Executor
     end
   end
 
-  private def self.get_in_position(command : Command, results : Hash(Int32, Parser::Result)) : {Result, Hash(Int32, Parser::Result)}
+  private def self.get_in_position(command : Command, results : Hash(Int32, Parser::Result)) : Result
     options = results.reject { |_, v| v.kind.argument? }
     parsed_opts = {} of String => Option
     unknown_opts = [] of String
@@ -116,7 +117,7 @@ module CLI::Executor
         arguments[parsed_args.size...].map &.value
       end
 
-    {Result.new(parsed_opts, unknown_opts, missing_opts, parsed_args, unknown_args, missing_args), results}
+    Result.new(parsed_opts, unknown_opts, missing_opts, parsed_args, unknown_args, missing_args)
   end
 
   private def self.finalize(command : Command, res : Result) : Nil
