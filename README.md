@@ -1,29 +1,44 @@
 # CLI.cr
-Yet another Crystal command line interface library.
+
+Yet another command line interface library for Crystal. Based on [spf13/cobra](https://github.com/spf13/cobra), CLI.cr is built to be almost entirely modular, giving you absolute control over almost everything without the need for embedded macros - there isn't even a default help command or flag!
 
 ## Installation
+
 1. Add the dependency to your `shard.yml`:
 ```yaml
 dependencies:
   cli:
     github: devnote-dev/cli.cr
+    branch: stable
 ```
 
 2. Run `shards install`
 
 ## Usage
+
 ```crystal
 require "cli"
 
 class MainCmd < CLI::Command
-  def setup
+  def setup : Nil
     @name = "greet"
-    @description = "Greets a person"
+    description = "Greets a person"
     add_argument "name", desc: "the name of person to greet", required: true
-    add_option "caps", short: "c", desc: "greet with capitals"
+    add_option 'c', "caps", desc: "greet with capitals"
+    add_option 'h', "help", desc: "sends help information"
   end
 
-  def execute(args, options) : Nil
+  def pre_run(args, options)
+    if options.has? "help"
+      puts help_template # generated using CLI::Formatter
+
+      false
+    else
+      true
+    end
+  end
+
+  def run(args, options) : Nil
     msg = "Hello, #{args.get("name")}!"
 
     if options.has? "caps"
@@ -34,23 +49,21 @@ class MainCmd < CLI::Command
   end
 end
 
-app = CLI::Application.new
-app.add_command MainCmd, default: true
-
-app.run ARGV
+main = MainCmd.new
+main.execute ARGV
 ```
-```shell
-$ crystal greet.cr -h
-Greets a person
 
+```
+$ crystal greet.cr -h
 Usage:
         greet <arguments> [options]
 
 Arguments:
-        person    the person to greet
+        name    the name of person to greet (required)
 
 Options:
         -c, --caps  greet with capitals
+        -h, --help  sends help information
 
 $ crystal greet.cr Dev
 Hello, Dev!
