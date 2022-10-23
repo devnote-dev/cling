@@ -32,6 +32,9 @@ module CLI
       setup
     end
 
+    # An abstract method that should define information about the command such as the name,
+    # aliases, arguments, options, etc. The command name is required for all commands, all other
+    # values are optional including the help message.
     abstract def setup : Nil
 
     def name : String
@@ -41,17 +44,25 @@ module CLI
     def name=(@name : String)
     end
 
+    # Returns `true` if the argument matches the command name or any aliases.
     def is?(name n : String) : Bool
       @name == n || @aliases.includes? n
     end
 
+    # Returns the help template for this command. By default, one is generated interally unless
+    # this method is overridden.
     def help_template : String
       @help_template
     end
 
+    # TODO: remove this in favor of abstraction
+
+    # :nodoc:
     def help_template=(@help_template : String?)
     end
 
+    # Adds a command as a subcommand to the parent. The command can then be referenced by specifying it as the
+    # first argument in the command line.
     def add_command(command : Command) : Nil
       raise ArgumentError.new "Duplicate command '#{command.name}'" if @children.has_key? command.name
       command.aliases.each do |a|
@@ -68,6 +79,7 @@ module CLI
       @children[command.name] = command
     end
 
+    # Adds several commands as subcommands to the parent (see `add_command`).
     def add_commands(*commands : Command) : Nil
       commands.each { |c| add_command(c) }
     end
