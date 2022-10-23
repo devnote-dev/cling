@@ -12,7 +12,7 @@ module CLI
     property command : Command
     property options : Options
 
-    def initialize(@command : Command, @options : Options)
+    def initialize(@command : Command, @options : Options = Options.new)
     end
 
     def generate : String
