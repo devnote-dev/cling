@@ -4,8 +4,8 @@ module CLI
     # blank.
     getter name : String
 
-    # An array of aliases for the command.
-    getter aliases : Array(String)
+    # A set of aliases for the command.
+    getter aliases : Set(String)
 
     # An array of usage strings to display in generated help templates.
     getter usage : Array(String)
@@ -45,26 +45,29 @@ module CLI
     # Whether the command should inherit the options from the parent command.
     property? inherit_options : Bool
 
-    # TODO: inherit_streams
+    # Whether the command should inherit the IO streams from the parent command.
+    property? inherit_streams : Bool
 
     # The standard input stream for commands (defaults to `STDIN`). This is a helper method for
     # custom commands and is only used by the `MainCommand` helper class.
-    property stdin : IO = STDIN
+    property stdin : IO
 
     # The standard output stream for commands (defaults to `STDOUT`). This is a helper method for
     # custom commands and is only used by the `MainCommand` helper class.
-    property stdout : IO = STDOUT
+    property stdout : IO
 
     # The standard error stream for commands (defaults to `STDERR`). This is a helper method for
     # custom commands and is only used by the `MainCommand` helper class.
-    property stderr : IO = STDERR
+    property stderr : IO
 
-    def initialize(*, aliases : Array(String)? = nil, usage : Array(String)? = nil,
+    def initialize(*, aliases : Set(String)? = nil, usage : Array(String)? = nil,
                    @header : String? = nil, @summary : String? = nil, @description : String? = nil,
                    @footer : String? = nil, @parent : Command? = nil, children : Array(Command)? = nil,
                    arguments : Hash(String, Argument)? = nil, options : Hash(String, Option)? = nil,
-                   @hidden : Bool = false, @inherit_borders : Bool = true, @inherit_options : Bool = true)
-      @aliases = aliases || [] of String
+                   @hidden : Bool = false, @inherit_borders : Bool = true, @inherit_options : Bool = true,
+                   @inherit_streams : Bool = true, @stdin : IO = STDIN, @stdout : IO = STDOUT, @stderr : IO = STDERR)
+      @name = ""
+      @aliases = aliases || Set(String).new
       @usage = usage || [] of String
       @children = children || {} of String => Command
       @arguments = arguments || {} of String => Argument
@@ -95,6 +98,21 @@ module CLI
     # this method is overridden.
     def help_template : String
       Formatter.new(self).generate
+    end
+
+    # Adds an alias to the command.
+    def add_alias(name : String) : Nil
+      @aliases << name
+    end
+
+    # Adds several aliases to the command.
+    def add_aliases(*names : String) : Nil
+      @aliases.concat names
+    end
+
+    # Adds a usage string to the command.
+    def add_usage(usage : String) : Nil
+      @usage << usage
     end
 
     # Adds a command as a subcommand to the parent. The command can then be referenced by specifying it as the
