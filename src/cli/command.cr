@@ -60,8 +60,8 @@ module CLI
                    @header : String? = nil, @summary : String? = nil, @description : String? = nil,
                    @footer : String? = nil, @parent : Command? = nil, children : Array(Command)? = nil,
                    arguments : Hash(String, Argument)? = nil, options : Hash(String, Option)? = nil,
-                   @hidden : Bool = false, @inherit_borders : Bool = true, @inherit_options : Bool = true,
-                   @inherit_streams : Bool = true, @stdin : IO = STDIN, @stdout : IO = STDOUT, @stderr : IO = STDERR)
+                   @hidden : Bool = false, @inherit_borders : Bool = false, @inherit_options : Bool = false,
+                   @inherit_streams : Bool = false, @stdin : IO = STDIN, @stdout : IO = STDOUT, @stderr : IO = STDERR)
       @name = ""
       @aliases = aliases || Set(String).new
       @usage = usage || [] of String
@@ -90,8 +90,8 @@ module CLI
     abstract def setup : Nil
 
     # Returns `true` if the argument matches the command name or any aliases.
-    def is?(name n : String) : Bool
-      @name == n || @aliases.includes? n
+    def is?(name : String) : Bool
+      @name == name || @aliases.includes? name
     end
 
     # Returns the help template for this command. By default, one is generated interally unless
@@ -115,8 +115,8 @@ module CLI
       @usage << usage
     end
 
-    # Adds a command as a subcommand to the parent. The command can then be referenced by specifying it as the
-    # first argument in the command line.
+    # Adds a command as a subcommand to the parent. The command can then be referenced by
+    # specifying it as the first argument in the command line.
     def add_command(command : Command) : Nil
       raise CommandError.new "Duplicate command '#{command.name}'" if @children.has_key? command.name
       command.aliases.each do |a|
@@ -129,13 +129,14 @@ module CLI
         command.footer = @footer
       end
 
+      command.options.merge! @options if command.inherit_options?
+
       if command.inherit_streams?
         command.stdin = @stdin
         command.stdout = @stdout
         command.stderr = @stderr
       end
 
-      command.options.merge! @options if command.inherit_options?
       @children[command.name] = command
     end
 
@@ -172,8 +173,6 @@ module CLI
 
     # Executes the command with the given input and parser (see `Parser`).
     def execute(input : String | Array(String), *, parser : Parser? = nil) : Nil
-      name # make sure it's set
-
       parser ||= Parser.new input
       results = parser.parse
       Executor.handle self, results
@@ -214,8 +213,8 @@ module CLI
       raise CommandError.new %(Unknown argument#{"s" if args.size > 1}: #{args.join(", ")})
     end
 
-    # A hook method for when the command receives missing options that are required during execution.
-    # By default, this raises an `ArgumentError`.
+    # A hook method for when the command receives missing options that are required during
+    # execution. By default, this raises an `ArgumentError`.
     def on_missing_options(options : Array(String))
       raise CommandError.new %(Missing required option#{"s" if options.size > 1}: #{options.join(", ")})
     end
