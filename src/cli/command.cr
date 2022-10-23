@@ -1,9 +1,5 @@
 module CLI
   abstract class Command
-    # The name of the command. This is the only required field of a command and cannot be empty or
-    # blank.
-    getter name : String
-
     # A set of aliases for the command.
     getter aliases : Set(String)
 
@@ -76,18 +72,22 @@ module CLI
       setup
     end
 
+    # The name of the command. This is the only required field of a command and cannot be empty or
+    # blank.
+    def name : String
+      raise ArgumentError.new "Command name cannot be empty" if @name.empty?
+      raise ArgumentError.new "Command name cannot be blank" if @name.blank?
+
+      @name
+    end
+
+    def name=(@name : String)
+    end
+
     # An abstract method that should define information about the command such as the name,
     # aliases, arguments, options, etc. The command name is required for all commands, all other
     # values are optional including the help message.
     abstract def setup : Nil
-
-    # Sets the name of the command. This cannot be an empty or blank value.
-    def name=(name : String)
-      raise ArgumentError.new "Command name cannot be empty" if name.empty?
-      raise ArgumentError.new "Command name cannot be blank" if name.blank?
-
-      @name = name
-    end
 
     # Returns `true` if the argument matches the command name or any aliases.
     def is?(name n : String) : Bool
@@ -129,6 +129,12 @@ module CLI
         command.footer = @footer
       end
 
+      if command.inherit_streams?
+        command.stdin = @stdin
+        command.stdout = @stdout
+        command.stderr = @stderr
+      end
+
       command.options.merge! @options if command.inherit_options?
       @children[command.name] = command
     end
@@ -166,6 +172,8 @@ module CLI
 
     # Executes the command with the given input and parser (see `Parser`).
     def execute(input : String | Array(String), *, parser : Parser? = nil) : Nil
+      name # make sure it's set
+
       parser ||= Parser.new input
       results = parser.parse
       Executor.handle self, results
