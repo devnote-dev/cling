@@ -1,5 +1,5 @@
 name: cli
-description: expandable command line interface library
+description: a modular, non-macro-based command line interface library
 version: 2.0.0
 crystal: 1.5.0
 
