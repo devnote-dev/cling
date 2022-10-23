@@ -1,3 +1,6 @@
+# Handles the execution of commands. In most cases you should never need to interact with this
+# module as the `Command#execute` method is the main entrypoint for executing commands. For this
+# reason, most of the modules methods are hidden.
 module CLI::Executor
   private struct Result
     getter parsed_opts : OptionsInput
@@ -13,6 +16,24 @@ module CLI::Executor
     end
   end
 
+  # Handles the execution of a command using the given results from the parser.
+  #
+  # ### Process
+  #
+  # 1. The command is resolved first using a pointer to the results to prevent having to deal with
+  # multiple copies of the same object, and is mutated in the `resolve_command` method.
+  #
+  # 2. The results are evaluated with the command arguments and options to set their values and
+  # move the missing, unknown and invalid arguments/options into place.
+  #
+  # 3. The `Command#pre_run` hook is executed with the resolved arguments and options, and the
+  # response is checked for continuation.
+  #
+  # 4. The evaluated arguments and options are finalized: missing, unknown and invalid arguments/
+  # options trigger the necessary missing/unknown/invalid command hooks.
+  #
+  # 5. The main `Command#run` and `Command#post_run` methods are executed with the evaluated
+  # arguments and options.
   def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
     cmd = resolve_command command, pointerof(results)
     raise NotFoundError.new unless cmd

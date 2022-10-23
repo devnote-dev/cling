@@ -1,10 +1,18 @@
 module CLI
+  # Handles parsing command line arguments into raw argument objects (see `Result`) which are used
+  # by the `Executor` at execution time.
   class Parser
+    # Represents options for the parser.
     class Options
+      # Parse string arguments as one value instead of separate values (defaults is `true`).
       property parse_string : Bool
       # TODO
       # property parse_escape : Bool
+
+      # The character to use for flag option delimiters (default is `-`).
       property option_delim : Char
+
+      # The characters to accept as string delimiters (default is `"` and `'`).
       property string_delims : Set(Char)
 
       def initialize(*, @parse_string : Bool = true, @option_delim : Char = '-',
@@ -12,12 +20,15 @@ module CLI
       end
     end
 
+    # Represents the kind of the result.
     enum ResultKind
       Argument
       ShortFlag
       LongFlag
     end
 
+    # The result of a parsed value from the command line. This can be a normal argument, string
+    # argument, short flag, or long flag.
     class Result
       property kind : ResultKind
       property value : String
@@ -26,6 +37,7 @@ module CLI
       def initialize(@kind, @value, *, @string = false)
       end
 
+      # Returns the key form of the value for flag results, or `value` for argument results.
       def parse_value : String
         if @value.includes? '='
           @value.split('=', 2).first
@@ -55,6 +67,7 @@ module CLI
       new args.join(' '), options
     end
 
+    # Parses the command line arguments from the reader and returns a hash of the results.
     def parse : Hash(Int32, Result)
       results = [] of Result
 
