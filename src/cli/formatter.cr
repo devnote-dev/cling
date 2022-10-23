@@ -1,20 +1,31 @@
 module CLI
+  # Generates a formatted help template for command components.
   class Formatter
+    # Represents options for the formatter.
     class Options
+      # The character to use for flag option delimiters (default is `-`).
       property option_delim : Char
+
+      # Whether to show the `default` tag for options with default values (default is `true`).
       property show_defaults : Bool
+
+      # Whether to show the `required` tag for required arguments/options (default is `true`).
       property show_required : Bool
 
       def initialize(*, @option_delim : Char = '-', @show_defaults : Bool  = true, @show_required : Bool = true)
       end
     end
 
+    # :nodoc:
     property command : Command
+    # :nodoc:
     property options : Options
 
     def initialize(@command : Command, @options : Options = Options.new)
     end
 
+    # Generates a help template for the set command. This will attempt to fill fields that have
+    # not been set in the command, for example, command usage strings.
     def generate : String
       String.build do |str|
         if header = @command.header
@@ -66,6 +77,7 @@ module CLI
       end
     end
 
+    # Returns a formatted string for subcommands (children) of the set command.
     def format_commands : String
       commands = @command.children.values.reject &.hidden?
       return "" if commands.empty?
@@ -82,6 +94,7 @@ module CLI
       end
     end
 
+    # Returns a formatted string for arguments in the set command.
     def format_arguments : String
       return "" if @command.arguments.empty?
 
@@ -98,6 +111,7 @@ module CLI
       end
     end
 
+    # Returns a formatted string for options in the set command.
     def format_options : String
       return "" if @command.options.empty?
 
