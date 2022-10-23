@@ -1,6 +1,6 @@
 name: cli
 description: expandable command line interface library
-version: 1.0.0
+version: 2.0.0
 crystal: 1.5.0
 
 repository: https://github.com/devnote-dev/cli.cr
