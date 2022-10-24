@@ -25,7 +25,7 @@ describe CLI::Parser do
   end
 
   it "parses a string argument" do
-    parser = CLI::Parser.new %w(--test "string argument" -t)
+    parser = CLI::Parser.new %(--test "string argument" -t)
     results = parser.parse
 
     results[0].kind.should eq CLI::Parser::ResultKind::LongFlag

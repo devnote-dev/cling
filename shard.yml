@@ -1,10 +1,10 @@
 name: cli
 description: a modular, non-macro-based command line interface library
-version: 2.0.0
+version: 2.0.1
 crystal: 1.5.0
 
 repository: https://github.com/devnote-dev/cli.cr
 authors:
   - Devonte W <https://github.com/devnote-dev>
 
-license: MIT
+license: MPL

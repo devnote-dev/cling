@@ -5,7 +5,7 @@ require "./spec_helper"
 private class ContextCmd < CLI::Command
   def setup : Nil
     @name = "context"
-    description = "Runs the Crystal context tool"
+    @description = "Runs the Crystal context tool"
   end
 
   def run(args, options) : Nil
@@ -16,7 +16,7 @@ end
 private class FormatCmd < CLI::Command
   def setup : Nil
     @name = "format"
-    description = "Runs the Crystal format tool"
+    @description = "Runs the Crystal format tool"
   end
 
   def run(args, options) : Nil
@@ -28,7 +28,7 @@ private class CrystalCmd < CLI::MainCommand
   def setup : Nil
     super
 
-    description = "Runs some Crystal commands"
+    @description = "Runs some Crystal commands"
   end
 
   def run(args, options) : Nil
@@ -45,10 +45,11 @@ describe CLI do
     command.stdout = io
     command.execute ""
 
-    io.to_s.should eq "Usage:\n\tmain [options]\n\n" \
-      "Commands:\n\tcontext    \n\tformat     \n\n" \
-      "Options:\n\t-h, --help     sends help information\n" \
-      "\t-v, --version  sends the app version\n\n"
+    io.to_s.should eq "Runs some Crystal commands\n\n" \
+                      "Usage:\n\tmain [options]\n\n" \
+                      "Commands:\n\tcontext    \n\tformat     \n\n" \
+                      "Options:\n\t-h, --help     sends help information\n" \
+                      "\t-v, --version  sends the app version\n\n"
   end
 
   it "runs the context command" do

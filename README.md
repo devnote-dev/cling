@@ -22,7 +22,7 @@ require "cli"
 class MainCmd < CLI::Command
   def setup : Nil
     @name = "greet"
-    description = "Greets a person"
+    @description = "Greets a person"
     add_argument "name", desc: "the name of person to greet", required: true
     add_option 'c', "caps", desc: "greet with capitals"
     add_option 'h', "help", desc: "sends help information"
@@ -82,6 +82,6 @@ HELLO, DEV!
 ## Contributors
 - [Devonte W](https://github.com/devnote-dev) - creator and maintainer
 
-This repository is managed under the GNU AGPL v3 license.
+This repository is managed under the Mozilla Public License v2.
 
 © 2022 devnote-dev

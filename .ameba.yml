@@ -1,0 +1,9 @@
+Globs:
+  - src/**/*.cr
+  - spec/**/*.cr
+
+Layout/TrailingWhitespace:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
