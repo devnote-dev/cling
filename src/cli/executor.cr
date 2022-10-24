@@ -38,7 +38,7 @@ module CLI::Executor
     cmd = resolve_command command, pointerof(results)
     raise CommandError.new "Command '#{results.keys.first}' not found" unless cmd
 
-    executed = get_in_position command, results
+    executed = get_in_position cmd, results
 
     begin
       res = cmd.pre_run executed.parsed_args, executed.parsed_opts
