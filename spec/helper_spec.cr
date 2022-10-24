@@ -45,7 +45,8 @@ describe CLI do
     command.stdout = io
     command.execute ""
 
-    io.to_s.should eq "Usage:\n\tmain [options]\n\n" \
+    io.to_s.should eq "Runs some Crystal commands\n\n" \
+                      "Usage:\n\tmain [options]\n\n" \
                       "Commands:\n\tcontext    \n\tformat     \n\n" \
                       "Options:\n\t-h, --help     sends help information\n" \
                       "\t-v, --version  sends the app version\n\n"
