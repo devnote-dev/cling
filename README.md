@@ -82,6 +82,6 @@ HELLO, DEV!
 ## Contributors
 - [Devonte W](https://github.com/devnote-dev) - creator and maintainer
 
-This repository is managed under the GNU AGPL v3 license.
+This repository is managed under the Mozilla Public License v2.
 
 © 2022 devnote-dev
