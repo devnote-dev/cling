@@ -51,8 +51,8 @@ module CLI
         @raw.as(Bool)
       else
         case @raw.to_s
-        when "true"   then true
-        when "false"  then false
+        when "true"  then true
+        when "false" then false
         else
           raise TypeCastError.new "cast from #{@raw.class} to Bool failed"
         end

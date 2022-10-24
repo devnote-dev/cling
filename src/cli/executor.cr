@@ -118,7 +118,7 @@ module CLI::Executor
       .keys
       .reject { |k| parsed_opts.has_key?(k) }
 
-    arguments = results.values.select { |v| v.kind.argument? }
+    arguments = results.values.select &.kind.argument?
     parsed_args = {} of String => Argument
     missing_args = [] of String
 
@@ -133,10 +133,10 @@ module CLI::Executor
     end
 
     unknown_args = if arguments.empty?
-        [] of String
-      else
-        arguments[parsed_args.size...].map &.value
-      end
+                     [] of String
+                   else
+                     arguments[parsed_args.size...].map &.value
+                   end
 
     Result.new(parsed_opts, unknown_opts, missing_opts, parsed_args, unknown_args, missing_args)
   end
