@@ -12,7 +12,7 @@ module CLI
       # Whether to show the `required` tag for required arguments/options (default is `true`).
       property show_required : Bool
 
-      def initialize(*, @option_delim : Char = '-', @show_defaults : Bool  = true, @show_required : Bool = true)
+      def initialize(*, @option_delim : Char = '-', @show_defaults : Bool = true, @show_required : Bool = true)
       end
     end
 

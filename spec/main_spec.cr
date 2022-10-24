@@ -42,9 +42,9 @@ describe CLI do
     cmd.execute %w()
 
     cmd.io.to_s.should eq "Greets a person\n\n" \
-      "Usage:\n\tgreet <arguments> [options]\n\n" \
-      "Arguments:\n\tname    the name of the person (required)\n\n" \
-      "Options:\n\t-c, --caps  greet with caps\n\n"
+                          "Usage:\n\tgreet <arguments> [options]\n\n" \
+                          "Arguments:\n\tname    the name of the person (required)\n\n" \
+                          "Options:\n\t-c, --caps  greet with caps\n\n"
   end
 
   it "tests the main command" do
