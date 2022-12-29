@@ -255,4 +255,4 @@ Most Crystal CLI builders/DSLs are opinionated with limited customisation availa
 
 This repository is managed under the Mozilla Public License v2.
 
-© 2022 devnote-dev
+© 2022-present devnote-dev
