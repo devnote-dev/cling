@@ -14,7 +14,7 @@ dependencies:
 
 2. Run `shards install`
 
-## Usage
+## Basic Usage
 
 ```crystal
 require "cli"
@@ -70,6 +70,49 @@ Hello, Dev!
 
 $ crystal greet.cr -c Dev
 HELLO, DEV!
+```
+
+## Customising
+
+You can customise the following options for the help template formatter:
+```crystal
+class CLI::Formatter::Options
+  # The character to use for flag option delimiters (default is `-`).
+  property option_delim : Char
+
+  # Whether to show the `default` tag for options with default values (default is `true`).
+  property show_defaults : Bool
+
+  # Whether to show the `required` tag for required arguments/options (default is `true`).
+  property show_required : Bool
+end
+```
+
+And pass it to the command like so:
+```crystal
+require "cli"
+
+options = CLI::Formatter::Options.new option_delim: '+', show_defaults: false
+
+class MainCmd < CLI::Command
+  # ...
+
+  def help_template : String
+    CLI::Formatter.new(self, options).generate
+  end
+end
+```
+
+Alternatively, if you want a completely custom design, you can pass a string directly:
+```crystal
+def help_template : String
+  <<-TXT
+  My custom command help text!
+
+  Use:
+      greet <name> [-c | --caps] [-h | --help]
+  TXT
+end
 ```
 
 ## Contributing
