@@ -72,7 +72,103 @@ $ crystal greet.cr -c Dev
 HELLO, DEV!
 ```
 
+## Commands
+
+By default, the `Command` class is initialized with almost no values. All information about the command must be defined in the `setup` method.
+
+```crystal
+class MainCmd < CLI::Command
+  def setup : Nil
+    # prefer using `@name =` instead of `name =` to avoid method conflicts
+    @name = "greet"
+    # same here
+    @description = "Greets a person"
+    # defines an argument
+    add_argument "name", desc: "the name of person to greet", required: true
+    # defines a flag option
+    add_option 'c', "caps", desc: "greet with capitals"
+    add_option 'h', "help", desc: "sends help information"
+  end
+end
+```
+> **Note**
+> See [command.cr](/src/cli/command.cr) for the full list of options.
+
+Commands can also contain children, or subcommands:
+```crystal
+require "cli"
+# import our subcommand here
+require "./welcome_cmd"
+
+# using the `MainCmd` created earlier
+main = MainCmd.new
+main.add_command WelcomeCmd.new
+# there is also the `add_commands` method for adding multiple
+# subcommands at one time
+
+# run the command
+main.execute ARGV
+```
+
+```$ crystal greet.cr -h
+Usage:
+        greet <arguments> [options]
+
+Commands:
+        welcome    sends a friendly welcome message
+
+Arguments:
+        name    the name of person to greet (required)
+
+Options:
+        -c, --caps  greet with capitals
+        -h, --help  sends help information
+
+$ crystal greet.cr welcome Dev
+Welcome to the CLI world, Dev!
+```
+
+As well as being able to have subcommands, they can also inherit certain properties from the parent command:
+```crystal
+# in welcome_cmd.cr ...
+class WelcomeCmd < CLI::Command
+  def setup : Nil
+    # ...
+
+    # this will inherit the header and footer properties
+    inherit_borders = true
+    # this will NOT inherit the parent flag options
+    inherit_options = false
+    # this will inherit the input, output and error IO streams
+    inherit_streams = true
+  end
+end
+```
+
 ## Customising
+
+The help template is divided into the following sections:
+```
+[HEADER]
+
+[DESCRIPTION]
+
+[USAGE]
+    <NAME> <USE | "[<arguments>]" "[<options>]">
+
+[COMMANDS]
+    [ALIASES] <NAME> <SUMMARY>
+
+[ARGUMENTS]
+    <NAME> <DESCRIPTION> ["(required)"]
+
+[OPTIONS]
+    [SHORT] <LONG> <DESCRIPTION> ["(required)"] ["(default: ...)"]
+
+[FOOTER]
+```
+
+Sections in `<>` will always be present, and ones in `[]` are optional depending on whether they are defined. Because of CLI.cr's modularity, this means that you could essentially have a blank help template (wouldn't recommend it though).
 
 You can customise the following options for the help template formatter:
 ```crystal
