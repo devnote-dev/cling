@@ -19,7 +19,7 @@ private class Greet < CLI::Command
 
   def pre_run(args, options)
     unless args.has? "name"
-      io.puts CLI::Formatter.new(self).generate
+      io.puts CLI::Formatter.new.generate self
 
       false
     end
