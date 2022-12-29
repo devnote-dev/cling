@@ -237,6 +237,10 @@ def help_template : String
 end
 ```
 
+## Motivation
+
+Most Crystal CLI builders/DSLs are opinionated with limited customisation available. CLI.cr aims to be entirely modular so that you have the freedom to change whatever you want without having to write tons of boilerplate or monkey-patch code. Macro-based CLI shards can also be quite restrictive as they are not scalable, meaning that you may eventually have to refactor your application to another CLI shard. This is not meant to discourage you from using macro-based CLI shards, they are still useful for short and simple applications with a general template, but if you are looking for something to handle larger applications with guaranteed stability and scalability, CLI.cr is the library for you.
+
 ## Contributing
 1. Fork it (<https://github.com/devnote-dev/cli.cr/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
