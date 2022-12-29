@@ -97,7 +97,7 @@ module CLI
     # Returns the help template for this command. By default, one is generated interally unless
     # this method is overridden.
     def help_template : String
-      Formatter.new(self).generate
+      Formatter.new.generate self
     end
 
     # Adds an alias to the command.

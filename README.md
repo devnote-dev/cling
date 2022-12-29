@@ -215,12 +215,14 @@ And pass it to the command like so:
 require "cli"
 
 options = CLI::Formatter::Options.new option_delim: '+', show_defaults: false
+# we can re-use this in multiple commands
+formatter = CLI::Formatter.new options
 
 class MainCmd < CLI::Command
   # ...
 
   def help_template : String
-    CLI::Formatter.new(self, options).generate
+    formatter.generate self
   end
 end
 ```

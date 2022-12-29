@@ -17,69 +17,67 @@ module CLI
     end
 
     # :nodoc:
-    property command : Command
-    # :nodoc:
     property options : Options
 
-    def initialize(@command : Command, @options : Options = Options.new)
+    def initialize(@options : Options = Options.new)
     end
 
-    # Generates a help template for the set command. This will attempt to fill fields that have
-    # not been set in the command, for example, command usage strings.
-    def generate : String
+    # Generates a help template for the specified command. This will attempt to fill fields that
+    # have not been set in the command, for example, command usage strings.
+    def generate(command : Command) : String
       String.build do |str|
-        if header = @command.header
+        if header = command.header
           str << header << "\n\n"
         end
 
-        if desc = @command.description
+        if desc = command.description
           str << desc << "\n\n"
         end
 
         str << "Usage:"
-        if @command.usage.empty?
-          str << "\n\t" << @command.name
-          unless @command.arguments.empty?
-            if @command.arguments.values.any? &.required?
+        if command.usage.empty?
+          str << "\n\t" << command.name
+          unless command.arguments.empty?
+            if command.arguments.values.any? &.required?
               str << " <arguments>"
             else
               str << " [arguments]"
             end
           end
 
-          unless @command.options.empty?
-            if @command.options.values.any? &.required?
+          unless command.options.empty?
+            if command.options.values.any? &.required?
               str << " <options>"
             else
               str << " [options]"
             end
           end
         else
-          @command.usage.each do |use|
+          command.usage.each do |use|
             str << "\n\t" << use
           end
         end
         str << "\n\n"
 
-        unless @command.children.empty?
-          str << format_commands << "\n\n"
+        unless command.children.empty?
+          str << format_commands(command) << "\n\n"
         end
-        unless @command.arguments.empty?
-          str << format_arguments << "\n\n"
+        unless command.arguments.empty?
+          str << format_arguments(command) << "\n\n"
         end
-        unless @command.options.empty?
-          str << format_options << "\n\n"
+        unless command.options.empty?
+          str << format_options(command) << "\n\n"
         end
 
-        if footer = @command.footer
+        if footer = command.footer
           str << '\n' << footer
         end
       end
     end
 
     # Returns a formatted string for subcommands (children) of the set command.
-    def format_commands : String
-      commands = @command.children.values.reject &.hidden?
+    def format_commands(command : Command) : String
+      commands = command.children.values.reject &.hidden?
       return "" if commands.empty?
 
       String.build do |str|
@@ -95,14 +93,14 @@ module CLI
     end
 
     # Returns a formatted string for arguments in the set command.
-    def format_arguments : String
-      return "" if @command.arguments.empty?
+    def format_arguments(command : Command) : String
+      return "" if command.arguments.empty?
 
       String.build do |str|
         str << "Arguments:"
-        max_space = @command.arguments.keys.map(&.size).max + 4
+        max_space = command.arguments.keys.map(&.size).max + 4
 
-        @command.arguments.each do |name, arg|
+        command.arguments.each do |name, arg|
           str << "\n\t" << name
           str << " " * (max_space - name.size)
           str << arg.description
@@ -112,10 +110,10 @@ module CLI
     end
 
     # Returns a formatted string for options in the set command.
-    def format_options : String
-      return "" if @command.options.empty?
+    def format_options(command : Command) : String
+      return "" if command.options.empty?
 
-      options = @command.options.values
+      options = command.options.values
 
       String.build do |str|
         str << "Options:"
