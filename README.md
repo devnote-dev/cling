@@ -23,7 +23,7 @@ class MainCmd < CLI::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
-    add_argument "name", desc: "the name of person to greet", required: true
+    add_argument "name", desc: "the name of the person to greet", required: true
     add_option 'c', "caps", desc: "greet with capitals"
     add_option 'h', "help", desc: "sends help information"
   end
@@ -59,7 +59,7 @@ Usage:
         greet <arguments> [options]
 
 Arguments:
-        name    the name of person to greet (required)
+        name    the name of the person to greet (required)
 
 Options:
         -c, --caps  greet with capitals
@@ -84,7 +84,7 @@ class MainCmd < CLI::Command
     # same here
     @description = "Greets a person"
     # defines an argument
-    add_argument "name", desc: "the name of person to greet", required: true
+    add_argument "name", desc: "the name of the person to greet", required: true
     # defines a flag option
     add_option 'c', "caps", desc: "greet with capitals"
     add_option 'h', "help", desc: "sends help information"
@@ -141,6 +141,32 @@ class WelcomeCmd < CLI::Command
     inherit_options = false
     # this will inherit the input, output and error IO streams
     inherit_streams = true
+  end
+end
+```
+
+## Arguments and Options
+
+Arguments and flag options can be defined in the `setup` method of a command using the `add_argument` and `add_option` methods respectively.
+```crystal
+class MainCmd < CLI::Command
+  def setup : Nil
+    add_argument "name",
+      # sets a description for it
+      desc: "the name of the person to greet",
+      # set it as a required or optional argument
+      required: true
+
+    # define an option with a short flag using chars
+    add_option 'c', "caps",
+      # sets a description for it
+      desc: "greet with capitals",
+      # set it as a required or optional flag
+      required: false,
+      # set whether it should take a value
+      has_value: false,
+      # optionally set a default value
+      default: nil
   end
 end
 ```
