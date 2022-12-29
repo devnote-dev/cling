@@ -36,7 +36,10 @@ module CLI::Executor
   # arguments and options.
   def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
     cmd = resolve_command command, pointerof(results)
-    raise CommandError.new "Command '#{results.keys.first}' not found" unless cmd
+    unless cmd
+      command.on_error CommandError.new("Command '#{results.first[1].value}' not found")
+      return
+    end
 
     executed = get_in_position cmd, results
 
