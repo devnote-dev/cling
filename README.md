@@ -39,12 +39,12 @@ class MainCommand < CLI::Command
   end
 
   def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
-    msg = "Hello, #{arguments.get("name")}!"
+    message = "Hello, #{arguments.get("name")}!"
 
     if options.has? "caps"
-      puts msg.upcase
+      puts message.upcase
     else
-      puts msg
+      puts message
     end
   end
 end
