@@ -19,16 +19,16 @@ dependencies:
 ```crystal
 require "cli"
 
-class MainCmd < CLI::Command
+class MainCommand < CLI::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
-    add_argument "name", desc: "the name of the person to greet", required: true
-    add_option 'c', "caps", desc: "greet with capitals"
-    add_option 'h', "help", desc: "sends help information"
+    add_argument "name", description: "the name of the person to greet", required: true
+    add_option 'c', "caps", description: "greet with capitals"
+    add_option 'h', "help", description: "sends help information"
   end
 
-  def pre_run(args, options)
+  def pre_run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Bool
     if options.has? "help"
       puts help_template # generated using CLI::Formatter
 
@@ -38,8 +38,8 @@ class MainCmd < CLI::Command
     end
   end
 
-  def run(args, options) : Nil
-    msg = "Hello, #{args.get("name")}!"
+  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+    msg = "Hello, #{arguments.get("name")}!"
 
     if options.has? "caps"
       puts msg.upcase
@@ -49,7 +49,7 @@ class MainCmd < CLI::Command
   end
 end
 
-main = MainCmd.new
+main = MainCommand.new
 main.execute ARGV
 ```
 
@@ -77,17 +77,17 @@ HELLO, DEV!
 By default, the `Command` class is initialized with almost no values. All information about the command must be defined in the `setup` method.
 
 ```crystal
-class MainCmd < CLI::Command
+class MainCommand < CLI::Command
   def setup : Nil
     # prefer using `@name =` instead of `name =` to avoid method conflicts
     @name = "greet"
     # same here
     @description = "Greets a person"
     # defines an argument
-    add_argument "name", desc: "the name of the person to greet", required: true
+    add_argument "name", description: "the name of the person to greet", required: true
     # defines a flag option
-    add_option 'c', "caps", desc: "greet with capitals"
-    add_option 'h', "help", desc: "sends help information"
+    add_option 'c', "caps", description: "greet with capitals"
+    add_option 'h', "help", description: "sends help information"
   end
 end
 ```
@@ -98,11 +98,11 @@ Commands can also contain children, or subcommands:
 ```crystal
 require "cli"
 # import our subcommand here
-require "./welcome_cmd"
+require "./welcome_command"
 
-# using the `MainCmd` created earlier
-main = MainCmd.new
-main.add_command WelcomeCmd.new
+# using the `MainCommand` created earlier
+main = MainCommand.new
+main.add_command WelcomeCommand.new
 # there is also the `add_commands` method for adding multiple
 # subcommands at one time
 
@@ -130,8 +130,8 @@ Welcome to the CLI world, Dev!
 
 As well as being able to have subcommands, they can also inherit certain properties from the parent command:
 ```crystal
-# in welcome_cmd.cr ...
-class WelcomeCmd < CLI::Command
+# in welcome_command.cr ...
+class WelcomeCommand < CLI::Command
   def setup : Nil
     # ...
 
@@ -149,18 +149,18 @@ end
 
 Arguments and flag options can be defined in the `setup` method of a command using the `add_argument` and `add_option` methods respectively.
 ```crystal
-class MainCmd < CLI::Command
+class MainCommand < CLI::Command
   def setup : Nil
     add_argument "name",
       # sets a description for it
-      desc: "the name of the person to greet",
+      description: "the name of the person to greet",
       # set it as a required or optional argument
       required: true
 
     # define an option with a short flag using chars
     add_option 'c', "caps",
       # sets a description for it
-      desc: "greet with capitals",
+      description: "greet with capitals",
       # set it as a required or optional flag
       required: false,
       # set whether it should take a value
@@ -218,7 +218,7 @@ options = CLI::Formatter::Options.new option_delim: '+', show_defaults: false
 # we can re-use this in multiple commands
 formatter = CLI::Formatter.new options
 
-class MainCmd < CLI::Command
+class MainCommand < CLI::Command
   # ...
 
   def help_template : String

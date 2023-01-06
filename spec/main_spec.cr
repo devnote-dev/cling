@@ -13,20 +13,20 @@ private class Greet < CLI::Command
     @name = "greet"
     @description = "Greets a person"
 
-    add_argument "name", desc: "the name of the person", required: true
-    add_option 'c', "caps", desc: "greet with caps"
+    add_argument "name", description: "the name of the person", required: true
+    add_option 'c', "caps", description: "greet with caps"
   end
 
-  def pre_run(args, options)
-    unless args.has? "name"
+  def pre_run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Bool?
+    unless arguments.has? "name"
       io.puts CLI::Formatter.new.generate self
 
       false
     end
   end
 
-  def run(args, options) : Nil
-    msg = %(Hello, #{args.get! "name"}!)
+  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+    msg = %(Hello, #{arguments.get! "name"}!)
 
     if options.has? "caps"
       io.puts msg.upcase
@@ -38,26 +38,26 @@ end
 
 describe CLI do
   it "tests the help command" do
-    cmd = Greet.new
-    cmd.execute %w()
+    command = Greet.new
+    command.execute %w()
 
-    cmd.io.to_s.should eq "Greets a person\n\n" \
-                          "Usage:\n\tgreet <arguments> [options]\n\n" \
-                          "Arguments:\n\tname    the name of the person (required)\n\n" \
-                          "Options:\n\t-c, --caps  greet with caps\n\n"
+    command.io.to_s.should eq "Greets a person\n\n" \
+                              "Usage:\n\tgreet <arguments> [options]\n\n" \
+                              "Arguments:\n\tname    the name of the person (required)\n\n" \
+                              "Options:\n\t-c, --caps  greet with caps\n\n"
   end
 
   it "tests the main command" do
-    cmd = Greet.new
-    cmd.execute %w(Dev)
+    command = Greet.new
+    command.execute %w(Dev)
 
-    cmd.io.to_s.should eq "Hello, Dev!\n"
+    command.io.to_s.should eq "Hello, Dev!\n"
   end
 
   it "tests the main command with flag" do
-    cmd = Greet.new
-    cmd.execute %w(-c Dev)
+    command = Greet.new
+    command.execute %w(-c Dev)
 
-    cmd.io.to_s.should eq "HELLO, DEV!\n"
+    command.io.to_s.should eq "HELLO, DEV!\n"
   end
 end

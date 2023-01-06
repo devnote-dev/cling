@@ -1,16 +1,16 @@
 require "cli"
-require "./welcome_cmd"
+require "./welcome_command"
 
-class MainCmd < CLI::Command
+class MainCommand < CLI::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
-    add_argument "name", desc: "the name of the person to greet", required: true
-    add_option 'c', "caps", desc: "greet with capitals"
-    add_option 'h', "help", desc: "sends help information"
+    add_argument "name", description: "the name of the person to greet", required: true
+    add_option 'c', "caps", description: "greet with capitals"
+    add_option 'h', "help", description: "sends help information"
   end
 
-  def pre_run(args, options)
+  def pre_run(arguments : ArgumentsInput, options : OptionsInput) : Bool
     if options.has? "help"
       puts help_template # generated using CLI::Formatter
 
@@ -20,8 +20,8 @@ class MainCmd < CLI::Command
     end
   end
 
-  def run(args, options) : Nil
-    msg = "Hello, #{args.get("name")}!"
+  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+    msg = "Hello, #{arguments.get("name")}!"
 
     if options.has? "caps"
       puts msg.upcase
@@ -31,7 +31,7 @@ class MainCmd < CLI::Command
   end
 end
 
-main = MainCmd.new
-main.add_command WelcomeCmd.new
+main = MainCommand.new
+main.add_command WelcomeCommand.new
 
 main.execute ARGV

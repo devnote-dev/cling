@@ -31,28 +31,28 @@ module CLI
   end
 
   # An input structure to access validated arguments at execution time.
-  struct ArgsInput
-    getter args : Hash(String, Argument)
+  struct ArgumentsInput
+    getter arguments : Hash(String, Argument)
 
     # :nodoc:
-    def initialize(@args)
+    def initialize(@arguments)
     end
 
     # Indexes an argument by its name and returns the `Argument` object, not the argument's
     # value.
     def [](key : String) : Argument
-      @args[key]
+      @arguments[key]
     end
 
     # Indexes an argument by its name and returns the `Argument` object or `nil` if not found,
     # not the argument's value.
     def []?(key : String) : Argument?
-      @args[key]?
+      @arguments[key]?
     end
 
     # Returns `true` if an argument by the given name exists.
     def has?(key : String) : Bool
-      @args.has_key? key
+      @arguments.has_key? key
     end
 
     # Gets an argument by its name and returns its `Value`, or `nil` if not found.
@@ -67,12 +67,12 @@ module CLI
 
     # Returns `true` if there are no parsed arguments.
     def empty? : Bool
-      @args.empty?
+      @arguments.empty?
     end
 
     # Returns the number of parsed arguments.
     def size : Int32
-      @args.size
+      @arguments.size
     end
   end
 end
