@@ -30,8 +30,8 @@ module CLI
           str << header << "\n\n"
         end
 
-        if desc = command.description
-          str << desc << "\n\n"
+        if description = command.description
+          str << description << "\n\n"
         end
 
         str << "Usage:"
@@ -84,10 +84,10 @@ module CLI
         str << "Commands:"
         max_space = commands.map(&.name.size).max + 4
 
-        commands.each do |cmd|
-          str << "\n\t" << cmd.name
-          str << " " * (max_space - cmd.name.size)
-          str << cmd.summary
+        commands.each do |command|
+          str << "\n\t" << command.name
+          str << " " * (max_space - command.name.size)
+          str << command.summary
         end
       end
     end
@@ -100,11 +100,11 @@ module CLI
         str << "Arguments:"
         max_space = command.arguments.keys.map(&.size).max + 4
 
-        command.arguments.each do |name, arg|
+        command.arguments.each do |name, argument|
           str << "\n\t" << name
           str << " " * (max_space - name.size)
-          str << arg.description
-          str << " (required)" if @options.show_required && arg.required?
+          str << argument.description
+          str << " (required)" if @options.show_required && argument.required?
         end
       end
     end
@@ -120,21 +120,21 @@ module CLI
         max_space = options.map { |o| 2 + o.long.size + (o.short ? 2 : 0) }.max + 2
 
         delim = @options.option_delim.to_s * 2
-        options.each do |opt|
-          name_size = 2 + opt.long.size + (opt.short ? 2 : -2)
+        options.each do |option|
+          name_size = 2 + option.long.size + (option.short ? 2 : -2)
 
           str << "\n\t"
-          if short = opt.short
+          if short = option.short
             str << delim[0] << short << ", "
           end
 
-          str << delim << opt.long
+          str << delim << option.long
           str << " " * (max_space - name_size)
-          str << opt.description
-          str << " (required)" if @options.show_required && opt.required?
+          str << option.description
+          str << " (required)" if @options.show_required && option.required?
 
           if @options.show_defaults
-            if opt.has_default? && (default = opt.default.to_s) && !default.blank?
+            if option.has_default? && (default = option.default.to_s) && !default.blank?
               str << " (default: " << default << ')'
             end
           end

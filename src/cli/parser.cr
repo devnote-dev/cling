@@ -55,7 +55,7 @@ module CLI
     end
 
     def self.new(input : Array(String), options : Options = Options.new)
-      args = input.map do |a|
+      arguments = input.map do |a|
         if a.includes?(' ') && options.string_delims.none? { |d| a.includes?(d) }
           d = options.string_delims.first
           d.to_s + a + d.to_s
@@ -64,7 +64,7 @@ module CLI
         end
       end
 
-      new args.join(' '), options
+      new arguments.join(' '), options
     end
 
     # Parses the command line arguments from the reader and returns a hash of the results.
@@ -104,9 +104,9 @@ module CLI
         if res.parse_value.size > 1
           if res.value.includes? '='
             flags = res.parse_value.chars.map { |c| Result.new(:short_flag, c.to_s) }
-            opt = flags[-1]
-            opt.value += "=" + res.value.split('=', 2).last
-            flags[-1] = opt
+            option = flags[-1]
+            option.value += "=" + res.value.split('=', 2).last
+            flags[-1] = option
             validated += flags
           else
             validated += res.value.chars.map { |c| Result.new(:short_flag, c.to_s) }

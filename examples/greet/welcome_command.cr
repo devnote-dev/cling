@@ -1,9 +1,9 @@
-class WelcomeCmd < CLI::Command
+class WelcomeCommand < CLI::Command
   def setup : Nil
     @name = "welcome"
     @summary = @description = "sends a friendly welcome message"
 
-    add_argument "name", desc: "the name of the person to greet", required: true
+    add_argument "name", description: "the name of the person to greet", required: true
     # this will inherit the header and footer properties
     inherit_borders = true
     # this will NOT inherit the parent flag options
@@ -12,7 +12,7 @@ class WelcomeCmd < CLI::Command
     inherit_streams = true
   end
 
-  def pre_run(args, options)
+  def pre_run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Bool
     if options.has? "help"
       puts help_template # generated using CLI::Formatter
 
@@ -22,7 +22,7 @@ class WelcomeCmd < CLI::Command
     end
   end
 
-  def run(args, options) : Nil
-    stdout.puts "Welcome to the CLI world, #{args.get("name")}!"
+  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+    stdout.puts "Welcome to the CLI world, #{arguments.get("name")}!"
   end
 end

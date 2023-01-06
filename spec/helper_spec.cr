@@ -2,42 +2,42 @@ require "./spec_helper"
 
 # Inspired by Clim
 
-private class ContextCmd < CLI::Command
+private class ContextCommand < CLI::Command
   def setup : Nil
     @name = "context"
     @description = "Runs the Crystal context tool"
   end
 
-  def run(args, options) : Nil
+  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
     stdout.puts "Fake crystal context command!"
   end
 end
 
-private class FormatCmd < CLI::Command
+private class FormatCommand < CLI::Command
   def setup : Nil
     @name = "format"
     @description = "Runs the Crystal format tool"
   end
 
-  def run(args, options) : Nil
+  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
     stdout.puts "Fake crystal format command!"
   end
 end
 
-private class CrystalCmd < CLI::MainCommand
+private class CrystalCommand < CLI::MainCommand
   def setup : Nil
     super
 
     @description = "Runs some Crystal commands"
   end
 
-  def run(args, options) : Nil
+  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
   end
 end
 
-command = CrystalCmd.new
-command.add_command ContextCmd.new
-command.add_command FormatCmd.new
+command = CrystalCommand.new
+command.add_command ContextCommand.new
+command.add_command FormatCommand.new
 
 describe CLI do
   it "prints the help message" do

@@ -13,8 +13,8 @@ describe CLI::Parser do
   end
 
   it "parses custom flag input arguments" do
-    opts = CLI::Parser::Options.new option_delim: '+'
-    parser = CLI::Parser.new %(these ++are "some" +c arguments), opts
+    options = CLI::Parser::Options.new option_delim: '+'
+    parser = CLI::Parser.new %(these ++are "some" +c arguments), options
     results = parser.parse
 
     results[0].kind.should eq CLI::Parser::ResultKind::Argument

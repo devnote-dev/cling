@@ -6,12 +6,12 @@ module CLI
       @inherit_borders = true
       @inherit_options = true
 
-      add_option 'h', "help", desc: "sends help information"
-      add_option 'v', "version", desc: "sends the app version"
+      add_option 'h', "help", description: "sends help information"
+      add_option 'v', "version", description: "sends the app version"
     end
 
-    def pre_run(args, options)
-      if args.empty? && options.empty?
+    def pre_run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Bool
+      if arguments.empty? && options.empty?
         Formatter.new.generate(self).to_s(stdout)
         return false
       end
