@@ -14,7 +14,7 @@ module CLI
 
     def initialize(@long : String, @short : Char? = nil, @description : String? = nil,
                    @required : Bool = false, @has_value : Bool = false, @default : Value::Type = nil)
-      @value = nil
+      @value = Value.new(@default)
     end
 
     # :inherit:
