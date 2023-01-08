@@ -88,12 +88,13 @@ module CLI::Executor
           raise ExecutionError.new("Option '#{option}' takes no arguments") if res.value.includes? '='
           parsed_options[option.long] = option
         else
-          if res.value.includes? '='
+          if res.value.includes?('=')
             option.value = if option.type.single?
-              Value.new res.parse_value
-            else
-              Value.new res.parse_value.split(',')
-            end
+                             Value.new res.parse_value
+                           else
+                             Value.new res.parse_value.split(',')
+                           end
+
             parsed_options[option.long] = option
           else
             if argument = results[i + 1]?
@@ -145,7 +146,14 @@ module CLI::Executor
                           arguments[parsed_arguments.size...].map &.value
                         end
 
-    Result.new(parsed_options, unknown_options, missing_options, parsed_arguments, unknown_arguments, missing_arguments)
+    Result.new(
+      parsed_options,
+      unknown_options,
+      missing_options,
+      parsed_arguments,
+      unknown_arguments,
+      missing_arguments
+    )
   end
 
   private def self.finalize(command : Command, res : Result) : Nil
