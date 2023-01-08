@@ -7,9 +7,7 @@ describe CLI::Value do
     CLI::Value.new(4.56).should be_a CLI::Value
     CLI::Value.new(true).should be_a CLI::Value
     CLI::Value.new(nil).should be_a CLI::Value
-
-    # currently broken
-    # CLI::Value.new(%w[foo bar baz]).should be_a CLI::Value
+    CLI::Value.new(%w[foo bar baz]).should be_a CLI::Value
   end
 
   it "compares values" do
@@ -18,9 +16,7 @@ describe CLI::Value do
     CLI::Value.new(4.56).should eq 4.56
     CLI::Value.new(true).should eq true
     CLI::Value.new(nil).should eq nil
-
-    # also broken
-    # CLI::Value.new(%[foo bar baz]).should eq ["foo", "bar", "baz"]
+    CLI::Value.new(%w[foo bar baz]).should eq ["foo", "bar", "baz"]
   end
 
   it "asserts types" do
@@ -29,5 +25,6 @@ describe CLI::Value do
     CLI::Value.new(4.56).as_f64.should be_a Float64
     CLI::Value.new(true).as_bool.should be_true
     CLI::Value.new(nil).as_nil.should be_nil
+    CLI::Value.new(%w[]).as_a.should be_a Array(String)
   end
 end

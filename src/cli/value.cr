@@ -27,7 +27,7 @@ module CLI
 
     # :inherit:
     def ==(other : Type) : Bool
-      @raw == other
+      @raw == other.raw
     end
 
     # Returns the value as a `String`.
@@ -65,8 +65,8 @@ module CLI
     end
 
     # Returns the value as an `Array`. Note that this does not change the type of the array.
-    def as_a : Array(Type)
-      @raw.as(Array)
+    def as_a : Array(String)
+      @raw.as(Array(String))
     end
 
     {% for base in %w(8 16 32 64 128) %}
