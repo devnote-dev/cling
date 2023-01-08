@@ -26,8 +26,13 @@ module CLI
     end
 
     # :inherit:
-    def ==(other : Type) : Bool
+    def ==(other : Value) : Bool
       @raw == other.raw
+    end
+
+    # :inherit:
+    def ==(other : Type) : Bool
+      @raw == other
     end
 
     # Returns the value as a `String`.
