@@ -153,22 +153,22 @@ module CLI
 
     # Adds a long flag option to the command.
     def add_option(long : String, *, description : String? = nil, required : Bool = false,
-                   has_value : Bool = false, default : Value::Type = nil) : Nil
+                   type : Option::Type = :none, default : Value::Type = nil) : Nil
       raise CommandError.new "Duplicate flag option '#{long}'" if @options.has_key? long
 
-      @options[long] = Option.new(long, nil, description, required, has_value, default)
+      @options[long] = Option.new(long, nil, description, required, type, default)
     end
 
     # Adds a short flag option to the command.
     def add_option(short : Char, long : String, *, description : String? = nil, required : Bool = false,
-                   has_value : Bool = false, default : Value::Type = nil) : Nil
+                   type : Option::Type = :none, default : Value::Type = nil) : Nil
       raise CommandError.new "Duplicate flag option '#{long}'" if @options.has_key? long
 
       if op = @options.values.find { |o| o.short == short }
         raise CommandError.new "Flag '#{op.long}' already has the short option '#{short}'"
       end
 
-      @options[long] = Option.new(long, short, description, required, has_value, default)
+      @options[long] = Option.new(long, short, description, required, type, default)
     end
 
     # Executes the command with the given input and parser (see `Parser`).

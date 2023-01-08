@@ -40,10 +40,12 @@ describe CLI::Parser do
 
     results[0].kind.should eq CLI::Parser::ResultKind::LongFlag
     results[0].value.should eq "name=foo"
-    results[0].parse_value.should eq "name"
+    results[0].parse_key.should eq "name"
+    results[0].parse_value.should eq "foo"
 
     results[1].kind.should eq CLI::Parser::ResultKind::ShortFlag
     results[1].value.should eq "k=bar"
-    results[1].parse_value.should eq "k"
+    results[1].parse_key.should eq "k"
+    results[1].parse_value.should eq "bar"
   end
 end

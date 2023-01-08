@@ -1,7 +1,7 @@
 module CLI
   # Represents a value for an argument or option.
   struct Value
-    alias Type = String | Number::Primitive | Bool | Nil # | Array(Type)
+    alias Type = String | Number::Primitive | Bool | Nil | Array(String)
 
     getter raw : Type
 

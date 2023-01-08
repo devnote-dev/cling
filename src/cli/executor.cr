@@ -35,7 +35,7 @@ module CLI::Executor
   # 5. The main `Command#run` and `Command#post_run` methods are executed with the evaluated
   # arguments and options.
   def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
-    resolved_command = resolve_command command, pointerof(results)
+    resolved_command = resolve_command command, results
     unless resolved_command
       command.on_error CommandError.new("Command '#{results.first[1].value}' not found")
       return
@@ -62,13 +62,13 @@ module CLI::Executor
     end
   end
 
-  private def self.resolve_command(command : Command, arguments : Hash(Int32, Parser::Result)*) : Command?
-    full_arguments = arguments.value.select { |_, v| v.kind.argument? && !v.string? }
+  private def self.resolve_command(command : Command, arguments : Hash(Int32, Parser::Result)) : Command?
+    full_arguments = arguments.select { |_, v| v.kind.argument? && !v.string? }
     return command if full_arguments.empty? || command.children.empty?
 
     key, res = full_arguments.first
     if found_command = command.children.values.find &.is?(res.value)
-      arguments.value.delete key
+      arguments.delete key
       resolve_command found_command, arguments
     elsif !command.arguments.empty?
       command
@@ -83,10 +83,17 @@ module CLI::Executor
     unknown_options = [] of String
 
     options.each do |i, res|
-      if option = command.options.values.find &.is? res.parse_value
-        if option.has_value?
+      if option = command.options.values.find &.is?(res.parse_key)
+        if option.type.none?
+          raise ExecutionError.new("Option '#{option}' takes no arguments") if res.value.includes? '='
+          parsed_options[option.long] = option
+        else
           if res.value.includes? '='
-            option.value = Value.new res.value.split('=', 2).last
+            option.value = if option.type.single?
+              Value.new res.parse_value
+            else
+              Value.new res.parse_value.split(',')
+            end
             parsed_options[option.long] = option
           else
             if argument = results[i + 1]?
@@ -98,16 +105,13 @@ module CLI::Executor
               end
             end
 
-            raise ExecutionError.new "Missing argument for option '#{option}'" unless option.has_default?
+            raise ExecutionError.new("Missing argument for option '#{option}'") unless option.has_default?
             option.value = Value.new option.default
             parsed_options[option.long] = option
           end
-        else
-          raise ExecutionError.new "Option '#{option}' takes no arguments" if res.value.includes? '='
-          parsed_options[option.long] = option
         end
       else
-        unknown_options << res.parse_value
+        unknown_options << res.parse_key
       end
     end
 

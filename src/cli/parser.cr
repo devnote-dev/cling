@@ -37,10 +37,19 @@ module CLI
       def initialize(@kind, @value, *, @string = false)
       end
 
-      # Returns the key form of the value for flag results, or `value` for argument results.
-      def parse_value : String
+      # Returns the key form of the result for flag options, or `value` for argument results.
+      def parse_key : String
         if @value.includes? '='
           @value.split('=', 2).first
+        else
+          @value
+        end
+      end
+
+      # Returns the value form of the result for flag result options, or `value` for argument results.
+      def parse_value : String
+        if @value.includes? '='
+          @value.split('=', 2).last
         else
           @value
         end
