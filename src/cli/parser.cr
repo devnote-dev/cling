@@ -110,9 +110,9 @@ module CLI
           next
         end
 
-        if res.parse_value.size > 1
+        if res.parse_key.size > 1
           if res.value.includes? '='
-            flags = res.parse_value.chars.map { |c| Result.new(:short_flag, c.to_s) }
+            flags = res.parse_key.chars.map { |c| Result.new(:short_flag, c.to_s) }
             option = flags[-1]
             option.value += "=" + res.value.split('=', 2).last
             flags[-1] = option
