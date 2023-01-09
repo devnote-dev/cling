@@ -34,14 +34,15 @@ module CLI::Executor
   #
   # 5. The main `Command#run` and `Command#post_run` methods are executed with the evaluated
   # arguments and options.
-  def self.handle(command : Command, results : Hash(Int32, Parser::Result)) : Nil
+  def self.handle(command : Command, results : Array(Parser::Result)) : Nil
     resolved_command = resolve_command command, results
     unless resolved_command
-      command.on_error CommandError.new("Command '#{results.first[1].value}' not found")
+      command.on_error CommandError.new("Command '#{results.first.value}' not found")
       return
     end
 
     executed = get_in_position resolved_command, results
+    puts results
 
     begin
       res = resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
@@ -62,14 +63,14 @@ module CLI::Executor
     end
   end
 
-  private def self.resolve_command(command : Command, arguments : Hash(Int32, Parser::Result)) : Command?
-    full_arguments = arguments.select { |_, v| v.kind.argument? && !v.string? }
-    return command if full_arguments.empty? || command.children.empty?
+  private def self.resolve_command(command : Command, results : Array(Parser::Result)) : Command?
+    arguments = results.select { |r| r.kind.argument? && !r.string? }
+    return command if arguments.empty? || command.children.empty?
 
-    key, res = full_arguments.first
-    if found_command = command.children.values.find &.is?(res.value)
-      arguments.delete key
-      resolve_command found_command, arguments
+    result = arguments.first
+    if found_command = command.children.values.find &.is?(result.value)
+      results.shift
+      resolve_command found_command, results
     elsif !command.arguments.empty?
       command
     else
@@ -77,42 +78,44 @@ module CLI::Executor
     end
   end
 
-  private def self.get_in_position(command : Command, results : Hash(Int32, Parser::Result)) : Result
-    options = results.reject { |_, v| v.kind.argument? }
+  private def self.get_in_position(command : Command, results : Array(Parser::Result)) : Result
+    options = results.reject &.kind.argument?
     parsed_options = {} of String => Option
     unknown_options = [] of String
 
-    options.each do |i, res|
-      if option = command.options.values.find &.is?(res.parse_key)
+    options.each_with_index do |result, index|
+      if option = command.options.values.find &.is?(result.parse_key)
         if option.type.none?
-          raise ExecutionError.new("Option '#{option}' takes no arguments") if res.value.includes? '='
-          parsed_options[option.long] = option
+          raise ExecutionError.new("Option '#{option}' takes no arguments") if result.value.includes? '='
         else
-          if res.value.includes?('=')
+          if result.value.includes?('=')
             option.value = if option.type.single?
-                             Value.new res.parse_value
+                             Value.new result.parse_value
                            else
-                             Value.new res.parse_value.split(',')
+                             Value.new result.parse_value.split(',')
                            end
-
-            parsed_options[option.long] = option
           else
-            if argument = results[i + 1]?
+            if argument = results[index + 1]?
               if argument.kind.argument?
-                option.value = Value.new argument.value
+                option.value = if option.type.single?
+                                 Value.new argument.value
+                               else
+                                 Value.new argument.value.split(',')
+                               end
+
                 parsed_options[option.long] = option
-                results.delete(i + 1)
+                results.delete_at(index + 1)
                 next
               end
             end
 
             raise ExecutionError.new("Missing argument for option '#{option}'") unless option.has_default?
             option.value = Value.new option.default
-            parsed_options[option.long] = option
           end
         end
+        parsed_options[option.long] = option
       else
-        unknown_options << res.parse_key
+        unknown_options << result.parse_key
       end
     end
 
@@ -126,15 +129,15 @@ module CLI::Executor
       .keys
       .reject { |k| parsed_options.has_key?(k) }
 
-    arguments = results.values.select &.kind.argument?
+    arguments = results.select &.kind.argument?
     parsed_arguments = {} of String => Argument
     missing_arguments = [] of String
 
-    command.arguments.values.each_with_index do |argument, i|
-      if res = arguments[i]?
+    command.arguments.values.each_with_index do |argument, index|
+      if res = arguments[index]?
         argument.value = Value.new res.value
         parsed_arguments[argument.name] = argument
-        results.delete i
+        results.delete_at index
       else
         missing_arguments << argument.name if argument.required?
       end

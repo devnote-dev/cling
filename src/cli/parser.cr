@@ -77,7 +77,7 @@ module CLI
     end
 
     # Parses the command line arguments from the reader and returns a hash of the results.
-    def parse : Hash(Int32, Result)
+    def parse : Array(Result)
       results = [] of Result
 
       loop do
@@ -125,7 +125,7 @@ module CLI
         end
       end
 
-      validated.each_with_index.map { |r, i| {i, r} }.to_h
+      validated
     end
 
     private def read_option : Result
