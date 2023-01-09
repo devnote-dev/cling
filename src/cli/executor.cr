@@ -42,7 +42,6 @@ module CLI::Executor
     end
 
     executed = get_in_position resolved_command, results
-    puts results
 
     begin
       res = resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
