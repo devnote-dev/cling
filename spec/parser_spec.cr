@@ -39,13 +39,24 @@ describe CLI::Parser do
     results = parser.parse
 
     results[0].kind.should eq CLI::Parser::Result::Kind::LongFlag
-    results[0].value.should eq "name=foo"
-    results[0].parse_key.should eq "name"
-    results[0].parse_value.should eq "foo"
+    results[0].key.should eq "name"
+    results[0].value.should eq "foo"
 
     results[1].kind.should eq CLI::Parser::Result::Kind::ShortFlag
-    results[1].value.should eq "k=bar"
-    results[1].parse_key.should eq "k"
-    results[1].parse_value.should eq "bar"
+    results[1].key.should eq "k"
+    results[1].value.should eq "bar"
+  end
+
+  it "parses an array argument" do
+    parser = CLI::Parser.new %(-n 1 -n=2 -n 3)
+    results = parser.parse
+
+    results[0].kind.should eq CLI::Parser::Result::Kind::ShortFlag
+    results[0].key.should eq "n"
+    results[0].value.should be_nil
+    results[1].value.should eq "1"
+    results[2].value.should eq "2"
+    results[3].value.should be_nil
+    results[4].value.should eq "3"
   end
 end
