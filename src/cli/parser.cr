@@ -20,17 +20,17 @@ module CLI
       end
     end
 
-    # Represents the kind of the result.
-    enum ResultKind
-      Argument
-      ShortFlag
-      LongFlag
-    end
-
     # The result of a parsed value from the command line. This can be a normal argument, string
     # argument, short flag, or long flag.
     class Result
-      property kind : ResultKind
+      # Represents the kind of the result.
+      enum Kind
+        Argument
+        ShortFlag
+        LongFlag
+      end
+
+      property kind : Kind
       property value : String
       getter? string : Bool
 
@@ -129,9 +129,9 @@ module CLI
     end
 
     private def read_option : Result
-      long = false
+      kind = Result::Kind::ShortFlag
       if @reader.peek_next_char == @options.option_delim
-        long = true
+        kind = Result::Kind::LongFlag
         @reader.pos += 2
       else
         @reader.next_char
@@ -156,7 +156,7 @@ module CLI
         end
       end
 
-      Result.new((long ? ResultKind::LongFlag : ResultKind::ShortFlag), value)
+      Result.new kind, value
     end
 
     private def read_argument : Result
