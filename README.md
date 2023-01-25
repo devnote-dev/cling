@@ -79,9 +79,7 @@ By default, the `Command` class is initialized with almost no values. All inform
 ```crystal
 class MainCommand < CLI::Command
   def setup : Nil
-    # prefer using `@name =` instead of `name =` to avoid method conflicts
     @name = "greet"
-    # same here
     @description = "Greets a person"
     # defines an argument
     add_argument "name", description: "the name of the person to greet", required: true
@@ -136,11 +134,11 @@ class WelcomeCommand < CLI::Command
     # ...
 
     # this will inherit the header and footer properties
-    inherit_borders = true
+    @inherit_borders = true
     # this will NOT inherit the parent flag options
-    inherit_options = false
+    @inherit_options = false
     # this will inherit the input, output and error IO streams
-    inherit_streams = true
+    @inherit_streams = true
   end
 end
 ```
@@ -163,8 +161,11 @@ class MainCommand < CLI::Command
       description: "greet with capitals",
       # set it as a required or optional flag
       required: false,
-      # set whether it should take a value
-      has_value: false,
+      # the type of option it is, can be:
+      # :none to take no arguments
+      # :single to take one argument
+      # or :array to take multiple arguments
+      type: :none,
       # optionally set a default value
       default: nil
   end
