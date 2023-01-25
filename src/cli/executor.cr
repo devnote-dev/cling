@@ -67,7 +67,7 @@ module CLI::Executor
     return command if arguments.empty? || command.children.empty?
 
     result = arguments.first
-    if found_command = command.children.values.find &.is?(result.value)
+    if found_command = command.children.values.find &.is?(result.value!)
       results.shift
       resolve_command found_command, results
     elsif !command.arguments.empty?
@@ -78,44 +78,69 @@ module CLI::Executor
   end
 
   private def self.get_in_position(command : Command, results : Array(Parser::Result)) : Result
-    options = results.reject &.kind.argument?
+    options = {} of String => Value
     parsed_options = {} of String => Option
     unknown_options = [] of String
 
-    options.each_with_index do |result, index|
-      if option = command.options.values.find &.is?(result.parse_key)
+    results.each_with_index do |result, index|
+      next if result.kind.argument?
+
+      if option = command.options.values.find &.is?(result.key!)
         if option.type.none?
-          raise ExecutionError.new("Option '#{option}' takes no arguments") if result.value.includes? '='
+          raise ExecutionError.new("Option '#{option}' takes no arguments") if result.value
+          options[option.long] = Value.new option.default
         else
-          if result.value.includes?('=')
-            option.value = if option.type.single?
-                             Value.new result.parse_value
-                           else
-                             Value.new result.parse_value.split(',')
-                           end
+          if value = result.value
+            options[option.long] = Value.new value
           else
-            if argument = results[index + 1]?
-              if argument.kind.argument?
-                option.value = if option.type.single?
-                                 Value.new argument.value
-                               else
-                                 Value.new argument.value.split(',')
-                               end
+            if res = results[index + 1]?
+              raise ExecutionError.new("Missing required argument for option '#{option}'") unless res.kind.argument?
 
-                parsed_options[option.long] = option
-                results.delete_at(index + 1)
-                next
+              if current = options[option.long]?
+                if current.raw.is_a? Array
+                  options[option.long] = Value.new(current.as_a << res.value!)
+                else
+                  options[option.long] = Value.new [current.as_s, res.value!]
+                end
+              else
+                options[option.long] = Value.new [res.value!]
               end
-            end
 
-            raise ExecutionError.new("Missing argument for option '#{option}'") unless option.has_default?
-            option.value = Value.new option.default
+              results.delete_at(index + 1)
+            elsif default = option.default
+              options[option.long] = Value.new default
+            else
+              raise ExecutionError.new("Missing required argument for option '#{option}'")
+            end
           end
         end
-        parsed_options[option.long] = option
       else
-        unknown_options << result.parse_key
+        unknown_options << result.key!
       end
+    end
+
+    options.each do |key, value|
+      option = command.options[key]
+      if option.type.none? && !value.raw.nil?
+        raise ExecutionError.new("Option '#{option}' takes no arguments")
+      elsif option.type.single? && value.raw.nil?
+        raise ExecutionError.new("Missing required argument for option '#{option}'")
+      end
+
+      if option.type.none?
+        raise ExecutionError.new("Option '#{option}' takes no arguments") unless value.raw.nil?
+      else
+        if value.raw.nil?
+          raise ExecutionError.new(%(Missing required argument#{"s" if option.type.array?} for option '#{option}'))
+        end
+
+        unless option.type.array? && value.raw.is_a? Array
+          value = Value.new [value.raw.to_s]
+        end
+      end
+
+      option.value = value
+      parsed_options[option.long] = option
     end
 
     default_options = command.options
@@ -145,7 +170,7 @@ module CLI::Executor
     unknown_arguments = if arguments.empty?
                           [] of String
                         else
-                          arguments[parsed_arguments.size...].map &.value
+                          arguments[parsed_arguments.size...].map &.value!
                         end
 
     Result.new(
