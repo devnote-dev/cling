@@ -129,7 +129,7 @@ module CLI::Executor
           raise ExecutionError.new(%(Missing required argument#{"s" if option.type.array?} for option '#{option}'))
         end
 
-        unless option.type.array? && value.raw.is_a? Array
+        if option.type.array? && !value.raw.is_a?(Array)
           str = value.raw.to_s
           value = if str.includes?(',')
                     Value.new str.split(',', remove_empty: true)
