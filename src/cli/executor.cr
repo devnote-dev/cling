@@ -10,7 +10,8 @@ module CLI::Executor
     getter unknown_arguments : Array(String)
     getter missing_arguments : Array(String)
 
-    def initialize(parsed_options, @unknown_options, @missing_options, parsed_arguments, @unknown_arguments, @missing_arguments)
+    def initialize(parsed_options, @unknown_options, @missing_options, parsed_arguments,
+                   @unknown_arguments, @missing_arguments)
       @parsed_options = OptionsInput.new parsed_options
       @parsed_arguments = ArgumentsInput.new parsed_arguments
     end
@@ -121,12 +122,6 @@ module CLI::Executor
 
     options.each do |key, value|
       option = command.options[key]
-      if option.type.none? && !value.raw.nil?
-        raise ExecutionError.new("Option '#{option}' takes no arguments")
-      elsif option.type.single? && value.raw.nil?
-        raise ExecutionError.new("Missing required argument for option '#{option}'")
-      end
-
       if option.type.none?
         raise ExecutionError.new("Option '#{option}' takes no arguments") unless value.raw.nil?
       else
@@ -135,7 +130,12 @@ module CLI::Executor
         end
 
         unless option.type.array? && value.raw.is_a? Array
-          value = Value.new [value.raw.to_s]
+          str = value.raw.to_s
+          value = if str.includes?(',')
+                    Value.new str.split(',', remove_empty: true)
+                  else
+                    Value.new [str]
+                  end
         end
       end
 
