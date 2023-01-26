@@ -64,11 +64,6 @@ module CLI
       end
     end
 
-    # Returns the value as `nil`.
-    def as_nil : Nil
-      @raw.as(Nil)
-    end
-
     # Returns the value as an `Array`. Note that this does not change the type of the array.
     def as_a : Array(String)
       @raw.as(Array(String))
