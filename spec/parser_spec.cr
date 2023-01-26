@@ -48,15 +48,17 @@ describe CLI::Parser do
   end
 
   it "parses an array argument" do
-    parser = CLI::Parser.new %(-n 1 -n=2 -n 3)
+    parser = CLI::Parser.new %(-n 1 -n=2,3 -n 4)
     results = parser.parse
 
     results[0].kind.should eq CLI::Parser::Result::Kind::ShortFlag
     results[0].key.should eq "n"
     results[0].value.should be_nil
     results[1].value.should eq "1"
-    results[2].value.should eq "2"
+    # This isn't managed by the parser so this is the raw value,
+    # the executor will parse this into ["2", "3"]
+    results[2].value.should eq "2,3"
     results[3].value.should be_nil
-    results[4].value.should eq "3"
+    results[4].value.should eq "4"
   end
 end
