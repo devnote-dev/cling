@@ -20,30 +20,34 @@ module CLI
       end
     end
 
-    # Represents the kind of the result.
-    enum ResultKind
-      Argument
-      ShortFlag
-      LongFlag
-    end
-
     # The result of a parsed value from the command line. This can be a normal argument, string
     # argument, short flag, or long flag.
     class Result
-      property kind : ResultKind
-      property value : String
-      getter? string : Bool
-
-      def initialize(@kind, @value, *, @string = false)
+      # Represents the kind of the result.
+      enum Kind
+        Argument
+        ShortFlag
+        LongFlag
       end
 
-      # Returns the key form of the value for flag results, or `value` for argument results.
-      def parse_value : String
-        if @value.includes? '='
-          @value.split('=', 2).first
-        else
-          @value
-        end
+      property kind : Kind
+      property key : String?
+      property value : String?
+      getter? string : Bool
+
+      def initialize(@kind : Kind, @key : String? = nil, @value : String? = nil, *, @string : Bool = false)
+      end
+
+      # Returns the non-nil form of the result key which is the name if it is a flag, or the value
+      # if it is an argument.
+      def key! : String
+        @key.not_nil!
+      end
+
+      # Returns the non-nil form of the result value which is the explicit value if it is a flag,
+      # or the value if it is an argument.
+      def value! : String
+        @value.not_nil!
       end
     end
 
@@ -68,7 +72,7 @@ module CLI
     end
 
     # Parses the command line arguments from the reader and returns a hash of the results.
-    def parse : Hash(Int32, Result)
+    def parse : Array(Result)
       results = [] of Result
 
       loop do
@@ -95,45 +99,42 @@ module CLI
       end
 
       validated = [] of Result
-      results.each do |res|
-        unless res.kind.short_flag?
-          validated << res
+      results.each do |result|
+        unless result.kind.short_flag?
+          validated << result
           next
         end
 
-        if res.parse_value.size > 1
-          if res.value.includes? '='
-            flags = res.parse_value.chars.map { |c| Result.new(:short_flag, c.to_s) }
+        if (key = result.key) && key.size > 1
+          flags = key.chars.map { |c| Result.new(:short_flag, c.to_s) }
+          if value = result.value
             option = flags[-1]
-            option.value += "=" + res.value.split('=', 2).last
+            option.value = value
             flags[-1] = option
-            validated += flags
-          else
-            validated += res.value.chars.map { |c| Result.new(:short_flag, c.to_s) }
           end
+          validated += flags
         else
-          validated << res
+          validated << result
         end
       end
 
-      validated.each_with_index.map { |r, i| {i, r} }.to_h
+      validated
     end
 
     private def read_option : Result
-      long = false
+      kind = Result::Kind::ShortFlag
       if @reader.peek_next_char == @options.option_delim
-        long = true
+        kind = Result::Kind::LongFlag
         @reader.pos += 2
       else
         @reader.next_char
       end
 
-      value = String.build do |str|
+      result = Result.new kind
+      result.key = String.build do |str|
         loop do
           case char = @reader.current_char
-          when '\0'
-            break
-          when ' '
+          when '\0', ' ', '='
             break
           else
             if @options.string_delims.includes?(char) && @options.parse_string
@@ -147,7 +148,28 @@ module CLI
         end
       end
 
-      Result.new((long ? ResultKind::LongFlag : ResultKind::ShortFlag), value)
+      if @reader.current_char == '='
+        @reader.next_char
+
+        result.value = String.build do |str|
+          loop do
+            case char = @reader.current_char
+            when '\0', ' '
+              break
+            else
+              if @options.string_delims.includes?(char) && @options.parse_string
+                str << read_string_raw
+                break
+              else
+                str << char
+                @reader.next_char
+              end
+            end
+          end
+        end
+      end
+
+      result
     end
 
     private def read_argument : Result
@@ -166,11 +188,11 @@ module CLI
         end
       end
 
-      Result.new :argument, value
+      Result.new :argument, nil, value
     end
 
     private def read_string : Result
-      Result.new :argument, read_string_raw, string: true
+      Result.new :argument, nil, read_string_raw, string: true
     end
 
     private def read_string_raw : String

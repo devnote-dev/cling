@@ -2,18 +2,32 @@ module CLI
   # Represents a command line flag option, supporting boolean and string values. Options are parsed
   # after the main command taking priority over the argument resolution (see `Executor#handle`).
   class Option
+    # Identifies the value type of the option. `None` (the default) will not accept any arguments,
+    # `Single` will accept exactly 1 argument, and `Array` will accept multiple arguments. Array
+    # type options also support specifying the option name more than once in the command line:
+    #
+    # ```
+    # command argument --option=1,2,3 # allowed
+    # command argument -o 1 -o=2 -o 3 # also allowed
+    # ```
+    enum Type
+      None
+      Single
+      Array
+    end
+
     property long : String
     property short : Char?
     property description : String?
     property? required : Bool
-    getter? has_value : Bool
+    property type : Type
     property default : Value::Type
     property value : Value?
 
     def_equals @long, @short
 
     def initialize(@long : String, @short : Char? = nil, @description : String? = nil,
-                   @required : Bool = false, @has_value : Bool = false, @default : Value::Type = nil)
+                   @required : Bool = false, @type : Type = :none, @default : Value::Type = nil)
       @value = Value.new(@default)
     end
 

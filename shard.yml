@@ -7,4 +7,7 @@ repository: https://github.com/devnote-dev/cli.cr
 authors:
   - Devonte W <https://github.com/devnote-dev>
 
+crystalline:
+  main: src/cli.cr
+
 license: MPL

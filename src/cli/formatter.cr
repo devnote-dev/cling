@@ -84,10 +84,10 @@ module CLI
         str << "Commands:"
         max_space = commands.map(&.name.size).max + 4
 
-        commands.each do |command|
-          str << "\n\t" << command.name
-          str << " " * (max_space - command.name.size)
-          str << command.summary
+        commands.each do |cmd|
+          str << "\n\t" << cmd.name
+          str << " " * (max_space - cmd.name.size)
+          str << cmd.summary
         end
       end
     end
