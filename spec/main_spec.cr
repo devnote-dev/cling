@@ -17,7 +17,7 @@ private class Greet < Cling::Command
     add_option 'c', "caps", description: "greet with caps"
   end
 
-  def pre_run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Bool?
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool?
     unless arguments.has? "name"
       io.puts Cling::Formatter.new.generate self
 
@@ -25,8 +25,8 @@ private class Greet < Cling::Command
     end
   end
 
-  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
-    message = %(Hello, #{arguments.get! "name"}!)
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+    message = %(Hello, #{arguments.get "name"}!)
 
     if options.has? "caps"
       io.puts message.upcase

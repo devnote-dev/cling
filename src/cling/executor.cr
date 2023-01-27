@@ -3,17 +3,17 @@
 # reason, most of the modules methods are hidden.
 module Cling::Executor
   private struct Result
-    getter parsed_options : OptionsInput
+    getter parsed_options : Options
     getter unknown_options : Array(String)
     getter missing_options : Array(String)
-    getter parsed_arguments : ArgumentsInput
+    getter parsed_arguments : Arguments
     getter unknown_arguments : Array(String)
     getter missing_arguments : Array(String)
 
     def initialize(parsed_options, @unknown_options, @missing_options, parsed_arguments,
                    @unknown_arguments, @missing_arguments)
-      @parsed_options = OptionsInput.new parsed_options
-      @parsed_arguments = ArgumentsInput.new parsed_arguments
+      @parsed_options = Options.new parsed_options
+      @parsed_arguments = Arguments.new parsed_arguments
     end
   end
 

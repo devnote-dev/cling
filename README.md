@@ -28,7 +28,7 @@ class MainCommand < Cling::Command
     add_option 'h', "help", description: "sends help information"
   end
 
-  def pre_run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Bool
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
     if options.has? "help"
       puts help_template # generated using Cling::Formatter
 
@@ -38,7 +38,7 @@ class MainCommand < Cling::Command
     end
   end
 
-  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     message = "Hello, #{arguments.get("name")}!"
 
     if options.has? "caps"

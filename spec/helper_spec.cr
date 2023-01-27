@@ -8,7 +8,7 @@ private class ContextCommand < Cling::Command
     @description = "Runs the Crystal context tool"
   end
 
-  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     stdout.puts "Fake crystal context command!"
   end
 end
@@ -19,7 +19,7 @@ private class FormatCommand < Cling::Command
     @description = "Runs the Crystal format tool"
   end
 
-  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     stdout.puts "Fake crystal format command!"
   end
 end
@@ -31,7 +31,7 @@ private class CrystalCommand < Cling::MainCommand
     @description = "Runs some Crystal commands"
   end
 
-  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
   end
 end
 

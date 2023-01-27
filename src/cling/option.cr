@@ -48,65 +48,65 @@ module Cling
   end
 
   # An input structure to access validated options at execution time.
-  struct OptionsInput
-    getter options : Hash(String, Option)
+  struct Options
+    getter hash : Hash(String, Option)
 
     # :nodoc:
-    def initialize(@options)
+    def initialize(@hash)
     end
 
     # Indexes an option by its long name and returns the `Option` object, not the option's
     # value.
     def [](key : String) : Option
-      @options[key]
+      @hash[key]
     end
 
     # Indexes an option by its short name and returns the `Option` object, not the option's
     # value.
     def [](key : Char) : Option
-      @options.values.find! &.short.==(key)
+      @hash.values.find! &.short.is? key.to_s
     end
 
     # Indexes an option by its long name and returns the `Option` object or `nil` if not found,
     # not the option's value.
     def []?(key : String) : Option?
-      @options[key]?
+      @hash[key]?
     end
 
     # Indexes an option by its short name and returns the `Option` object or `nil` if not found,
     # not the option's value.
     def []?(key : Char) : Option?
-      @options.values.find &.short.==(key)
+      @hash.values.find &.is? key.to_s
     end
 
     # Returns `true` if an option by the given long name exists.
     def has?(key : String) : Bool
-      @options.has_key? key
+      @hash.has_key?(key) || !@hash.values.find(&.is? key).nil?
     end
 
     # Returns `true` if an option by the given short name exists.
     def has?(key : Char) : Bool
-      !self[key]?.nil?
+      has? key.to_s
     end
 
     # Gets an option by its short or long name and returns its `Value`, or `nil` if not found.
-    def get(key : String | Char) : Value?
+    def get?(key : String | Char) : Value?
       self[key]?.try &.value
     end
 
     # Gets an option by its short or long name and returns its `Value`.
-    def get!(key : String | Char) : Value
+    def get(key : String | Char) : Value
       self[key].value.not_nil!
     end
 
     # Returns `true` if there are no parsed options.
     def empty? : Bool
-      @options.empty?
+      @hash.empty?
     end
 
     # Returns the number of parsed options.
     def size : Int32
-      @options.size
+      @hash.size
     end
   end
 end

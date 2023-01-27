@@ -31,48 +31,48 @@ module Cling
   end
 
   # An input structure to access validated arguments at execution time.
-  struct ArgumentsInput
-    getter arguments : Hash(String, Argument)
+  struct Arguments
+    getter hash : Hash(String, Argument)
 
     # :nodoc:
-    def initialize(@arguments)
+    def initialize(@hash)
     end
 
     # Indexes an argument by its name and returns the `Argument` object, not the argument's
     # value.
     def [](key : String) : Argument
-      @arguments[key]
+      @hash[key]
     end
 
     # Indexes an argument by its name and returns the `Argument` object or `nil` if not found,
     # not the argument's value.
     def []?(key : String) : Argument?
-      @arguments[key]?
+      @hash[key]?
     end
 
     # Returns `true` if an argument by the given name exists.
     def has?(key : String) : Bool
-      @arguments.has_key? key
+      @hash.has_key? key
     end
 
     # Gets an argument by its name and returns its `Value`, or `nil` if not found.
-    def get(key : String) : Value?
+    def get?(key : String) : Value?
       self[key]?.try &.value
     end
 
     # Gets an argument by its name and returns its `Value`.
-    def get!(key : String) : Value
+    def get(key : String) : Value
       self[key].value.not_nil!
     end
 
     # Returns `true` if there are no parsed arguments.
     def empty? : Bool
-      @arguments.empty?
+      @hash.empty?
     end
 
     # Returns the number of parsed arguments.
     def size : Int32
-      @arguments.size
+      @hash.size
     end
   end
 end

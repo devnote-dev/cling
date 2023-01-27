@@ -185,14 +185,14 @@ module Cling
     #
     # Accepts a `Bool` or `nil` argument as a return to specify whether the command should continue
     # to run once finished (`true` or `nil` to continue, `false` to stop).
-    def pre_run(arguments : ArgumentsInput, options : OptionsInput) : Bool?
+    def pre_run(arguments : Arguments, options : Options) : Bool?
     end
 
     # The main point of execution for the command, where arguments and options can be accessed.
-    abstract def run(arguments : ArgumentsInput, options : OptionsInput) : Nil
+    abstract def run(arguments : Arguments, options : Options) : Nil
 
     # A hook method to run once the `pre_run` and main `run` methods have been executed.
-    def post_run(arguments : ArgumentsInput, options : OptionsInput) : Nil
+    def post_run(arguments : Arguments, options : Options) : Nil
     end
 
     # A hook method for when the command raises an exception during execution. By default, this
