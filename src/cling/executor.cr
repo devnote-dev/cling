@@ -111,6 +111,8 @@ module Cling::Executor
                 options[option.long] = Value.new [res.value!]
               end
             end
+
+            results.delete_at(index + 1)
           elsif default = option.default
             if option.type.single?
               options[option.long] = Value.new default
@@ -121,6 +123,8 @@ module Cling::Executor
                 options[option.long] = Value.new [default.to_s]
               end
             end
+
+            results.delete_at(index + 1)
           else
             raise ExecutionError.new "Missing required argument for option '#{option}'"
           end
