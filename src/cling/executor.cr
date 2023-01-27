@@ -88,31 +88,41 @@ module Cling::Executor
 
       if option = command.options.values.find &.is?(result.key!)
         if option.type.none?
-          raise ExecutionError.new("Option '#{option}' takes no arguments") if result.value
+          raise ExecutionError.new("Missing required argument for option '#{option}'") if result.value
           options[option.long] = Value.new option.default
         else
           if value = result.value
-            options[option.long] = Value.new value
-          else
-            if res = results[index + 1]?
-              raise ExecutionError.new("Missing required argument for option '#{option}'") unless res.kind.argument?
+            if current = options[option.long]?
+              options[option.long] = Value.new(current.as_a << value)
+            else
+              options[option.long] = Value.new [value]
+            end
+          elsif res = results[index + 1]?
+            unless res.kind.argument?
+              raise ExecutionError.new "Missing required argument for option '#{option}'"
+            end
 
+            if option.type.single?
+              options[option.long] = Value.new res.value!
+            else
               if current = options[option.long]?
-                if current.raw.is_a? Array
-                  options[option.long] = Value.new(current.as_a << res.value!)
-                else
-                  options[option.long] = Value.new [current.as_s, res.value!]
-                end
+                options[option.long] = Value.new(current.as_a << res.value!)
               else
                 options[option.long] = Value.new [res.value!]
               end
-
-              results.delete_at(index + 1)
-            elsif default = option.default
+            end
+          elsif default = option.default
+            if option.type.single?
               options[option.long] = Value.new default
             else
-              raise ExecutionError.new("Missing required argument for option '#{option}'")
+              if current = options[option.long]?
+                options[option.long] = Value.new(current.as_a << default.to_s)
+              else
+                options[option.long] = Value.new [default.to_s]
+              end
             end
+          else
+            raise ExecutionError.new "Missing required argument for option '#{option}'"
           end
         end
       else
