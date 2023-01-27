@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-private class Greet < CLI::Command
+private class Greet < Cling::Command
   getter io : IO::Memory
 
   def initialize
@@ -17,15 +17,15 @@ private class Greet < CLI::Command
     add_option 'c', "caps", description: "greet with caps"
   end
 
-  def pre_run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Bool?
+  def pre_run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Bool?
     unless arguments.has? "name"
-      io.puts CLI::Formatter.new.generate self
+      io.puts Cling::Formatter.new.generate self
 
       false
     end
   end
 
-  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
     message = %(Hello, #{arguments.get! "name"}!)
 
     if options.has? "caps"
@@ -36,7 +36,7 @@ private class Greet < CLI::Command
   end
 end
 
-describe CLI do
+describe Cling do
   it "tests the help command" do
     command = Greet.new
     command.execute %w()

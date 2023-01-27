@@ -1,4 +1,4 @@
-module CLI
+module Cling
   abstract class Command
     # A set of aliases for the command.
     getter aliases : Set(String)

@@ -1,4 +1,4 @@
-module CLI
+module Cling
   # Represents a value for an argument or option.
   struct Value
     alias Type = String | Number::Primitive | Bool | Nil | Array(String)

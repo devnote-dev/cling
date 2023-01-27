@@ -1,4 +1,4 @@
-module CLI
+module Cling
   # Represents a command line flag option, supporting boolean and string values. Options are parsed
   # after the main command taking priority over the argument resolution (see `Executor#handle`).
   class Option

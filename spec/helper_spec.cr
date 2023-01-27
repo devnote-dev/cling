@@ -2,36 +2,36 @@ require "./spec_helper"
 
 # Inspired by Clim
 
-private class ContextCommand < CLI::Command
+private class ContextCommand < Cling::Command
   def setup : Nil
     @name = "context"
     @description = "Runs the Crystal context tool"
   end
 
-  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
     stdout.puts "Fake crystal context command!"
   end
 end
 
-private class FormatCommand < CLI::Command
+private class FormatCommand < Cling::Command
   def setup : Nil
     @name = "format"
     @description = "Runs the Crystal format tool"
   end
 
-  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
     stdout.puts "Fake crystal format command!"
   end
 end
 
-private class CrystalCommand < CLI::MainCommand
+private class CrystalCommand < Cling::MainCommand
   def setup : Nil
     super
 
     @description = "Runs some Crystal commands"
   end
 
-  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
   end
 end
 
@@ -39,7 +39,7 @@ command = CrystalCommand.new
 command.add_command ContextCommand.new
 command.add_command FormatCommand.new
 
-describe CLI do
+describe Cling do
   it "prints the help message" do
     io = IO::Memory.new
     command.stdout = io

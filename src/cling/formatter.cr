@@ -1,4 +1,4 @@
-module CLI
+module Cling
   # Generates a formatted help template for command components.
   class Formatter
     # Represents options for the formatter.

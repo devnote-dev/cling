@@ -1,4 +1,4 @@
-module CLI
+module Cling
   # Handles parsing command line arguments into raw argument objects (see `Result`) which are used
   # by the `Executor` at execution time.
   class Parser

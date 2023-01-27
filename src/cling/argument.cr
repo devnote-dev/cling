@@ -1,4 +1,4 @@
-module CLI
+module Cling
   # Represents a command line argument, this can be a single value or a string value. Arguments are
   # parsed after the main command and any subcommands are resolved. Note that `Option`s that have
   # values take priority in the resolution list, so the following example would only yield 2

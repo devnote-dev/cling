@@ -1,57 +1,57 @@
 require "./spec_helper"
 
-describe CLI::Parser do
+describe Cling::Parser do
   it "parses standard input arguments" do
-    parser = CLI::Parser.new %(these --are "some" -c arguments)
+    parser = Cling::Parser.new %(these --are "some" -c arguments)
     results = parser.parse
 
-    results[0].kind.should eq CLI::Parser::Result::Kind::Argument
-    results[1].kind.should eq CLI::Parser::Result::Kind::LongFlag
-    results[2].kind.should eq CLI::Parser::Result::Kind::Argument
-    results[3].kind.should eq CLI::Parser::Result::Kind::ShortFlag
-    results[4].kind.should eq CLI::Parser::Result::Kind::Argument
+    results[0].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[1].kind.should eq Cling::Parser::Result::Kind::LongFlag
+    results[2].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[3].kind.should eq Cling::Parser::Result::Kind::ShortFlag
+    results[4].kind.should eq Cling::Parser::Result::Kind::Argument
   end
 
   it "parses custom flag input arguments" do
-    options = CLI::Parser::Options.new option_delim: '+'
-    parser = CLI::Parser.new %(these ++are "some" +c arguments), options
+    options = Cling::Parser::Options.new option_delim: '+'
+    parser = Cling::Parser.new %(these ++are "some" +c arguments), options
     results = parser.parse
 
-    results[0].kind.should eq CLI::Parser::Result::Kind::Argument
-    results[1].kind.should eq CLI::Parser::Result::Kind::LongFlag
-    results[2].kind.should eq CLI::Parser::Result::Kind::Argument
-    results[3].kind.should eq CLI::Parser::Result::Kind::ShortFlag
-    results[4].kind.should eq CLI::Parser::Result::Kind::Argument
+    results[0].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[1].kind.should eq Cling::Parser::Result::Kind::LongFlag
+    results[2].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[3].kind.should eq Cling::Parser::Result::Kind::ShortFlag
+    results[4].kind.should eq Cling::Parser::Result::Kind::Argument
   end
 
   it "parses a string argument" do
-    parser = CLI::Parser.new %(--test "string argument" -t)
+    parser = Cling::Parser.new %(--test "string argument" -t)
     results = parser.parse
 
-    results[0].kind.should eq CLI::Parser::Result::Kind::LongFlag
-    results[1].kind.should eq CLI::Parser::Result::Kind::Argument
+    results[0].kind.should eq Cling::Parser::Result::Kind::LongFlag
+    results[1].kind.should eq Cling::Parser::Result::Kind::Argument
     results[1].value.should eq "string argument"
-    results[2].kind.should eq CLI::Parser::Result::Kind::ShortFlag
+    results[2].kind.should eq Cling::Parser::Result::Kind::ShortFlag
   end
 
   it "parses an option argument" do
-    parser = CLI::Parser.new %(--name=foo -k=bar)
+    parser = Cling::Parser.new %(--name=foo -k=bar)
     results = parser.parse
 
-    results[0].kind.should eq CLI::Parser::Result::Kind::LongFlag
+    results[0].kind.should eq Cling::Parser::Result::Kind::LongFlag
     results[0].key.should eq "name"
     results[0].value.should eq "foo"
 
-    results[1].kind.should eq CLI::Parser::Result::Kind::ShortFlag
+    results[1].kind.should eq Cling::Parser::Result::Kind::ShortFlag
     results[1].key.should eq "k"
     results[1].value.should eq "bar"
   end
 
   it "parses an array argument" do
-    parser = CLI::Parser.new %(-n 1 -n=2,3 -n 4)
+    parser = Cling::Parser.new %(-n 1 -n=2,3 -n 4)
     results = parser.parse
 
-    results[0].kind.should eq CLI::Parser::Result::Kind::ShortFlag
+    results[0].kind.should eq Cling::Parser::Result::Kind::ShortFlag
     results[0].key.should eq "n"
     results[0].value.should be_nil
     results[1].value.should eq "1"

@@ -1,4 +1,4 @@
-module CLI
+module Cling
   abstract class MainCommand < Command
     def setup : Nil
       @name = "main"
@@ -10,7 +10,7 @@ module CLI
       add_option 'v', "version", description: "sends the app version"
     end
 
-    def pre_run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Bool
+    def pre_run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Bool
       if arguments.empty? && options.empty?
         Formatter.new.generate(self).to_s(stdout)
         return false

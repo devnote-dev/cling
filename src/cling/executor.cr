@@ -1,7 +1,7 @@
 # Handles the execution of commands. In most cases you should never need to interact with this
 # module as the `Command#execute` method is the main entrypoint for executing commands. For this
 # reason, most of the modules methods are hidden.
-module CLI::Executor
+module Cling::Executor
   private struct Result
     getter parsed_options : OptionsInput
     getter unknown_options : Array(String)

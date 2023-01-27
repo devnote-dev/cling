@@ -1,7 +1,7 @@
-require "cli"
+require "cling"
 require "./welcome_command"
 
-class MainCommand < CLI::Command
+class MainCommand < Cling::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
@@ -10,9 +10,9 @@ class MainCommand < CLI::Command
     add_option 'h', "help", description: "sends help information"
   end
 
-  def pre_run(arguments : ArgumentsInput, options : OptionsInput) : Bool
+  def pre_run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Bool
     if options.has? "help"
-      puts help_template # generated using CLI::Formatter
+      puts help_template # generated using Cling::Formatter
 
       false
     else
@@ -20,7 +20,7 @@ class MainCommand < CLI::Command
     end
   end
 
-  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
     message = "Hello, #{arguments.get("name")}!"
 
     if options.has? "caps"

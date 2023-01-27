@@ -1,8 +1,8 @@
 require "./spec_helper"
 
-describe CLI::Option do
+describe Cling::Option do
   it "parses a long option" do
-    option = CLI::Option.new "spec"
+    option = Cling::Option.new "spec"
     option.long.should eq "spec"
     option.short.should be_nil
 
@@ -10,7 +10,7 @@ describe CLI::Option do
   end
 
   it "parses a short option" do
-    option = CLI::Option.new "spec", 's'
+    option = Cling::Option.new "spec", 's'
     option.long.should eq "spec"
     option.short.should eq 's'
 
@@ -18,8 +18,8 @@ describe CLI::Option do
   end
 
   it "compares options" do
-    option1 = CLI::Option.new "spec", 's'
-    option2 = CLI::Option.new "flag", 'f'
+    option1 = Cling::Option.new "spec", 's'
+    option2 = Cling::Option.new "flag", 'f'
 
     option1.should_not eq option2
     option1.should eq option1.dup

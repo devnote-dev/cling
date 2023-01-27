@@ -1,14 +1,14 @@
-# CLI.cr
+# Cling
 
-Yet another command line interface library for Crystal. Based on [spf13/cobra](https://github.com/spf13/cobra), CLI.cr is built to be almost entirely modular, giving you absolute control over almost everything without the need for embedded macros - there isn't even a default help command or flag!
+Based on [spf13/cobra](https://github.com/spf13/cobra), Cling is built to be almost entirely modular, giving you absolute control over almost everything without the need for embedded macros - there isn't even a default help command or flag!
 
 ## Installation
 
 1. Add the dependency to your `shard.yml`:
 ```yaml
 dependencies:
-  cli:
-    github: devnote-dev/cli.cr
+  cling:
+    github: devnote-dev/cling
     branch: stable
 ```
 
@@ -17,9 +17,9 @@ dependencies:
 ## Basic Usage
 
 ```crystal
-require "cli"
+require "cling"
 
-class MainCommand < CLI::Command
+class MainCommand < Cling::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
@@ -28,9 +28,9 @@ class MainCommand < CLI::Command
     add_option 'h', "help", description: "sends help information"
   end
 
-  def pre_run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Bool
+  def pre_run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Bool
     if options.has? "help"
-      puts help_template # generated using CLI::Formatter
+      puts help_template # generated using Cling::Formatter
 
       false
     else
@@ -38,7 +38,7 @@ class MainCommand < CLI::Command
     end
   end
 
-  def run(arguments : CLI::ArgumentsInput, options : CLI::OptionsInput) : Nil
+  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
     message = "Hello, #{arguments.get("name")}!"
 
     if options.has? "caps"
@@ -77,7 +77,7 @@ HELLO, DEV!
 By default, the `Command` class is initialized with almost no values. All information about the command must be defined in the `setup` method.
 
 ```crystal
-class MainCommand < CLI::Command
+class MainCommand < Cling::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
@@ -90,11 +90,11 @@ class MainCommand < CLI::Command
 end
 ```
 > **Note**
-> See [command.cr](/src/cli/command.cr) for the full list of options.
+> See [command.cr](/src/cling/command.cr) for the full list of options.
 
 Commands can also contain children, or subcommands:
 ```crystal
-require "cli"
+require "cling"
 # import our subcommand here
 require "./welcome_command"
 
@@ -129,7 +129,7 @@ Welcome to the CLI world, Dev!
 As well as being able to have subcommands, they can also inherit certain properties from the parent command:
 ```crystal
 # in welcome_command.cr ...
-class WelcomeCommand < CLI::Command
+class WelcomeCommand < Cling::Command
   def setup : Nil
     # ...
 
@@ -147,7 +147,7 @@ end
 
 Arguments and flag options can be defined in the `setup` method of a command using the `add_argument` and `add_option` methods respectively.
 ```crystal
-class MainCommand < CLI::Command
+class MainCommand < Cling::Command
   def setup : Nil
     add_argument "name",
       # sets a description for it
@@ -195,11 +195,11 @@ The help template is divided into the following sections:
 [FOOTER]
 ```
 
-Sections in `<>` will always be present, and ones in `[]` are optional depending on whether they are defined. Because of CLI.cr's modularity, this means that you could essentially have a blank help template (wouldn't recommend it though).
+Sections in `<>` will always be present, and ones in `[]` are optional depending on whether they are defined. Because of Cling's modularity, this means that you could essentially have a blank help template (wouldn't recommend it though).
 
 You can customise the following options for the help template formatter:
 ```crystal
-class CLI::Formatter::Options
+class Cling::Formatter::Options
   # The character to use for flag option delimiters (default is `-`).
   property option_delim : Char
 
@@ -213,13 +213,13 @@ end
 
 And pass it to the command like so:
 ```crystal
-require "cli"
+require "cling"
 
-options = CLI::Formatter::Options.new option_delim: '+', show_defaults: false
+options = Cling::Formatter::Options.new option_delim: '+', show_defaults: false
 # we can re-use this in multiple commands
-formatter = CLI::Formatter.new options
+formatter = Cling::Formatter.new options
 
-class MainCommand < CLI::Command
+class MainCommand < Cling::Command
   # ...
 
   def help_template : String
@@ -242,10 +242,10 @@ end
 
 ## Motivation
 
-Most Crystal CLI builders/DSLs are opinionated with limited customisation available. CLI.cr aims to be entirely modular so that you have the freedom to change whatever you want without having to write tons of boilerplate or monkey-patch code. Macro-based CLI shards can also be quite restrictive as they are not scalable, meaning that you may eventually have to refactor your application to another CLI shard. This is not meant to discourage you from using macro-based CLI shards, they are still useful for short and simple applications with a general template, but if you are looking for something to handle larger applications with guaranteed stability and scalability, CLI.cr is the library for you.
+Most Crystal CLI builders/DSLs are opinionated with limited customisation available. Cling aims to be entirely modular so that you have the freedom to change whatever you want without having to write tons of boilerplate or monkey-patch code. Macro-based CLI shards can also be quite restrictive as they are not scalable, meaning that you may eventually have to refactor your application to another CLI shard. This is not meant to discourage you from using macro-based CLI shards, they are still useful for short and simple applications with a general template, but if you are looking for something to handle larger applications with guaranteed stability and scalability, Cling is the library for you.
 
 ## Contributing
-1. Fork it (<https://github.com/devnote-dev/cli.cr/fork>)
+1. Fork it (<https://github.com/devnote-dev/cling/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

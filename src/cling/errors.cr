@@ -1,4 +1,4 @@
-module CLI
+module Cling
   # The base error for this module.
   class Error < Exception
   end
