@@ -41,7 +41,7 @@ module Cling
     # Indexes an argument by its name and returns the `Argument` object, not the argument's
     # value.
     def [](key : String) : Argument
-      @hash[key]
+      @hash[key] rescue raise ValueNotFound.new(key)
     end
 
     # Indexes an argument by its name and returns the `Argument` object or `nil` if not found,
@@ -62,7 +62,7 @@ module Cling
 
     # Gets an argument by its name and returns its `Value`.
     def get(key : String) : Value
-      self[key].value.not_nil!
+      self[key].value.not_nil! rescue ValueNotFound.new(key)
     end
 
     # Returns `true` if there are no parsed arguments.
