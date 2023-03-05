@@ -62,7 +62,7 @@ module Cling
 
     # Gets an argument by its name and returns its `Value`.
     def get(key : String) : Value
-      self[key].value.not_nil! rescue ValueNotFound.new(key)
+      self[key].value.not_nil! rescue raise ValueNotFound.new(key)
     end
 
     # Returns `true` if there are no parsed arguments.

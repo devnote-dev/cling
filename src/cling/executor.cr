@@ -175,7 +175,11 @@ module Cling::Executor
       if res = arguments[index]?
         argument.value = Value.new res.value
         parsed_arguments[argument.name] = argument
-        results.delete_at index
+
+        # FIXME: this can error for some reason?
+        # puts "#{results.size}:#{index}"
+        results.delete_at index rescue nil
+        # results is still populated...
       else
         missing_arguments << argument.name if argument.required?
       end
