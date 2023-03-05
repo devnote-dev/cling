@@ -60,7 +60,7 @@ module Cling
 
     def self.new(input : Array(String), options : Options = Options.new)
       arguments = input.map do |a|
-        if a.includes?(' ') && options.string_delims.none? { |d| a.includes?(d) }
+        if a.includes?(' ') && options.string_delims.none? { |d| a.starts_with?(d) && a.ends_with?(d) }
           d = options.string_delims.first
           d.to_s + a + d.to_s
         else
