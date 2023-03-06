@@ -146,9 +146,14 @@ module Cling
     end
 
     # Adds an argument to the command.
-    def add_argument(name : String, *, description : String? = nil, required : Bool = false) : Nil
+    def add_argument(name : String, *, description : String? = nil, required : Bool = false,
+                     multiple : Bool = false) : Nil
       raise CommandError.new "Duplicate argument '#{name}'" if @arguments.has_key? name
-      @arguments[name] = Argument.new(name, description, required)
+      if multiple && @arguments.values.find &.multiple?
+        raise CommandError.new "Cannot have more than one argument with multiple values"
+      end
+
+      @arguments[name] = Argument.new(name, description, required, multiple)
     end
 
     # Adds a long flag option to the command.

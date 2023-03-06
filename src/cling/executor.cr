@@ -191,6 +191,12 @@ module Cling::Executor
                           arguments[parsed_arguments.size...].map &.value!
                         end
 
+    if argument = parsed_arguments.values.find &.multiple?
+      argument.value = Value.new([argument.value.not_nil!.as_s] + unknown_arguments)
+      unknown_arguments.clear
+      parsed_arguments[argument.name] = argument
+    end
+
     Result.new(
       parsed_options,
       unknown_options,
