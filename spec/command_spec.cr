@@ -5,7 +5,7 @@ private class MainCommand < Cling::Command
     @name = "main"
 
     add_argument "first", required: true
-    add_argument "second"
+    add_argument "second", multiple: true
     add_option 's', "skip"
   end
 
@@ -35,6 +35,7 @@ describe Cling::Command do
   it "executes without errors" do
     command = MainCommand.new
     command.execute %w(foo bar)
+    command.execute %w(foo bar baz qux)
   end
 
   it "raises on unknown values" do

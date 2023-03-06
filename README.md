@@ -10,7 +10,6 @@ Based on [spf13/cobra](https://github.com/spf13/cobra), Cling is built to be alm
 dependencies:
   cling:
     github: devnote-dev/cling
-    branch: stable
 ```
 
 2. Run `shards install`
@@ -158,7 +157,9 @@ class MainCommand < Cling::Command
       # sets a description for it
       description: "the name of the person to greet",
       # set it as a required or optional argument
-      required: true
+      required: true,
+      # allow multiple values for the argument
+      multiple: false
 
     # define an option with a short flag using chars
     add_option 'c', "caps",
@@ -176,6 +177,9 @@ class MainCommand < Cling::Command
   end
 end
 ```
+
+> **Warning**
+> You can only have **one** argument with the `multiple` option which will include all the remaining input arguments (or unknown arguments).
 
 These arguments and options can then be accessed at execution time via the `arguments` and `options` parameters in the `pre_run`, `run` and `post_run` methods of a command:
 

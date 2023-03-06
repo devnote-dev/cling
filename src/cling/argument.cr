@@ -16,11 +16,11 @@ module Cling
     property name : String
     property description : String?
     property? required : Bool
-    property? has_value : Bool
+    property? multiple : Bool
     property value : Value?
 
-    def initialize(@name : String, @description : String? = nil, @required : Bool = false)
-      @has_value = false
+    def initialize(@name : String, @description : String? = nil, @required : Bool = false,
+                   @multiple : Bool = false)
       @value = nil
     end
 
