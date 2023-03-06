@@ -74,6 +74,7 @@ module Cling
     # Parses the command line arguments from the reader and returns a hash of the results.
     def parse : Array(Result)
       results = [] of Result
+      all_positional = false
 
       loop do
         case char = @reader.current_char
@@ -82,6 +83,11 @@ module Cling
         when ' '
           @reader.next_char
         when '-'
+          if @reader.next_char == '-' && @reader.peek_next_char == ' '
+            all_positional = true
+            break
+          end
+
           if @options.option_delim == '-'
             results << read_option
           else
@@ -94,6 +100,23 @@ module Cling
             results << read_string
           else
             results << read_argument
+          end
+        end
+      end
+
+      if all_positional
+        loop do
+          case char = @reader.current_char
+          when '\0'
+            break
+          when ' '
+            @reader.next_char
+          else
+            if char.in?(@options.string_delims) && @options.parse_string
+              results << read_string
+            else
+              results << read_argument
+            end
           end
         end
       end
