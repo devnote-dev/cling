@@ -83,15 +83,18 @@ module Cling
         when ' '
           @reader.next_char
         when '-'
-          if @reader.next_char == '-' && @reader.peek_next_char == ' '
-            all_positional = true
-            break
-          end
-
-          if @options.option_delim == '-'
-            results << read_option
+          case @reader.peek_next_char
+          when '-'
+            @reader.next_char
+            if @reader.peek_next_char == ' '
+              all_positional = true
+              break
+            else
+              @reader.previous_char
+              results << read_option
+            end
           else
-            results << read_argument
+            results << read_option
           end
         when @options.option_delim
           results << read_option
