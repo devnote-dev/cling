@@ -30,7 +30,6 @@ private class TestOptionsCommand < Cling::Command
   end
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
-    puts options
     options.get? "foo"
     options.get "double-foo"
     options.get('b').as_s
