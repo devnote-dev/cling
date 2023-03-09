@@ -161,7 +161,7 @@ module Cling
                    type : Option::Type = :none, default : Value::Type = nil) : Nil
       raise CommandError.new "Duplicate flag option '#{long}'" if @options.has_key? long
       if type.none? && default
-        raise CommandError.new "A default value for a flag option that takes no arguments is uesless"
+        raise CommandError.new "A default value for a flag option that takes no arguments is useless"
       end
 
       @options[long] = Option.new(long, nil, description, required, type, default)
@@ -175,7 +175,7 @@ module Cling
         raise CommandError.new "Flag '#{op.long}' already has the short option '#{short}'"
       end
       if type.none? && default
-        raise CommandError.new "A default value for a flag option that takes no arguments is uesless"
+        raise CommandError.new "A default value for a flag option that takes no arguments is useless"
       end
 
       @options[long] = Option.new(long, short, description, required, type, default)
