@@ -39,17 +39,26 @@ command = CrystalCommand.new
 command.add_command ContextCommand.new
 command.add_command FormatCommand.new
 
-describe Cling do
+describe Cling::MainCommand do
   it "prints the help message" do
     io = IO::Memory.new
     command.stdout = io
     command.execute ""
 
-    io.to_s.should eq "Runs some Crystal commands\n\n" \
-                      "Usage:\n\tmain [options]\n\n" \
-                      "Commands:\n\tcontext    \n\tformat     \n\n" \
-                      "Options:\n\t-h, --help     sends help information\n" \
-                      "\t-v, --version  sends the app version\n\n"
+    io.to_s.chomp.should eq <<-HELP
+    Runs some Crystal commands
+
+    Usage:
+    #{'\t'}main [options]
+
+    Commands:
+    #{'\t'}context
+    #{'\t'}format
+
+    Options:
+    #{'\t'}-h, --help       sends help information
+    #{'\t'}-v, --version    sends the app version
+    HELP
   end
 
   it "runs the context command" do

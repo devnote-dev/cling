@@ -1,14 +1,6 @@
 require "./spec_helper"
 
 private class Greet < Cling::Command
-  getter io : IO::Memory
-
-  def initialize
-    super
-
-    @io = IO::Memory.new
-  end
-
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
@@ -19,7 +11,7 @@ private class Greet < Cling::Command
 
   def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool?
     unless arguments.has? "name"
-      io.puts Cling::Formatter.new.generate self
+      stdout.puts Cling::Formatter.new.generate self
 
       false
     end
@@ -29,35 +21,49 @@ private class Greet < Cling::Command
     message = %(Hello, #{arguments.get "name"}!)
 
     if options.has? "caps"
-      io.puts message.upcase
+      stdout.puts message.upcase
     else
-      io.puts message
+      stdout.puts message
     end
   end
 end
 
+command = Greet.new
+
 describe Cling do
   it "tests the help command" do
-    command = Greet.new
-    command.execute %w()
+    io = IO::Memory.new
+    command.stdout = io
+    command.execute ""
 
-    command.io.to_s.should eq "Greets a person\n\n" \
-                              "Usage:\n\tgreet <arguments> [options]\n\n" \
-                              "Arguments:\n\tname    the name of the person (required)\n\n" \
-                              "Options:\n\t-c, --caps  greet with caps\n\n"
+    io.to_s.should eq <<-HELP
+    Greets a person
+
+    Usage:
+    #{'\t'}greet <arguments> [options]
+
+    Arguments:
+    #{'\t'}name    the name of the person (required)
+
+    Options:
+    #{'\t'}-c, --caps    greet with caps
+
+    HELP
   end
 
   it "tests the main command" do
-    command = Greet.new
+    io = IO::Memory.new
+    command.stdout = io
     command.execute %w(Dev)
 
-    command.io.to_s.should eq "Hello, Dev!\n"
+    io.to_s.should eq "Hello, Dev!\n"
   end
 
   it "tests the main command with flag" do
-    command = Greet.new
+    io = IO::Memory.new
+    command.stdout = io
     command.execute %w(-c Dev)
 
-    command.io.to_s.should eq "HELLO, DEV!\n"
+    io.to_s.should eq "HELLO, DEV!\n"
   end
 end
