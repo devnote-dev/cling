@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-private class Greet < Cling::Command
+private class GreetCommand < Cling::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
@@ -28,7 +28,7 @@ private class Greet < Cling::Command
   end
 end
 
-command = Greet.new
+command = GreetCommand.new
 
 describe Cling do
   it "tests the help command" do
