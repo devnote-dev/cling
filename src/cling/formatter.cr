@@ -12,7 +12,8 @@ module Cling
       # Whether to show the `required` tag for required arguments/options (default is `true`).
       property show_required : Bool
 
-      def initialize(*, @option_delim : Char = '-', @show_defaults : Bool = true, @show_required : Bool = true)
+      def initialize(*, @option_delim : Char = '-', @show_defaults : Bool = true,
+                     @show_required : Bool = true)
       end
     end
 
@@ -23,122 +24,141 @@ module Cling
     end
 
     # Generates a help template for the specified command. This will attempt to fill fields that
-    # have not been set in the command, for example, command usage strings.
+    # have not been set in the command, for example, command usage strings. Values that are not
+    # set, such as arguments and options, will not be written to the IO.
     def generate(command : Command) : String
-      String.build do |str|
-        if header = command.header
-          str << header << "\n\n"
-        end
+      String.build do |io|
+        format_header(command, io)
+        format_description(command, io)
+        format_usage(command, io)
+        format_commands(command, io)
+        format_arguments(command, io)
+        format_options(command, io)
+        format_footer(command, io)
+      end.chomp
+    end
 
-        if description = command.description
-          str << description << "\n\n"
-        end
+    # :ditto:
+    #
+    # Writes to the IO and returns nothing.
+    def generate(command : Command, io : IO) : Nil
+      io << generate command
+    end
 
-        str << "Usage:"
-        if command.usage.empty?
-          str << "\n\t" << command.name
-          unless command.arguments.empty?
-            if command.arguments.values.any? &.required?
-              str << " <arguments>"
-            else
-              str << " [arguments]"
-            end
-          end
+    # Formats the header of a command into the given IO.
+    def format_header(command : Command, io : IO) : Nil
+      if header = command.header
+        io << header << "\n\n"
+      end
+    end
 
-          unless command.options.empty?
-            if command.options.values.any? &.required?
-              str << " <options>"
-            else
-              str << " [options]"
-            end
-          end
-        else
-          command.usage.each do |use|
-            str << "\n\t" << use
-          end
-        end
-        str << "\n\n"
+    # Formats the description of a command into the given IO.
+    def format_description(command : Command, io : IO) : Nil
+      if description = command.description
+        io << description << "\n\n"
+      end
+    end
 
-        unless command.children.empty?
-          str << format_commands(command) << "\n\n"
-        end
+    # Formats the usage strings of a command into the given IO.
+    def format_usage(command : Command, io : IO) : Nil
+      io << "Usage:"
+
+      if command.usage.empty?
+        io << "\n\t" << command.name
         unless command.arguments.empty?
-          str << format_arguments(command) << "\n\n"
+          if command.arguments.values.any? &.required?
+            io << " <arguments>"
+          else
+            io << " [arguments]"
+          end
         end
+
         unless command.options.empty?
-          str << format_options(command) << "\n\n"
+          if command.options.values.any? &.required?
+            io << " <options>"
+          else
+            io << " [options]"
+          end
         end
-
-        if footer = command.footer
-          str << '\n' << footer
+      else
+        command.usage.each do |use|
+          io << "\n\t" << use
         end
       end
+
+      io << "\n\n"
     end
 
-    # Returns a formatted string for subcommands (children) of the set command.
-    def format_commands(command : Command) : String
+    # Formats the command information including subcommands into the given IO. By default, this
+    # does not include hidden commands, but you can override this if you wish.
+    def format_commands(command : Command, io : IO) : Nil
       commands = command.children.values.reject &.hidden?
-      return "" if commands.empty?
+      return if commands.empty?
+      max_space = 4 + commands.max_of &.name.size
 
-      String.build do |str|
-        str << "Commands:"
-        max_space = commands.map(&.name.size).max + 4
-
-        commands.each do |cmd|
-          str << "\n\t" << cmd.name
-          str << " " * (max_space - cmd.name.size)
-          str << cmd.summary
+      io << "Commands:"
+      commands.each do |cmd|
+        io << "\n\t"
+        if summary = command.summary
+          cmd.name.ljust(io, max_space, ' ')
+          io << summary
+        else
+          io << cmd.name
         end
       end
+
+      io << "\n\n"
     end
 
-    # Returns a formatted string for arguments in the set command.
-    def format_arguments(command : Command) : String
-      return "" if command.arguments.empty?
+    # Formats the arguments of the command into the given IO.
+    def format_arguments(command : Command, io : IO) : Nil
+      return if command.arguments.empty?
+      max_space = 4 + command.arguments.keys.max_of &.size
 
-      String.build do |str|
-        str << "Arguments:"
-        max_space = command.arguments.keys.map(&.size).max + 4
+      io << "Arguments:"
+      command.arguments.each do |name, argument|
+        io << "\n\t"
+        name.ljust(io, max_space, ' ')
+        io << argument.description
+        io << " (required)" if @options.show_required && argument.required?
+      end
 
-        command.arguments.each do |name, argument|
-          str << "\n\t" << name
-          str << " " * (max_space - name.size)
-          str << argument.description
-          str << " (required)" if @options.show_required && argument.required?
+      io << "\n\n"
+    end
+
+    # Formats the options of the command into the given IO.
+    def format_options(command : Command, io : IO) : Nil
+      return if command.options.empty?
+
+      delim = @options.option_delim
+      max_space = 4 + command.options.values.max_of { |o| o.long.size + (o.short ? 6 : 4) }
+
+      io << "Options:"
+      command.options.each do |name, option|
+        io << "\n\t"
+        if option.short
+          "#{delim}#{option.short}, #{delim}#{delim}#{name}".ljust(io, max_space, ' ')
+        else
+          "#{delim}#{delim}#{name}".ljust(io, max_space, ' ')
+        end
+
+        io << option.description
+        io << " (required)" if @options.show_required && option.required?
+
+        if @options.show_defaults && option.has_default?
+          default = option.default.to_s
+          next if default.blank?
+          io << " (default: " << default << ')'
         end
       end
+
+      io << "\n\n"
     end
 
-    # Returns a formatted string for options in the set command.
-    def format_options(command : Command) : String
-      return "" if command.options.empty?
-
-      options = command.options.values
-
-      String.build do |str|
-        str << "Options:"
-        max_space = options.map { |o| 2 + o.long.size + (o.short ? 2 : 0) }.max + 2
-
-        delim = @options.option_delim.to_s * 2
-        options.each do |option|
-          name_size = 2 + option.long.size + (option.short ? 2 : -2)
-
-          str << "\n\t"
-          if short = option.short
-            str << delim[0] << short << ", "
-          end
-
-          str << delim << option.long
-          str << " " * (max_space - name_size)
-          str << option.description
-          str << " (required)" if @options.show_required && option.required?
-
-          if @options.show_defaults
-            if option.has_default? && (default = option.default.to_s) && !default.blank?
-              str << " (default: " << default << ')'
-            end
-          end
-        end
+    # Formats the footer of the command into the given IO.
+    def format_footer(command : Command, io : IO) : Nil
+      if footer = command.footer
+        io << footer << "\n\n"
       end
     end
   end
