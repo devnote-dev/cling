@@ -26,7 +26,7 @@ private class TestOptionsCommand < Cling::Command
     add_option "foo"
     add_option "double-foo", required: true
     add_option 'b', "bar", type: :single, required: true
-    add_option 'n', "num", type: :array, default: %w()
+    add_option 'n', "num", type: :multiple, default: %w()
   end
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

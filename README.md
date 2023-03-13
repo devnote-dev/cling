@@ -170,7 +170,7 @@ class MainCommand < Cling::Command
       # the type of option it is, can be:
       # :none to take no arguments
       # :single to take one argument
-      # or :array to take multiple arguments
+      # or :multiple to take multiple arguments
       type: :none,
       # optionally set a default value
       default: nil

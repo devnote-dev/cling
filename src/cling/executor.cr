@@ -140,10 +140,10 @@ module Cling::Executor
         raise ExecutionError.new("Option '#{option}' takes no arguments") unless value.raw.nil?
       else
         if value.raw.nil?
-          raise ExecutionError.new(%(Missing required argument#{"s" if option.type.array?} for option '#{option}'))
+          raise ExecutionError.new(%(Missing required argument#{"s" if option.type.multiple?} for option '#{option}'))
         end
 
-        if option.type.array? && !value.raw.is_a?(Array)
+        if option.type.multiple? && !value.raw.is_a?(Array)
           str = value.raw.to_s
           value = if str.includes?(',')
                     Value.new str.split(',', remove_empty: true)

@@ -3,8 +3,9 @@ module Cling
   # after the main command taking priority over the argument resolution (see `Executor#handle`).
   class Option
     # Identifies the value type of the option. `None` (the default) will not accept any arguments,
-    # `Single` will accept exactly 1 argument, and `Array` will accept multiple arguments. Array
-    # type options also support specifying the option name more than once in the command line:
+    # `Single` will accept exactly 1 argument, and `Multiple` will accept multiple arguments.
+    # Multiple type options also support specifying the option name more than once in the command
+    # line:
     #
     # ```
     # command argument --option=1,2,3 # allowed
@@ -13,7 +14,7 @@ module Cling
     enum Type
       None
       Single
-      Array
+      Multiple
     end
 
     property long : String
