@@ -29,7 +29,12 @@ module Cling
 
     def initialize(@long : String, @short : Char? = nil, @description : String? = nil,
                    @required : Bool = false, @type : Type = :none, @default : Value::Type = nil)
-      @value = Value.new(@default)
+      if type.none? && default
+        raise ArgumentError.new "A default value for a flag option that takes no arguments is useless"
+      end
+      raise ArgumentError.new "Required options cannot have a default value" if required && default
+
+      @value = Value.new @default
     end
 
     # :inherit:

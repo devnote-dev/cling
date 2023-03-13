@@ -24,4 +24,16 @@ describe Cling::Option do
     option1.should_not eq option2
     option1.should eq option1.dup
   end
+
+  it "should not allow required defaults" do
+    expect_raises ArgumentError do
+      Cling::Option.new "foo", required: true, default: 1
+    end
+  end
+
+  it "should not allow no-value defaults" do
+    expect_raises ArgumentError do
+      Cling::Option.new "bar", default: true
+    end
+  end
 end
