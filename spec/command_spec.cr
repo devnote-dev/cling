@@ -46,7 +46,7 @@ describe Cling::Command do
   it "fails on missing arguments" do
     command = TestArgsCommand.new
     expect_raises Cling::CommandError do
-      command.execute %w()
+      command.execute ""
     end
   end
 
@@ -66,7 +66,7 @@ describe Cling::Command do
   it "fails on missing options" do
     command = TestOptionsCommand.new
     expect_raises Cling::CommandError do
-      command.execute %w()
+      command.execute ""
     end
   end
 

@@ -12,7 +12,7 @@ class WelcomeCommand < Cling::Command
     @inherit_streams = true
   end
 
-  def pre_run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Bool
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
     if options.has? "help"
       puts help_template # generated using Cling::Formatter
 
@@ -22,7 +22,7 @@ class WelcomeCommand < Cling::Command
     end
   end
 
-  def run(arguments : Cling::ArgumentsInput, options : Cling::OptionsInput) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     stdout.puts "Welcome to the CLI world, #{arguments.get("name")}!"
   end
 end
