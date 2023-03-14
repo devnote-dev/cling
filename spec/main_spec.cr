@@ -10,11 +10,10 @@ private class GreetCommand < Cling::Command
   end
 
   def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool?
-    unless arguments.has? "name"
-      stdout.puts Cling::Formatter.new.generate self
+    return if arguments.has? "name"
+    stdout.puts Cling::Formatter.new.generate self
 
-      false
-    end
+    false
   end
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

@@ -47,16 +47,14 @@ module Cling
 
     # Formats the header of a command into the given IO.
     def format_header(command : Command, io : IO) : Nil
-      if header = command.header
-        io << header << "\n\n"
-      end
+      return unless header = command.header
+      io << header << "\n\n"
     end
 
     # Formats the description of a command into the given IO.
     def format_description(command : Command, io : IO) : Nil
-      if description = command.description
-        io << description << "\n\n"
-      end
+      return unless description = command.description
+      io << description << "\n\n"
     end
 
     # Formats the usage strings of a command into the given IO.
@@ -157,9 +155,8 @@ module Cling
 
     # Formats the footer of the command into the given IO.
     def format_footer(command : Command, io : IO) : Nil
-      if footer = command.footer
-        io << footer << "\n\n"
-      end
+      return unless footer = command.footer
+      io << footer << "\n\n"
     end
   end
 end
