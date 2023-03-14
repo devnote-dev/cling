@@ -10,6 +10,7 @@ Based on [spf13/cobra](https://github.com/spf13/cobra), Cling is built to be alm
 dependencies:
   cling:
     github: devnote-dev/cling
+    branch: stable
 ```
 
 2. Run `shards install`
@@ -110,7 +111,8 @@ main.add_command WelcomeCommand.new
 main.execute ARGV
 ```
 
-```$ crystal greet.cr -h
+```
+$ crystal greet.cr -h
 Usage:
         greet <arguments> [options]
 
@@ -179,7 +181,7 @@ end
 ```
 
 > **Warning**
-> You can only have **one** argument with the `multiple` option which will include all the remaining input arguments (or unknown arguments).
+> You can only have **one** argument with the `multiple` option which will include all the remaining input values (or unknown arguments). See the [example command](/examples/cat/cat.cr) for usage.
 
 These arguments and options can then be accessed at execution time via the `arguments` and `options` parameters in the `pre_run`, `run` and `post_run` methods of a command:
 
@@ -199,7 +201,7 @@ class MainCommand < Cling::Command
 end
 ```
 
-The `pre_run` method is slightly different to the other run methods: it allows returning a boolean to the command executor, which will determine whether the command should continue running – `false` will stop the command, `true` will continue. Explicitly returning `nil` or not specifying a return type is the same as returning `true`, the command will continue to run.
+The `pre_run` method is slightly different to the other run methods: it allows returning a boolean to the command executor, which will determine whether the command should continue running – `false` will stop the command, `true` will continue. Explicitly returning `nil` or not specifying a return type is the same as returning `true`; the command will continue to run.
 
 If you try to access the value of an argument or option that isn't set, it will raise a `ValueNotFound` exception. To avoid this, use the `get?` method and check accordingly:
 
@@ -284,6 +286,80 @@ def help_template : String
   Use:
       greet <name> [-c | --caps] [-h | --help]
   TXT
+end
+```
+
+## Extensions
+
+Cling comes with a few useful extension methods for handling argument and option values:
+
+```crystal
+require "cling"
+require "cling/ext"
+
+class StatCommand < Cling::MainCommand
+  def setup : Nil
+    super
+
+    @name = "stat"
+    @description = "Gets the stat information of a file"
+
+    add_argument "path", description: "the path of the file to stat", required: true
+  end
+
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+    path = arguments.get("path").as_path
+
+    if File.exists? path
+      info = File.info path
+      stdout.puts <<-INFO
+      name:        #{path.basename}
+      size:        #{info.size}
+      directory:   #{info.directory?}
+      symlink:     #{info.symlink?}
+      permissions: #{info.permissions}
+      INFO
+    else
+      stderr.puts "No file found at that path"
+    end
+  end
+end
+
+StatCommand.new.execute ARGV
+```
+
+```
+$ crystal stat.cr ./shard.yml
+name:        shard.yml
+size:        272
+directory:   false
+symlink:     false
+permissions: rwxrwxrwx (0o777)
+```
+
+> **Note**
+> See [ext.cr](/src/cling/ext.cr) for the full list of extension methods.
+
+Additionally, you can define your own extension methods on the `Value` struct like so:
+
+```crystal
+require "cling"
+
+module Cling
+  struct Value
+    def as_chars : Array(Char)
+      @raw.to_s.chars
+    end
+  end
+end
+
+class StatCommand
+  # ...
+
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+    puts arguments.get("path").as_chars
+    # => ['.', '/', 's', 'h', 'a', 'r', 'd', '.', 'y', 'm', 'l']
+  end
 end
 ```
 
