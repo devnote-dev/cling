@@ -24,15 +24,15 @@ describe Cling::Formatter do
     Greets a person
 
     Usage:
-    #{'\t'}greet <arguments> [options]
+    \tgreet <arguments> [options]
 
     Arguments:
-    #{'\t'}name    the name of the person (required)
+    \tname    the name of the person (required)
 
     Options:
-    #{'\t'}-h, --help       sends help information
-    #{'\t'}-v, --version    sends the app version
-    #{'\t'}-c, --caps       greet with caps
+    \t-h, --help       sends help information
+    \t-v, --version    sends the app version
+    \t-c, --caps       greet with caps
     HELP
   end
 
@@ -43,15 +43,15 @@ describe Cling::Formatter do
     Greets a person
 
     Usage:
-    #{'\t'}greet <arguments> [options]
+    \tgreet <arguments> [options]
 
     Arguments:
-    #{'\t'}name    the name of the person (required)
+    \tname    the name of the person (required)
 
     Options:
-    #{'\t'}+h, ++help       sends help information
-    #{'\t'}+v, ++version    sends the app version
-    #{'\t'}+c, ++caps       greet with caps
+    \t+h, ++help       sends help information
+    \t+v, ++version    sends the app version
+    \t+c, ++caps       greet with caps
     HELP
   end
 
@@ -80,9 +80,9 @@ describe Cling::Formatter do
       formatter.format_options(command, io)
     end.chomp.should eq <<-HELP
     Options:
-    #{'\t'}-h, --help       sends help information
-    #{'\t'}-v, --version    sends the app version
-    #{'\t'}-c, --caps       greet with caps
+    \t-h, --help       sends help information
+    \t-v, --version    sends the app version
+    \t-c, --caps       greet with caps
 
     HELP
   end

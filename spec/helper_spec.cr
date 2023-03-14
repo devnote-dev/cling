@@ -49,15 +49,15 @@ describe Cling::MainCommand do
     Runs some Crystal commands
 
     Usage:
-    #{'\t'}main [options]
+    \tmain [options]
 
     Commands:
-    #{'\t'}context
-    #{'\t'}format
+    \tcontext
+    \tformat
 
     Options:
-    #{'\t'}-h, --help       sends help information
-    #{'\t'}-v, --version    sends the app version
+    \t-h, --help       sends help information
+    \t-v, --version    sends the app version
     HELP
   end
 

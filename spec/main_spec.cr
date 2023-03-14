@@ -39,13 +39,13 @@ describe Cling do
     Greets a person
 
     Usage:
-    #{'\t'}greet <arguments> [options]
+    \tgreet <arguments> [options]
 
     Arguments:
-    #{'\t'}name    the name of the person (required)
+    \tname    the name of the person (required)
 
     Options:
-    #{'\t'}-c, --caps    greet with caps
+    \t-c, --caps    greet with caps
 
     HELP
   end
