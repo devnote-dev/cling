@@ -94,8 +94,10 @@ module Cling::Executor
           if value = result.value
             if current = options[option.long]?
               options[option.long] = Value.new(current.as_a << value)
-            else
+            elsif option.type.multiple?
               options[option.long] = Value.new [value]
+            else
+              options[option.long] = Value.new value
             end
           elsif res = results[index + 1]?
             unless res.kind.argument?

@@ -70,11 +70,10 @@ describe Cling::Command do
     end
   end
 
-  # FIXME: value is an array for some reason...
-  # it "executes without errors" do
-  #   command = TestOptionsCommand.new
-  #   command.execute %w(--double-foo --bar=true)
-  # end
+  it "executes without errors" do
+    command = TestOptionsCommand.new
+    command.execute %w(--double-foo --bar=true)
+  end
 
   it "fails on unknown options" do
     command = TestOptionsCommand.new
