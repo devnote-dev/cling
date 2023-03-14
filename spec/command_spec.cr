@@ -37,55 +37,50 @@ private class TestOptionsCommand < Cling::Command
   end
 end
 
+arguments_command = TestArgsCommand.new
+options_command = TestOptionsCommand.new
+
 describe Cling::Command do
   it "executes the pre_run only" do
-    command = TestArgsCommand.new
-    command.execute %w(--skip)
+    arguments_command.execute %w(--skip)
   end
 
   it "fails on missing arguments" do
-    command = TestArgsCommand.new
     expect_raises Cling::CommandError do
-      command.execute ""
+      arguments_command.execute ""
     end
   end
 
   it "executes without errors" do
-    command = TestArgsCommand.new
-    command.execute %w(foo bar)
-    command.execute %w(foo bar baz qux)
+    arguments_command.execute %w(foo bar)
+    arguments_command.execute %w(foo bar baz qux)
   end
 
   it "raises on unknown values" do
-    command = TestArgsCommand.new
     expect_raises Cling::ValueNotFound do
-      command.execute %w(foo)
+      arguments_command.execute %w(foo)
     end
   end
 
   it "fails on missing options" do
-    command = TestOptionsCommand.new
     expect_raises Cling::CommandError do
-      command.execute ""
+      options_command.execute ""
     end
   end
 
   it "executes without errors" do
-    command = TestOptionsCommand.new
-    command.execute %w(--double-foo --bar=true)
+    options_command.execute %w(--double-foo --bar=true)
   end
 
   it "fails on unknown options" do
-    command = TestOptionsCommand.new
     expect_raises Cling::CommandError do
-      command.execute %w(--double-foo --double-bar)
+      options_command.execute %w(--double-foo --double-bar)
     end
   end
 
   it "fails on invalid options" do
-    command = TestOptionsCommand.new
     expect_raises Cling::ExecutionError do
-      command.execute %w(--foo=true --double-foo)
+      options_command.execute %w(--foo=true --double-foo)
     end
   end
 end
