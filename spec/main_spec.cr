@@ -1,63 +1,68 @@
 require "./spec_helper"
 
-private class Greet < CLI::Command
-  getter io : IO::Memory
-
-  def initialize
-    super
-
-    @io = IO::Memory.new
-  end
-
+private class GreetCommand < Cling::Command
   def setup : Nil
     @name = "greet"
     @description = "Greets a person"
 
-    add_argument "name", desc: "the name of the person", required: true
-    add_option 'c', "caps", desc: "greet with caps"
+    add_argument "name", description: "the name of the person", required: true
+    add_option 'c', "caps", description: "greet with caps"
   end
 
-  def pre_run(args, options)
-    unless args.has? "name"
-      io.puts CLI::Formatter.new(self).generate
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool?
+    return if arguments.has? "name"
+    stdout.puts Cling::Formatter.new.generate self
 
-      false
-    end
+    false
   end
 
-  def run(args, options) : Nil
-    msg = %(Hello, #{args.get! "name"}!)
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+    message = %(Hello, #{arguments.get "name"}!)
 
     if options.has? "caps"
-      io.puts msg.upcase
+      stdout.puts message.upcase
     else
-      io.puts msg
+      stdout.puts message
     end
   end
 end
 
-describe CLI do
-  it "tests the help command" do
-    cmd = Greet.new
-    cmd.execute %w()
+command = GreetCommand.new
 
-    cmd.io.to_s.should eq "Greets a person\n\n" \
-                          "Usage:\n\tgreet <arguments> [options]\n\n" \
-                          "Arguments:\n\tname    the name of the person (required)\n\n" \
-                          "Options:\n\t-c, --caps  greet with caps\n\n"
+describe Cling do
+  it "tests the help command" do
+    io = IO::Memory.new
+    command.stdout = io
+    command.execute ""
+
+    io.to_s.should eq <<-HELP
+    Greets a person
+
+    Usage:
+    \tgreet <arguments> [options]
+
+    Arguments:
+    \tname    the name of the person (required)
+
+    Options:
+    \t-c, --caps    greet with caps
+
+    HELP
   end
 
   it "tests the main command" do
-    cmd = Greet.new
-    cmd.execute %w(Dev)
+    io = IO::Memory.new
+    command.stdout = io
+    command.execute %w(Dev)
 
-    cmd.io.to_s.should eq "Hello, Dev!\n"
+    io.to_s.should eq "Hello, Dev!\n"
   end
 
   it "tests the main command with flag" do
-    cmd = Greet.new
-    cmd.execute %w(-c Dev)
+    io = IO::Memory.new
+    command.stdout = io
+    command.execute %w(-c Dev)
 
-    cmd.io.to_s.should eq "HELLO, DEV!\n"
+    io.to_s.should eq "HELLO, DEV!\n"
   end
 end

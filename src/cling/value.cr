@@ -1,7 +1,7 @@
-module CLI
+module Cling
   # Represents a value for an argument or option.
   struct Value
-    alias Type = String | Number::Primitive | Bool | Nil # | Array(Type)
+    alias Type = String | Number::Primitive | Bool | Nil | Array(String)
 
     getter raw : Type
 
@@ -23,6 +23,11 @@ module CLI
       else
         raise ArgumentError.new "Cannot get size of type #{value.class}"
       end
+    end
+
+    # :inherit:
+    def ==(other : Value) : Bool
+      @raw == other.raw
     end
 
     # :inherit:
@@ -59,14 +64,9 @@ module CLI
       end
     end
 
-    # Returns the value as `nil`.
-    def as_nil : Nil
-      @raw.as(Nil)
-    end
-
     # Returns the value as an `Array`. Note that this does not change the type of the array.
-    def as_a : Array(Type)
-      @raw.as(Array)
+    def as_a : Array(String)
+      @raw.as(Array(String))
     end
 
     {% for base in %w(8 16 32 64 128) %}

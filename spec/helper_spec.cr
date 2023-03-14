@@ -2,54 +2,63 @@ require "./spec_helper"
 
 # Inspired by Clim
 
-private class ContextCmd < CLI::Command
+private class ContextCommand < Cling::Command
   def setup : Nil
     @name = "context"
     @description = "Runs the Crystal context tool"
   end
 
-  def run(args, options) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     stdout.puts "Fake crystal context command!"
   end
 end
 
-private class FormatCmd < CLI::Command
+private class FormatCommand < Cling::Command
   def setup : Nil
     @name = "format"
     @description = "Runs the Crystal format tool"
   end
 
-  def run(args, options) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     stdout.puts "Fake crystal format command!"
   end
 end
 
-private class CrystalCmd < CLI::MainCommand
+private class CrystalCommand < Cling::MainCommand
   def setup : Nil
     super
 
     @description = "Runs some Crystal commands"
   end
 
-  def run(args, options) : Nil
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
   end
 end
 
-command = CrystalCmd.new
-command.add_command ContextCmd.new
-command.add_command FormatCmd.new
+command = CrystalCommand.new
+command.add_command ContextCommand.new
+command.add_command FormatCommand.new
 
-describe CLI do
+describe Cling::MainCommand do
   it "prints the help message" do
     io = IO::Memory.new
     command.stdout = io
     command.execute ""
 
-    io.to_s.should eq "Runs some Crystal commands\n\n" \
-                      "Usage:\n\tmain [options]\n\n" \
-                      "Commands:\n\tcontext    \n\tformat     \n\n" \
-                      "Options:\n\t-h, --help     sends help information\n" \
-                      "\t-v, --version  sends the app version\n\n"
+    io.to_s.chomp.should eq <<-HELP
+    Runs some Crystal commands
+
+    Usage:
+    \tmain [options]
+
+    Commands:
+    \tcontext
+    \tformat
+
+    Options:
+    \t-h, --help       sends help information
+    \t-v, --version    sends the app version
+    HELP
   end
 
   it "runs the context command" do

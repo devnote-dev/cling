@@ -1,12 +1,12 @@
 require "./spec_helper"
 
-describe CLI::Argument do
+describe Cling::Argument do
   it "parses an argument" do
-    arg = CLI::Argument.new "spec", "a test argument"
+    argument = Cling::Argument.new "spec", "a test argument"
 
-    arg.name.should eq "spec"
-    arg.description.should eq "a test argument"
-    arg.required?.should be_false
-    arg.value.should be_nil
+    argument.name.should eq "spec"
+    argument.description.should eq "a test argument"
+    argument.required?.should be_false
+    argument.value.should be_nil
   end
 end
