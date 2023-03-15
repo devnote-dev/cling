@@ -7,6 +7,11 @@ repository: https://github.com/devnote-dev/cling
 authors:
   - Devonte W <https://github.com/devnote-dev>
 
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 1.4.0
+
 crystalline:
   main: src/cling.cr
 
