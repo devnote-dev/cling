@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+  shedule:
+    - cron: "0 0 * * 0"
+
   pull_request:
     branches:
       - main
