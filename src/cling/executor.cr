@@ -42,13 +42,16 @@ module Cling::Executor
       return
     end
 
-    executed = get_in_position resolved_command, results
+    begin
+      executed = get_in_position resolved_command, results
+    rescue ex : ExecutionError
+      command.on_invalid_option ex.to_s
+      return
+    end
 
     begin
       res = resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
-      unless res.nil?
-        return unless res
-      end
+      return unless res.nil? || res
     rescue ex
       resolved_command.on_error ex
     end
@@ -88,8 +91,8 @@ module Cling::Executor
 
       if option = command.options.values.find &.is?(result.key!)
         if option.type.none?
-          raise ExecutionError.new("Missing required argument for option '#{option}'") if result.value
-          options[option.long] = Value.new option.default
+          raise ExecutionError.new "Option '#{option}' takes no arguments" if result.value
+          options[option.long] = Value.new nil
         else
           if value = result.value
             if current = options[option.long]?
@@ -101,7 +104,7 @@ module Cling::Executor
             end
           elsif res = results[index + 1]?
             unless res.kind.argument?
-              raise ExecutionError.new "Missing required argument for option '#{option}'"
+              raise ExecutionError.new "Missing required argument#{"s" if option.type.multiple?} for option '#{option}'"
             end
 
             if option.type.single?
@@ -117,7 +120,7 @@ module Cling::Executor
             results.delete_at(index + 1)
           elsif default = option.default
             unless option.required?
-              raise ExecutionError.new "Missing required argument for option '#{option}'"
+              raise ExecutionError.new "Missing required argument#{"s" if option.type.multiple?} for option '#{option}'"
             end
 
             if option.type.single?
@@ -132,7 +135,7 @@ module Cling::Executor
 
             results.delete_at index if 0 <= index > results.size
           else
-            raise ExecutionError.new "Missing required argument for option '#{option}'"
+            raise ExecutionError.new "Missing required argument#{"s" if option.type.multiple?} for option '#{option}'"
           end
         end
       else
@@ -146,7 +149,7 @@ module Cling::Executor
         raise ExecutionError.new("Option '#{option}' takes no arguments") unless value.raw.nil?
       else
         if value.raw.nil?
-          raise ExecutionError.new(%(Missing required argument#{"s" if option.type.multiple?} for option '#{option}'))
+          raise ExecutionError.new "Missing required argument#{"s" if option.type.multiple?} for option '#{option}'"
         end
 
         if option.type.multiple? && !value.raw.is_a?(Array)

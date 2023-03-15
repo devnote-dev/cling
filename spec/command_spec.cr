@@ -26,7 +26,7 @@ private class TestOptionsCommand < Cling::Command
     add_option "foo"
     add_option "double-foo", required: true
     add_option 'b', "bar", type: :single, required: true
-    add_option 'n', "num", type: :multiple, default: %w()
+    add_option 'n', "num", type: :multiple, default: %w[]
   end
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -37,8 +37,43 @@ private class TestOptionsCommand < Cling::Command
   end
 end
 
+private class TestHooksCommand < Cling::Command
+  def setup : Nil
+    @name = "main"
+
+    add_argument "foo", required: true
+    add_option "double-foo", required: true
+    add_option 'b', "bar", type: :single
+    add_option 'n', "num", type: :multiple, default: %w[]
+  end
+
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+  end
+
+  def on_missing_arguments(arguments : Array(String))
+    stderr.puts arguments.join ", "
+  end
+
+  def on_unknown_arguments(arguments : Array(String))
+    stderr.puts arguments.join ", "
+  end
+
+  def on_invalid_option(message : String)
+    stderr.puts message
+  end
+
+  def on_missing_options(options : Array(String))
+    stderr.puts options.join ", "
+  end
+
+  def on_unknown_options(options : Array(String))
+    stderr.puts options.join ", "
+  end
+end
+
 arguments_command = TestArgsCommand.new
 options_command = TestOptionsCommand.new
+hooks_command = TestHooksCommand.new
 
 describe Cling::Command do
   it "executes the pre_run only" do
@@ -56,7 +91,7 @@ describe Cling::Command do
     arguments_command.execute %w(foo bar baz qux)
   end
 
-  it "raises on unknown values" do
+  it "fails on unknown values" do
     expect_raises Cling::ValueNotFound do
       arguments_command.execute %w(foo)
     end
@@ -79,8 +114,49 @@ describe Cling::Command do
   end
 
   it "fails on invalid options" do
-    expect_raises Cling::ExecutionError do
+    expect_raises Cling::CommandError do
       options_command.execute %w(--foo=true --double-foo)
     end
+
+    expect_raises Cling::CommandError do
+      options_command.execute "--double-foo=true --bar baz"
+    end
+  end
+
+  it "catches missing required arguments" do
+    io = IO::Memory.new
+    hooks_command.stderr = io
+    hooks_command.execute "--double-foo"
+
+    io.to_s.should eq "foo\n"
+  end
+
+  it "catches unknown arguments" do
+    io = IO::Memory.new
+    hooks_command.stderr = io
+    hooks_command.execute "foo --double-foo bar baz"
+
+    io.to_s.should eq "bar, baz\n"
+  end
+
+  it "catches an invalid option" do
+    io = IO::Memory.new
+    hooks_command.stderr = io
+    hooks_command.execute "foo --double-foo=true\n"
+
+    io.to_s.should eq "Option 'double-foo' takes no arguments\n"
+  end
+
+  it "catches missing required values for options" do
+    io = IO::Memory.new
+    hooks_command.stderr = io
+    hooks_command.execute "foo --double-foo --bar"
+
+    io.to_s.should eq "Missing required argument for option 'bar'\n"
+
+    io.rewind
+    hooks_command.execute "foo --double-foo -n"
+
+    io.to_s.should eq "Missing required arguments for option 'num'\n"
   end
 end

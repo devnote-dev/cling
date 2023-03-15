@@ -39,7 +39,7 @@ module Cling
 
     # :inherit:
     def to_s(io : IO) : Nil
-      io << @short || @long
+      io << @long
     end
 
     # Returns `true` if a default value is set.
