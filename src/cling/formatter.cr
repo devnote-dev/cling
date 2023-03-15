@@ -7,10 +7,10 @@ module Cling
       property option_delim : Char
 
       # Whether to show the `default` tag for options with default values (default is `true`).
-      property show_defaults : Bool
+      property? show_defaults : Bool
 
       # Whether to show the `required` tag for required arguments/options (default is `true`).
-      property show_required : Bool
+      property? show_required : Bool
 
       def initialize(*, @option_delim : Char = '-', @show_defaults : Bool = true,
                      @show_required : Bool = true)
@@ -118,7 +118,7 @@ module Cling
         io << "\n\t"
         name.ljust(io, max_space, ' ')
         io << argument.description
-        io << " (required)" if @options.show_required && argument.required?
+        io << " (required)" if @options.show_required? && argument.required?
       end
 
       io << "\n\n"
@@ -141,9 +141,9 @@ module Cling
         end
 
         io << option.description
-        io << " (required)" if @options.show_required && option.required?
+        io << " (required)" if @options.show_required? && option.required?
 
-        if @options.show_defaults && option.has_default?
+        if @options.show_defaults? && option.has_default?
           default = option.default.to_s
           next if default.blank?
           io << " (default: " << default << ')'

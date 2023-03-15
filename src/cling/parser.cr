@@ -5,7 +5,7 @@ module Cling
     # Represents options for the parser.
     class Options
       # Parse string arguments as one value instead of separate values (defaults is `true`).
-      property parse_string : Bool
+      property? parse_string : Bool
       # TODO
       # property parse_escape : Bool
 
@@ -99,7 +99,7 @@ module Cling
         when @options.option_delim
           results << read_option
         else
-          if char.in?(@options.string_delims) && @options.parse_string
+          if char.in?(@options.string_delims) && @options.parse_string?
             results << read_string
           else
             results << read_argument
@@ -115,7 +115,7 @@ module Cling
           when ' '
             @reader.next_char
           else
-            if char.in?(@options.string_delims) && @options.parse_string
+            if char.in?(@options.string_delims) && @options.parse_string?
               results << read_string
             else
               results << read_argument
@@ -163,7 +163,7 @@ module Cling
           when '\0', ' ', '='
             break
           else
-            if @options.string_delims.includes?(char) && @options.parse_string
+            if @options.string_delims.includes?(char) && @options.parse_string?
               str << read_string_raw
               break
             else
@@ -183,7 +183,7 @@ module Cling
             when '\0', ' '
               break
             else
-              if @options.string_delims.includes?(char) && @options.parse_string
+              if @options.string_delims.includes?(char) && @options.parse_string?
                 str << read_string_raw
                 break
               else
