@@ -5,12 +5,9 @@ module Cling
 
     getter raw : Type
 
-    def initialize(@raw : Type)
-    end
+    delegate :==, :===, :to_s, to: @raw
 
-    # :inherit:
-    def to_s(io : IO) : Nil
-      @raw.to_s io
+    def initialize(@raw : Type)
     end
 
     # Returns the size of the value if it is an array or hash, otherwise raises an exception.
@@ -23,16 +20,6 @@ module Cling
       else
         raise ArgumentError.new "Cannot get size of type #{value.class}"
       end
-    end
-
-    # :inherit:
-    def ==(other : Value) : Bool
-      @raw == other.raw
-    end
-
-    # :inherit:
-    def ==(other : Type) : Bool
-      @raw == other
     end
 
     # Returns the value as a `String`.
