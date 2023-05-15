@@ -1,7 +1,7 @@
-name: Nightly CI
+name: Nightly
 
 on:
-  shedule:
+  schedule:
     - cron: "0 6 * * 6"
 
 jobs:
