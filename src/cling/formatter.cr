@@ -97,7 +97,7 @@ module Cling
       io << "Commands:"
       commands.each do |cmd|
         io << "\n\t"
-        if summary = command.summary
+        if summary = cmd.summary
           cmd.name.ljust(io, max_space, ' ')
           io << summary
         else
