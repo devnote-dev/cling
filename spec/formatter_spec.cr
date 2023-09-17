@@ -15,7 +15,18 @@ private class GreetCommand < Cling::MainCommand
   end
 end
 
+class WelcomeCommand < Cling::Command
+  def setup : Nil
+    @name = "welcome"
+    @summary = @description = "sends a friendly welcome message"
+  end
+
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+  end
+end
+
 command = GreetCommand.new
+command.add_command WelcomeCommand.new
 formatter = Cling::Formatter.new
 
 describe Cling::Formatter do
@@ -25,6 +36,9 @@ describe Cling::Formatter do
 
     Usage:
     \tgreet <arguments> [options]
+
+    Commands:
+    \twelcome    sends a friendly welcome message
 
     Arguments:
     \tname    the name of the person (required)
@@ -44,6 +58,9 @@ describe Cling::Formatter do
 
     Usage:
     \tgreet <arguments> [options]
+
+    Commands:
+    \twelcome    sends a friendly welcome message
 
     Arguments:
     \tname    the name of the person (required)
