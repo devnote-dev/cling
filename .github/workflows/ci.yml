@@ -9,6 +9,9 @@ on:
     branches:
       - main
 
+permissions:
+  checks: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,13 +25,12 @@ jobs:
           crystal: latest
 
       - name: Install Ameba
-        run: shards install
+        uses: crystal-ameba/github-action@v0.8.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check Format
         run: crystal tool format --check
-
-      - name: Check Lints
-        run: ./bin/ameba
 
       - name: Run Specs
         run: crystal spec
