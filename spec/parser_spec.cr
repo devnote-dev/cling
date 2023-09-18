@@ -61,4 +61,23 @@ describe Cling::Parser do
     expect_raises(NilAssertionError) { results[3].value }
     results[4].value.should eq "4"
   end
+
+  it "parses all-positional arguments" do
+    parser = Cling::Parser.new %(one two -- three -four --five -s-i-x-)
+    results = parser.parse
+
+    results.size.should eq 6
+    results[0].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[0].value.should eq "one"
+    results[1].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[1].value.should eq "two"
+    results[2].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[2].value.should eq "three"
+    results[3].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[3].value.should eq "-four"
+    results[4].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[4].value.should eq "--five"
+    results[5].kind.should eq Cling::Parser::Result::Kind::Argument
+    results[5].value.should eq "-s-i-x-"
+  end
 end
