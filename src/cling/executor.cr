@@ -71,7 +71,7 @@ module Cling::Executor
     return command if arguments.empty? || command.children.empty?
 
     result = arguments.first
-    if found_command = command.children.values.find &.is?(result.value!)
+    if found_command = command.children.values.find &.is?(result.value)
       results.shift
       resolve_command found_command, results
     elsif !command.arguments.empty?
@@ -89,18 +89,18 @@ module Cling::Executor
     results.each_with_index do |result, index|
       next if result.kind.argument?
 
-      if option = command.options.values.find &.is?(result.key!)
+      if option = command.options.values.find &.is?(result.key)
         if option.type.none?
-          raise ExecutionError.new "Option '#{option}' takes no arguments" if result.value
+          raise ExecutionError.new "Option '#{option}' takes no arguments" if result.value?
           options[option.long] = Value.new nil
         else
-          if value = result.value
+          if result.value?
             if current = options[option.long]?
-              options[option.long] = Value.new(current.as_a << value)
+              options[option.long] = Value.new(current.as_a << result.value)
             elsif option.type.multiple?
-              options[option.long] = Value.new [value]
+              options[option.long] = Value.new [result.value]
             else
-              options[option.long] = Value.new value
+              options[option.long] = Value.new result.value
             end
           elsif res = results[index + 1]?
             unless res.kind.argument?
@@ -108,12 +108,12 @@ module Cling::Executor
             end
 
             if option.type.single?
-              options[option.long] = Value.new res.value!
+              options[option.long] = Value.new res.value
             else
               if current = options[option.long]?
-                options[option.long] = Value.new(current.as_a << res.value!)
+                options[option.long] = Value.new(current.as_a << res.value)
               else
-                options[option.long] = Value.new [res.value!]
+                options[option.long] = Value.new [res.value]
               end
             end
 
@@ -139,7 +139,7 @@ module Cling::Executor
           end
         end
       else
-        unknown_options << result.key!
+        unknown_options << result.key
       end
     end
 
@@ -192,11 +192,11 @@ module Cling::Executor
     unknown_arguments = if arguments.empty?
                           [] of String
                         else
-                          arguments[parsed_arguments.size...].map &.value!
+                          arguments[parsed_arguments.size...].map &.value
                         end
 
     if argument = parsed_arguments.values.find &.multiple?
-      argument.value = Value.new([argument.value.not_nil!.as_s] + unknown_arguments)
+      argument.value = Value.new([argument.value.as(Value).as_s] + unknown_arguments)
       unknown_arguments.clear
       parsed_arguments[argument.name] = argument
     end
