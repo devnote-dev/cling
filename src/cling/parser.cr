@@ -31,8 +31,8 @@ module Cling
       end
 
       property kind : Kind
-      property key : String?
-      property value : String?
+      property! key : String
+      property! value : String
       getter? string : Bool
 
       def initialize(@kind : Kind, @key : String? = nil, @value : String? = nil, *, @string : Bool = false)
@@ -40,14 +40,16 @@ module Cling
 
       # Returns the non-nil form of the result key which is the name if it is a flag, or the value
       # if it is an argument.
+      @[Deprecated("Use `Cling::Parser::Result#key` instead.")]
       def key! : String
-        @key.not_nil!
+        key
       end
 
       # Returns the non-nil form of the result value which is the explicit value if it is a flag,
       # or the value if it is an argument.
+      @[Deprecated("Use `Cling::Parser::Result#value` instead.")]
       def value! : String
-        @value.not_nil!
+        value
       end
     end
 
