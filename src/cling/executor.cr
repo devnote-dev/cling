@@ -45,7 +45,7 @@ module Cling::Executor
     begin
       executed = get_in_position resolved_command, results
     rescue ex : ExecutionError
-      command.on_invalid_option ex.to_s
+      resolved_command.on_invalid_option ex.to_s
       return
     end
 
