@@ -367,6 +367,16 @@ end
 
 Most Crystal CLI builders/DSLs are opinionated with limited customisation available. Cling aims to be entirely modular so that you have the freedom to change whatever you want without having to write tons of boilerplate or monkey-patch code. Macro-based CLI shards can also be quite restrictive as they are not scalable, meaning that you may eventually have to refactor your application to another CLI shard. This is not meant to discourage you from using macro-based CLI shards, they are still useful for short and simple applications with a general template, but if you are looking for something to handle larger applications with guaranteed stability and scalability, Cling is the library for you.
 
+## Projects using Cling
+
+Information made available thanks to [shards.info](https://shards.info/github/devnote-dev/cling/).
+
+- [Docr](https://github.com/devnote-dev/docr) - A CLI tool for searching Crystal documentation
+- [Fossil](https://github.com/PteroPackages/Fossil) - 📦 Pterodactyl Archive Manager
+- [Geode](https://github.com/devnote-dev/geode) - An alternative Crystal package manager
+- [Crimson](https://github.com/crimson-crystal/crimson) - A Crystal Version Manager
+- [tanda_cli](https://github.com/DanielGilchrist/tanda_cli) - A CLI application for people using Tanda/Workforce.com
+
 ## Contributing
 
 1. Fork it (<https://github.com/devnote-dev/cling/fork>)
