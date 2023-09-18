@@ -53,12 +53,12 @@ describe Cling::Parser do
 
     results[0].kind.should eq Cling::Parser::Result::Kind::ShortFlag
     results[0].key.should eq "n"
-    results[0].value.should be_nil
+    expect_raises(NilAssertionError) { results[0].value }
     results[1].value.should eq "1"
     # This isn't managed by the parser so this is the raw value,
     # the executor will parse this into ["2", "3"]
     results[2].value.should eq "2,3"
-    results[3].value.should be_nil
+    expect_raises(NilAssertionError) { results[3].value }
     results[4].value.should eq "4"
   end
 end
