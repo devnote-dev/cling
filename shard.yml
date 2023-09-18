@@ -1,18 +1,14 @@
 name: cling
 description: A modular, non-macro-based command line interface library
-version: 3.0.0
-crystal: 1.5.0
-
-repository: https://github.com/devnote-dev/cling
 authors:
   - Devonte W <https://github.com/devnote-dev>
+
+version: 3.0.0
+crystal: '>= 1.5.0'
+license: MPL
+repository: https://github.com/devnote-dev/cling
 
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
     version: ~> 1.5.0
-
-crystalline:
-  main: src/cling.cr
-
-license: MPL
