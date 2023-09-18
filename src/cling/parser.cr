@@ -136,9 +136,9 @@ module Cling
 
         if (key = result.key) && key.size > 1
           flags = key.chars.map { |c| Result.new(:short_flag, c.to_s) }
-          if value = result.value
+          if result.value?
             option = flags[-1]
-            option.value = value
+            option.value = result.value
             flags[-1] = option
           end
           validated += flags
