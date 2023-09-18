@@ -10,7 +10,7 @@ Based on [spf13/cobra](https://github.com/spf13/cobra), Cling is built to be alm
 dependencies:
   cling:
     github: devnote-dev/cling
-    branch: stable
+    version: ">= 3.0.0"
 ```
 
 2. Run `shards install`
