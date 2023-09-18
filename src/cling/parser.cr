@@ -89,6 +89,7 @@ module Cling
           when '-'
             @reader.next_char
             if @reader.peek_next_char == ' '
+              @reader.next_char
               all_positional = true
               break
             else
