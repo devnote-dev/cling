@@ -104,7 +104,7 @@ module Cling
 
     # Gets an option by its short or long name and returns its `Value`.
     def get(key : String | Char) : Value
-      self[key].value.not_nil! rescue raise ValueNotFound.new(key.to_s)
+      self[key].value || raise ValueNotFound.new(key.to_s)
     end
 
     # Returns `true` if there are no parsed options.
