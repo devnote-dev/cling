@@ -2,11 +2,5 @@ Globs:
   - src/**/*.cr
   - spec/**/*.cr
 
-Layout/TrailingWhitespace:
-  Enabled: false
-
-Lint/NotNil:
-  Enabled: false
-
 Metrics/CyclomaticComplexity:
   Enabled: false
