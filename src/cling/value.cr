@@ -27,9 +27,19 @@ module Cling
       @raw.as(String)
     end
 
+    # Returns the value as a `String` or `nil` if the underlying value is not a string.
+    def as_s? : String?
+      @raw.as?(String)
+    end
+
     # Returns the value as an `Int`.
     def as_i : Int
       @raw.as(Int)
+    end
+
+    # Returns the value as a `Int` or `nil` if the underlying value is not an integer.
+    def as_i? : Int?
+      @raw.as?(Int)
     end
 
     # Returns the value as a `Float`.
@@ -37,16 +47,25 @@ module Cling
       @raw.as(Float)
     end
 
+    # Returns the value as a `Float` or `nil` if the underlying value is not a float.
+    def as_f? : Float?
+      @raw.as?(Float)
+    end
+
     # Returns the value as a `Bool`.
     def as_bool : Bool
+      as_bool? || raise TypeCastError.new "cast from #{@raw.class} to Bool failed"
+    end
+
+    # Returns the value as a `Bool` or `nil` if the underlying value is not a boolean.
+    def as_bool? : Bool?
       if @raw.is_a? Bool
         @raw.as(Bool)
       else
         case @raw.to_s
         when "true"  then true
         when "false" then false
-        else
-          raise TypeCastError.new "cast from #{@raw.class} to Bool failed"
+        else              nil
         end
       end
     end
@@ -54,6 +73,12 @@ module Cling
     # Returns the value as an `Array`. Note that this does not change the type of the array.
     def as_a : Array(String)
       @raw.as(Array(String))
+    end
+
+    # Returns the value as an `Array`. Note that this does not change the type of the array.
+    # Returns `nil` if the underlying value is not an array.
+    def as_a? : Array(String)?
+      @raw.as?(Array(String))
     end
 
     {% for base in %w(8 16 32 64 128) %}
