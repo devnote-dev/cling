@@ -29,12 +29,12 @@ module Cling
 
     # Returns the value as an `Int`.
     def as_i : Int
-      @raw.to_s.to_i
+      @raw.as(Int)
     end
 
     # Returns the value as a `Float`.
     def as_f : Float
-      @raw.to_s.to_f
+      @raw.as(Float)
     end
 
     # Returns the value as a `Bool`.
@@ -59,34 +59,34 @@ module Cling
     {% for base in %w(8 16 32 64 128) %}
     # Returns the value as an `Int{{ base }}`.
     def as_i{{ base.id }} : Int{{ base.id }}
-      @raw.as(Int{{ base.id }}).to_i{{ base.id }}
+      @raw.as(Int{{ base.id }})
     end
 
     # Returns the value as an `Int{{ base }}` or `nil`.
     def as_i{{ base.id }}? : Int{{ base.id }}?
-      @raw.as?(Int{{ base.id }}).try &.to_i{{ base.id }}?
+      @raw.as?(Int{{ base.id }})
     end
 
     # Returns the value as a `UInt{{ base }}`.
     def as_u{{ base.id }} : UInt{{ base.id }}
-      @raw.as(UInt{{ base.id }}).to_u{{ base.id }}
+      @raw.as(UInt{{ base.id }})
     end
 
     # Returns the value as a `UInt{{ base }}` or `nil`.
     def as_u{{ base.id }}? : UInt{{ base.id }}?
-      @raw.as?(UInt{{ base.id }}).try &.to_u{{ base.id }}?
+      @raw.as?(UInt{{ base.id }})
     end
     {% end %}
 
     {% for base in %w(32 64) %}
     # Returns the value as a `Float{{ base }}`.
     def as_f{{ base.id }} : Float{{ base.id }}
-      @raw.as(Float{{ base.id }}).to_f{{ base.id }}
+      @raw.as(Float{{ base.id }})
     end
 
     # Returns the value as a `Float{{ base }}` or `nil`.
     def as_f{{ base.id }}? : Float{{ base.id }}?
-      @raw.as?(Float{{ base.id }}).try &.to_f{{ base.id }}?
+      @raw.as?(Float{{ base.id }})
     end
     {% end %}
 
