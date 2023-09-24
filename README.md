@@ -161,7 +161,9 @@ class MainCommand < Cling::Command
       # set it as a required or optional argument
       required: true,
       # allow multiple values for the argument
-      multiple: false
+      multiple: false,
+      # make it hidden from the help template
+      hidden: false
 
     # define an option with a short flag using chars
     add_option 'c', "caps",
@@ -175,7 +177,9 @@ class MainCommand < Cling::Command
       # or :multiple to take multiple arguments
       type: :none,
       # optionally set a default value
-      default: nil
+      default: nil,
+      # make it hidden from the help template
+      hidden: false
   end
 end
 ```
