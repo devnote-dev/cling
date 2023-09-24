@@ -147,32 +147,32 @@ module Cling
 
     # Adds an argument to the command.
     def add_argument(name : String, *, description : String? = nil, required : Bool = false,
-                     multiple : Bool = false) : Nil
+                     multiple : Bool = false, hidden : Bool = false) : Nil
       raise CommandError.new "Duplicate argument '#{name}'" if @arguments.has_key? name
       if multiple && @arguments.values.find &.multiple?
         raise CommandError.new "Cannot have more than one argument with multiple values"
       end
 
-      @arguments[name] = Argument.new(name, description, required, multiple)
+      @arguments[name] = Argument.new(name, description, required, multiple, hidden)
     end
 
     # Adds a long flag option to the command.
     def add_option(long : String, *, description : String? = nil, required : Bool = false,
-                   type : Option::Type = :none, default : Value::Type = nil) : Nil
+                   hidden : Bool = false, type : Option::Type = :none, default : Value::Type = nil) : Nil
       raise CommandError.new "Duplicate flag option '#{long}'" if @options.has_key? long
 
-      @options[long] = Option.new(long, nil, description, required, type, default)
+      @options[long] = Option.new(long, nil, description, required, hidden, type, default)
     end
 
     # Adds a short flag option to the command.
     def add_option(short : Char, long : String, *, description : String? = nil, required : Bool = false,
-                   type : Option::Type = :none, default : Value::Type = nil) : Nil
+                   hidden : Bool = false, type : Option::Type = :none, default : Value::Type = nil) : Nil
       raise CommandError.new "Duplicate flag option '#{long}'" if @options.has_key? long
       if op = @options.values.find { |o| o.short == short }
         raise CommandError.new "Flag '#{op.long}' already has the short option '#{short}'"
       end
 
-      @options[long] = Option.new(long, short, description, required, type, default)
+      @options[long] = Option.new(long, short, description, required, hidden, type, default)
     end
 
     # Executes the command with the given input and parser (see `Parser`).

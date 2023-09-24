@@ -21,6 +21,7 @@ module Cling
     property short : Char?
     property description : String?
     property? required : Bool
+    property? hidden : Bool
     property type : Type
     property default : Value::Type
     property value : Value?
@@ -28,7 +29,8 @@ module Cling
     def_equals @long, @short
 
     def initialize(@long : String, @short : Char? = nil, @description : String? = nil,
-                   @required : Bool = false, @type : Type = :none, @default : Value::Type = nil)
+                   @required : Bool = false, @hidden : Bool = false, @type : Type = :none,
+                   @default : Value::Type = nil)
       if type.none? && default
         raise ArgumentError.new "A default value for a flag option that takes no arguments is useless"
       end

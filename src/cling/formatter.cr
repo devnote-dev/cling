@@ -110,13 +110,14 @@ module Cling
 
     # Formats the arguments of the command into the given IO.
     def format_arguments(command : Command, io : IO) : Nil
-      return if command.arguments.empty?
-      max_space = 4 + command.arguments.keys.max_of &.size
+      arguments = command.arguments.values.reject &.hidden?
+      return if arguments.empty?
+      max_space = 4 + arguments.max_of &.name.size
 
       io << "Arguments:"
-      command.arguments.each do |name, argument|
+      arguments.each do |argument|
         io << "\n\t"
-        name.ljust(io, max_space, ' ')
+        argument.name.ljust(io, max_space, ' ')
         io << argument.description
         io << " (required)" if @options.show_required? && argument.required?
       end
@@ -126,13 +127,14 @@ module Cling
 
     # Formats the options of the command into the given IO.
     def format_options(command : Command, io : IO) : Nil
-      return if command.options.empty?
+      options = command.options.reject { |_, v| v.hidden? }
+      return if options.empty?
 
       delim = @options.option_delim
-      max_space = 4 + command.options.values.max_of { |o| o.long.size + (o.short ? 6 : 4) }
+      max_space = 4 + options.values.max_of { |o| o.long.size + (o.short ? 6 : 4) }
 
       io << "Options:"
-      command.options.each do |name, option|
+      options.each do |name, option|
         io << "\n\t"
         if option.short
           "#{delim}#{option.short}, #{delim}#{delim}#{name}".ljust(io, max_space, ' ')
