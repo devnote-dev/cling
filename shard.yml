@@ -4,7 +4,7 @@ authors:
   - Devonte W <https://github.com/devnote-dev>
 
 version: 3.0.0
-crystal: '>= 1.5.0'
+crystal: '>= 1.8.0'
 license: MPL
 repository: https://github.com/devnote-dev/cling
 
