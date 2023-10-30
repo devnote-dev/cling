@@ -2,6 +2,19 @@
 
 Based on [spf13/cobra](https://github.com/spf13/cobra), Cling is built to be almost entirely modular, giving you absolute control over almost everything without the need for embedded macros - there isn't even a default help command or flag!
 
+## Contents
+
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+- [Commands](#commands)
+- [Arguments and Options](#arguments-and-options)
+- [Customising](#customising)
+- [Extensions](#extensions)
+- [Motivation](#motivation)
+- [Projects using Cling](#projects-using-cling)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
+
 ## Installation
 
 1. Add the dependency to your `shard.yml`:
