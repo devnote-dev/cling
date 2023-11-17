@@ -21,10 +21,21 @@ describe Cling::Value do
 
   it "asserts types" do
     Cling::Value.new("foo").as_s.should be_a String
+    Cling::Value.new(nil).as_s?.should be_a String?
     Cling::Value.new(123).as_i32.should be_a Int32
     Cling::Value.new(4.56).as_f64.should be_a Float64
     Cling::Value.new(true).as_bool.should be_true
+    Cling::Value.new(nil).as_bool?.should be_nil
     Cling::Value.new(nil).raw.should be_nil
     Cling::Value.new(%w[]).as_a.should be_a Array(String)
+  end
+
+  it "converts types" do
+    Cling::Value.new("123").to_i.should be_a Int32
+    Cling::Value.new(false).to_i32?.should be_nil
+    Cling::Value.new(456).to_f.should be_a Float64
+    Cling::Value.new("true").to_bool.should be_true
+    Cling::Value.new(false).to_bool.should be_false
+    Cling::Value.new(nil).to_bool?.should be_nil
   end
 end

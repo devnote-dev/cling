@@ -42,6 +42,16 @@ module Cling
       @raw.as?(Int)
     end
 
+    # Conversts the value to an `Int`.
+    def to_i : Int
+      @raw.to_s.to_i
+    end
+
+    # Converts the value to an `Int` or `Nil` if the underlying value cannot be parsed.
+    def to_i? : Int?
+      @raw.to_s.to_i?
+    end
+
     # Returns the value as a `Float`.
     def as_f : Float
       @raw.as(Float)
@@ -52,21 +62,40 @@ module Cling
       @raw.as?(Float)
     end
 
+    # Converts the value to a `Float`.
+    def to_f : Float
+      @raw.to_s.to_f
+    end
+
+    # Converts the value to a `Float` or `Nil` if the underlying value cannot be parsed.
+    def to_f? : Float?
+      @raw.to_s.to_f?
+    end
+
     # Returns the value as a `Bool`.
     def as_bool : Bool
-      as_bool? || raise TypeCastError.new "cast from #{@raw.class} to Bool failed"
+      @raw.as(Bool)
     end
 
     # Returns the value as a `Bool` or `nil` if the underlying value is not a boolean.
     def as_bool? : Bool?
-      if @raw.is_a? Bool
-        @raw.as(Bool)
-      else
-        case @raw.to_s
-        when "true"  then true
-        when "false" then false
-        else              nil
-        end
+      @raw.as?(Bool)
+    end
+
+    # Converts the value to a `Bool`.
+    def to_bool : Bool
+      value = to_bool?
+      return value unless value.nil?
+
+      raise ArgumentError.new "cannot parse Bool from #{@raw.class}"
+    end
+
+    # Converts the value to a `Bool` or `Nil` if the underlying value cannot be parsed.
+    def to_bool? : Bool?
+      case @raw.to_s
+      when "true"  then true
+      when "false" then false
+      else              nil
       end
     end
 
@@ -92,6 +121,16 @@ module Cling
       @raw.as?(Int{{ base.id }})
     end
 
+    # Converts the value to an `Int{{ base.id }}`.
+    def to_i{{ base.id }} : Int{{ base.id }}
+      @raw.to_s.to_i{{ base.id }}
+    end
+
+    # Converts the value to an `Int{{ base.id }}` or `Nil` if the underlying value cannot be parsed.
+    def to_i{{ base.id }}? : Int{{ base.id }}?
+      @raw.to_s.to_i{{ base.id }}?
+    end
+
     # Returns the value as a `UInt{{ base }}`.
     def as_u{{ base.id }} : UInt{{ base.id }}
       @raw.as(UInt{{ base.id }})
@@ -100,6 +139,16 @@ module Cling
     # Returns the value as a `UInt{{ base }}` or `nil`.
     def as_u{{ base.id }}? : UInt{{ base.id }}?
       @raw.as?(UInt{{ base.id }})
+    end
+
+    # Converts the value to a `UInt{{ base.id }}`.
+    def to_u{{ base.id }} : UInt{{ base.id }}
+      @raw.to_s.to_u{{ base.id }}
+    end
+
+    # Converts the value to a `UInt{{ base.id }}` or `Nil` if the underlying value cannot be parsed.
+    def to_u{{ base.id }}? : UInt{{ base.id }}?
+      @raw.to_s.to_u{{ base.id }}?
     end
     {% end %}
 
@@ -112,6 +161,16 @@ module Cling
     # Returns the value as a `Float{{ base }}` or `nil`.
     def as_f{{ base.id }}? : Float{{ base.id }}?
       @raw.as?(Float{{ base.id }})
+    end
+
+    # Converts the value to a `Float{{ base.id }}`.
+    def to_f{{ base.id }} : Float{{ base.id }}
+      @raw.to_s.to_f{{ base.id }}
+    end
+
+    # Converts the value to a `Float{{ base.id }}` or `Nil` if the underlying value cannot be parsed.
+    def to_f{{ base.id }}? : Float{{ base.id }}?
+      @raw.to_s.to_f{{ base.id }}?
     end
     {% end %}
 
