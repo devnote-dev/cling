@@ -71,9 +71,26 @@ private class TestHooksCommand < Cling::Command
   end
 end
 
+private class TestErrorsCommand < Cling::Command
+  def setup : Nil
+    @name = "main"
+
+    add_option "fail-fast"
+  end
+
+  def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+    if options.has? "fail-fast"
+      program_exit
+    else
+      raise "failed slowly"
+    end
+  end
+end
+
 arguments_command = TestArgsCommand.new
 options_command = TestOptionsCommand.new
 hooks_command = TestHooksCommand.new
+errors_command = TestErrorsCommand.new
 
 describe Cling::Command do
   it "executes the pre_run only" do
@@ -159,4 +176,14 @@ describe Cling::Command do
 
     io.to_s.should eq "Missing required arguments for option 'num'\n"
   end
+
+  # it "catches exceptions for program exit and other errors" do
+  #   expect_raises Cling::ExitProgram do
+  #     errors_command.execute %w(--fail-fast)
+  #   end
+
+  #   expect_raises("failed slowly") do
+  #     errors_command.execute %w()
+  #   end
+  # end
 end

@@ -199,9 +199,18 @@ module Cling
     def post_run(arguments : Arguments, options : Options) : Nil
     end
 
+    # Raises an `ExitProgram` exception to exit the program. The exception is funneled through
+    # the `on_error` hook method which will call `exit` with the given *reason*, by default it
+    # is `Process::ExitReason::Aborted`.
+    def exit_program(reason : Process::ExitReason = :aborted) : NoReturn
+      raise ExitProgram.new reason
+    end
+
     # A hook method for when the command raises an exception during execution. By default, this
-    # raises the exception.
+    # raises the exception unless it is an `ExitProgram` exception which is checked and calls
+    # `exit` with the given reason (see `exit_program`).
     def on_error(ex : Exception)
+      exit ex.reason if ex.is_a? ExitProgram
       raise ex
     end
 

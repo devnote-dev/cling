@@ -15,10 +15,18 @@ module Cling
   class ParserError < Error
   end
 
-  # AN error raised if the `Value` of an argument or an option is not found/set.
+  # An error raised if the `Value` of an argument or an option is not found/set.
   class ValueNotFound < Error
     def initialize(key : String)
       super "Value not found for key: #{key}"
+    end
+  end
+
+  # An error used for signalling the end of the current program.
+  class ExitProgram < Error
+    getter reason : Process::ExitReason
+
+    def initialize(@reason : Process::ExitReason)
     end
   end
 end
