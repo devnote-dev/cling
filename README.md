@@ -104,7 +104,7 @@ class MainCommand < Cling::Command
 end
 ```
 
-> **Note**
+> [!NOTE]
 > See [command.cr](/src/cling/command.cr) for the full list of options.
 
 Commands can also contain children, or subcommands:
@@ -197,7 +197,7 @@ class MainCommand < Cling::Command
 end
 ```
 
-> **Warning**
+> [!WARNING]
 > You can only have **one** argument with the `multiple` option which will include all the remaining input values (or unknown arguments). See the [example command](/examples/cat/cat.cr) for usage.
 
 These arguments and options can then be accessed at execution time via the `arguments` and `options` parameters in the `pre_run`, `run` and `post_run` methods of a command:
@@ -231,7 +231,7 @@ def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
 end
 ```
 
-> **Note**
+> [!NOTE]
 > See [argument.cr](/src/cling/argument.cr#L34) and [option.cr](/src/cling/option.cr#L51) for more information on parameter methods, and [value.cr](/src/cling/value.cr) for value methods.
 
 ## Customising
@@ -354,7 +354,7 @@ symlink:     false
 permissions: rwxrwxrwx (0o777)
 ```
 
-> **Note**
+> [!NOTE]
 > See [ext.cr](/src/cling/ext.cr) for the full list of extension methods.
 
 Additionally, you can define your own extension methods on the `Value` struct like so:
