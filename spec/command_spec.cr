@@ -80,10 +80,15 @@ private class TestErrorsCommand < Cling::Command
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     if options.has? "fail-fast"
-      program_exit
+      exit_program
     else
       raise "failed slowly"
     end
+  end
+
+  def on_error(ex : Exception)
+    # override default behaviour so that it works in specs
+    raise ex
   end
 end
 
@@ -177,13 +182,13 @@ describe Cling::Command do
     io.to_s.should eq "Missing required arguments for option 'num'\n"
   end
 
-  # it "catches exceptions for program exit and other errors" do
-  #   expect_raises Cling::ExitProgram do
-  #     errors_command.execute %w(--fail-fast)
-  #   end
+  it "catches exceptions for program exit and other errors" do
+    expect_raises Cling::ExitProgram do
+      errors_command.execute %w(--fail-fast)
+    end
 
-  #   expect_raises("failed slowly") do
-  #     errors_command.execute %w()
-  #   end
-  # end
+    expect_raises(Exception, "failed slowly") do
+      errors_command.execute %w()
+    end
+  end
 end

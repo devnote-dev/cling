@@ -24,9 +24,9 @@ module Cling
 
   # An error used for signalling the end of the current program.
   class ExitProgram < Error
-    getter reason : Process::ExitReason
+    getter code : Int32
 
-    def initialize(@reason : Process::ExitReason)
+    def initialize(@code : Int32)
     end
   end
 end
