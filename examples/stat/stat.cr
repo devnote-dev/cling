@@ -17,12 +17,12 @@ class StatCommand < Cling::MainCommand
     if File.exists? path
       info = File.info path
       stdout.puts <<-INFO
-      name:        #{path.basename}
-      size:        #{info.size}
-      directory:   #{info.directory?}
-      symlink:     #{info.symlink?}
-      permissions: #{info.permissions}
-      INFO
+        name:        #{path.basename}
+        size:        #{info.size}
+        directory:   #{info.directory?}
+        symlink:     #{info.symlink?}
+        permissions: #{info.permissions}
+        INFO
     else
       stderr.puts "No file found at that path"
     end

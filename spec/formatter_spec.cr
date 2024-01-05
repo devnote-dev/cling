@@ -32,44 +32,44 @@ formatter = Cling::Formatter.new
 describe Cling::Formatter do
   it "generates a help template" do
     formatter.generate(command).chomp.should eq <<-HELP
-    Greets a person
+      Greets a person
 
-    Usage:
-    \tgreet <arguments> [options]
+      Usage:
+      \tgreet <arguments> [options]
 
-    Commands:
-    \twelcome    sends a friendly welcome message
+      Commands:
+      \twelcome    sends a friendly welcome message
 
-    Arguments:
-    \tname    the name of the person (required)
+      Arguments:
+      \tname    the name of the person (required)
 
-    Options:
-    \t-h, --help       sends help information
-    \t-v, --version    sends the app version
-    \t-c, --caps       greet with caps
-    HELP
+      Options:
+      \t-h, --help       sends help information
+      \t-v, --version    sends the app version
+      \t-c, --caps       greet with caps
+      HELP
   end
 
   it "generates with a custom delimiter" do
     formatter.options.option_delim = '+'
 
     formatter.generate(command).chomp.should eq <<-HELP
-    Greets a person
+      Greets a person
 
-    Usage:
-    \tgreet <arguments> [options]
+      Usage:
+      \tgreet <arguments> [options]
 
-    Commands:
-    \twelcome    sends a friendly welcome message
+      Commands:
+      \twelcome    sends a friendly welcome message
 
-    Arguments:
-    \tname    the name of the person (required)
+      Arguments:
+      \tname    the name of the person (required)
 
-    Options:
-    \t+h, ++help       sends help information
-    \t+v, ++version    sends the app version
-    \t+c, ++caps       greet with caps
-    HELP
+      Options:
+      \t+h, ++help       sends help information
+      \t+v, ++version    sends the app version
+      \t+c, ++caps       greet with caps
+      HELP
   end
 
   it "generates a description section" do
@@ -96,11 +96,11 @@ describe Cling::Formatter do
     String.build do |io|
       formatter.format_options(command, io)
     end.chomp.should eq <<-HELP
-    Options:
-    \t-h, --help       sends help information
-    \t-v, --version    sends the app version
-    \t-c, --caps       greet with caps
+      Options:
+      \t-h, --help       sends help information
+      \t-v, --version    sends the app version
+      \t-c, --caps       greet with caps
 
-    HELP
+      HELP
   end
 end

@@ -51,19 +51,19 @@ describe Cling::MainCommand do
     command.execute "" rescue nil
 
     io.to_s.chomp.should eq <<-HELP
-    Runs some Crystal commands
+      Runs some Crystal commands
 
-    Usage:
-    \tmain [options]
+      Usage:
+      \tmain [options]
 
-    Commands:
-    \tcontext
-    \tformat
+      Commands:
+      \tcontext
+      \tformat
 
-    Options:
-    \t-h, --help       sends help information
-    \t-v, --version    sends the app version
-    HELP
+      Options:
+      \t-h, --help       sends help information
+      \t-v, --version    sends the app version
+      HELP
   end
 
   it "runs the context command" do

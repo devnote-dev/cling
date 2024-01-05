@@ -297,12 +297,12 @@ Alternatively, if you want a completely custom design, you can pass a string dir
 
 ```crystal
 def help_template : String
-  <<-TXT
-  My custom command help text!
+  <<-TEXT
+    My custom command help text!
 
-  Use:
-      greet <name> [-c | --caps] [-h | --help]
-  TXT
+    Use:
+        greet <name> [-c | --caps] [-h | --help]
+    TEXT
 end
 ```
 
@@ -330,12 +330,12 @@ class StatCommand < Cling::MainCommand
     if File.exists? path
       info = File.info path
       stdout.puts <<-INFO
-      name:        #{path.basename}
-      size:        #{info.size}
-      directory:   #{info.directory?}
-      symlink:     #{info.symlink?}
-      permissions: #{info.permissions}
-      INFO
+        name:        #{path.basename}
+        size:        #{info.size}
+        directory:   #{info.directory?}
+        symlink:     #{info.symlink?}
+        permissions: #{info.permissions}
+        INFO
     else
       stderr.puts "No file found at that path"
     end

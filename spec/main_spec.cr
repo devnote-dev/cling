@@ -41,18 +41,18 @@ describe Cling do
     command.execute "" rescue nil
 
     io.to_s.should eq <<-HELP
-    Greets a person
+      Greets a person
 
-    Usage:
-    \tgreet <arguments> [options]
+      Usage:
+      \tgreet <arguments> [options]
 
-    Arguments:
-    \tname    the name of the person (required)
+      Arguments:
+      \tname    the name of the person (required)
 
-    Options:
-    \t-c, --caps    greet with caps
+      Options:
+      \t-c, --caps    greet with caps
 
-    HELP
+      HELP
   end
 
   it "tests the main command" do
