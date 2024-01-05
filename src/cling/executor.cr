@@ -51,7 +51,7 @@ module Cling::Executor
 
     begin
       res = resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
-      return unless res.nil? || res
+      resolved_command.pre_run_stop if res == false
     rescue ex
       resolved_command.on_error ex
     end

@@ -206,6 +206,13 @@ module Cling
       raise ExitProgram.new code
     end
 
+    # A hook method for when the `pre_run` hook method is stopped. By default, this calls
+    # `exit_program`. Using this method is no different to exiting the program or raising
+    # an exception in the `pre_run` hook method manually.
+    def pre_run_stop : Nil
+      exit_program
+    end
+
     # A hook method for when the command raises an exception during execution. By default, this
     # raises the exception unless it is an `ExitProgram` exception which is checked and calls
     # `exit` with the given code (see `exit_program`).
