@@ -33,6 +33,11 @@ private class CrystalCommand < Cling::MainCommand
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
   end
+
+  def on_error(ex : Exception)
+    # override default behaviour so that it works in specs
+    raise ex
+  end
 end
 
 command = CrystalCommand.new
@@ -43,7 +48,7 @@ describe Cling::MainCommand do
   it "prints the help message" do
     io = IO::Memory.new
     command.stdout = io
-    command.execute ""
+    command.execute "" rescue nil
 
     io.to_s.chomp.should eq <<-HELP
     Runs some Crystal commands

@@ -17,6 +17,11 @@ private class TestArgsCommand < Cling::Command
     arguments.get "first"
     arguments.get "second"
   end
+
+  def on_error(ex : Exception)
+    # override default behaviour so that it works in specs
+    raise ex
+  end
 end
 
 private class TestOptionsCommand < Cling::Command
@@ -99,7 +104,9 @@ errors_command = TestErrorsCommand.new
 
 describe Cling::Command do
   it "executes the pre_run only" do
-    arguments_command.execute %w(--skip)
+    expect_raises Cling::ExitProgram do
+      arguments_command.execute %w(--skip)
+    end
   end
 
   it "fails on missing arguments" do
