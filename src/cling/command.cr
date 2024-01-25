@@ -1,5 +1,9 @@
 module Cling
   abstract class Command
+    # The name of the command. This is the only required field of a command and cannot be empty or
+    # blank.
+    property name : String
+
     # A set of aliases for the command.
     getter aliases : Set(String)
 
@@ -70,18 +74,8 @@ module Cling
       @options = options || {} of String => Option
 
       setup
-    end
-
-    # The name of the command. This is the only required field of a command and cannot be empty or
-    # blank.
-    def name : String
       raise CommandError.new "Command name cannot be empty" if @name.empty?
       raise CommandError.new "Command name cannot be blank" if @name.blank?
-
-      @name
-    end
-
-    def name=(@name : String)
     end
 
     # An abstract method that should define information about the command such as the name,
