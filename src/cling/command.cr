@@ -214,10 +214,8 @@ module Cling
     end
 
     # A hook method for when the command raises an exception during execution. By default, this
-    # raises the exception unless it is an `ExitProgram` exception which is checked and calls
-    # `exit` with the given code (see `exit_program`).
+    # raises the exception.
     def on_error(ex : Exception)
-      exit ex.code if ex.is_a? ExitProgram
       raise ex
     end
 

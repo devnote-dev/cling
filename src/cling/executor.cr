@@ -51,7 +51,9 @@ module Cling::Executor
 
     begin
       res = resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
-      resolved_command.pre_run_stop if res == false
+      # resolved_command.pre_run_stop if res == false
+    rescue ex : ExitProgram
+      return handle_exit ex
     rescue ex
       resolved_command.on_error ex
     end
@@ -61,6 +63,8 @@ module Cling::Executor
     begin
       resolved_command.run executed.parsed_arguments, executed.parsed_options
       resolved_command.post_run executed.parsed_arguments, executed.parsed_options
+    rescue ex : ExitProgram
+      return handle_exit ex
     rescue ex
       resolved_command.on_error ex
     end
@@ -216,5 +220,9 @@ module Cling::Executor
     command.on_missing_options(res.missing_options) unless res.missing_options.empty?
     command.on_missing_arguments(res.missing_arguments) unless res.missing_arguments.empty?
     command.on_unknown_arguments(res.unknown_arguments) unless res.unknown_arguments.empty?
+  end
+
+  private def self.handle_exit(ex : ExitProgram) : NoReturn
+    exit ex.code
   end
 end
