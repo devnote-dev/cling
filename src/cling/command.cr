@@ -193,18 +193,9 @@ module Cling
     def post_run(arguments : Arguments, options : Options) : Nil
     end
 
-    # Raises an `ExitProgram` exception to exit the program. The exception is funneled through
-    # the `on_error` hook method which will call `exit` with the given *code*, by default it
-    # is `1`.
+    # Raises an `ExitProgram` exception to exit the program. By default it is `1`.
     def exit_program(code : Int32 = 1) : NoReturn
       raise ExitProgram.new code
-    end
-
-    # A hook method for when the `pre_run` hook method is stopped. By default, this calls
-    # `exit_program`. Using this method is no different to exiting the program or raising
-    # an exception in the `pre_run` hook method manually.
-    def pre_run_stop : Nil
-      exit_program
     end
 
     # A hook method for when the command raises an exception during execution. By default, this

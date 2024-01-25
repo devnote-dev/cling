@@ -50,8 +50,7 @@ module Cling::Executor
     end
 
     begin
-      res = resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
-      # resolved_command.pre_run_stop if res == false
+      resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
     rescue ex : ExitProgram
       return handle_exit ex
     rescue ex
@@ -64,7 +63,7 @@ module Cling::Executor
       resolved_command.run executed.parsed_arguments, executed.parsed_options
       resolved_command.post_run executed.parsed_arguments, executed.parsed_options
     rescue ex : ExitProgram
-      return handle_exit ex
+      handle_exit ex
     rescue ex
       resolved_command.on_error ex
     end
