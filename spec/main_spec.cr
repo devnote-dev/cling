@@ -25,11 +25,6 @@ private class GreetCommand < Cling::Command
       stdout.puts message
     end
   end
-
-  def on_error(ex : Exception)
-    # override default behaviour so that it works in specs
-    raise ex
-  end
 end
 
 command = GreetCommand.new
@@ -38,7 +33,7 @@ describe Cling do
   it "tests the help command" do
     io = IO::Memory.new
     command.stdout = io
-    command.execute "" rescue nil
+    command.execute ""
 
     io.to_s.should eq <<-HELP
       Greets a person
@@ -58,7 +53,7 @@ describe Cling do
   it "tests the main command" do
     io = IO::Memory.new
     command.stdout = io
-    command.execute %w(Dev) rescue nil
+    command.execute %w(Dev)
 
     io.to_s.should eq "Hello, Dev!\n"
   end
