@@ -180,9 +180,6 @@ module Cling
     # This has access to the parsed arguments and options from the command line. This is useful if
     # you want to implement checks for specific flags outside of the main `run` method, such as
     # `-v`/`--version` flags or `-h`/`--help` flags.
-    #
-    # Accepts a `Bool` or `nil` argument as a return to specify whether the command should continue
-    # to run once finished (`true` or `nil` to continue, `false` to stop).
     def pre_run(arguments : Arguments, options : Options) : Bool?
     end
 

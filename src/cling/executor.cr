@@ -50,7 +50,10 @@ module Cling::Executor
     end
 
     begin
-      resolved_command.pre_run executed.parsed_arguments, executed.parsed_options
+      deprecation_helper(
+        resolved_command,
+        resolved_command.pre_run(executed.parsed_arguments, executed.parsed_options)
+      )
     rescue ex : ExitProgram
       return handle_exit ex
     rescue ex
@@ -67,6 +70,14 @@ module Cling::Executor
     rescue ex
       resolved_command.on_error ex
     end
+  end
+
+  private def self.deprecation_helper(type : T, value : Bool?) : Nil forall T
+    {% T.warning "#{T}#pre_run : Bool? is deprecated. Use `pre_run(arguments : Arguments, options : Options) : Nil` instead" %}
+    raise ExitProgram.new 1 if value == false
+  end
+
+  private def self.deprecation_helper(type : T, value : Nil) : Nil forall T
   end
 
   private def self.resolve_command(command : Command, results : Array(Parser::Result)) : Command?
