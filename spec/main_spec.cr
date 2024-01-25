@@ -9,11 +9,10 @@ private class GreetCommand < Cling::Command
     add_option 'c', "caps", description: "greet with caps"
   end
 
-  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool?
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     return if arguments.has? "name"
     stdout.puts Cling::Formatter.new.generate self
-
-    false
+    exit_program 0
   end
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil

@@ -9,8 +9,8 @@ private class TestArgsCommand < Cling::Command
     add_option 's', "skip"
   end
 
-  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
-    !options.has?("skip")
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
+    exit_program 0 if options.has? "skip"
   end
 
   def run(arguments : Cling::Arguments, options : Cling::Options) : Nil
@@ -84,11 +84,6 @@ private class TestErrorsCommand < Cling::Command
     else
       raise "failed slowly"
     end
-  end
-
-  def on_error(ex : Exception)
-    # override default behaviour so that it works in specs
-    raise ex
   end
 end
 
@@ -183,9 +178,7 @@ describe Cling::Command do
   end
 
   it "catches exceptions for program exit and other errors" do
-    expect_raises Cling::ExitProgram do
-      errors_command.execute %w(--fail-fast)
-    end
+    errors_command.execute %w(--fail-fast)
 
     expect_raises(Exception, "failed slowly") do
       errors_command.execute %w()
