@@ -32,8 +32,8 @@ describe Cling do
   it "tests the help command" do
     io = IO::Memory.new
     command.stdout = io
-    command.execute ""
 
+    command.execute("").should eq 0
     io.to_s.should eq <<-HELP
       Greets a person
 
@@ -52,16 +52,16 @@ describe Cling do
   it "tests the main command" do
     io = IO::Memory.new
     command.stdout = io
-    command.execute %w(Dev)
 
+    command.execute("Dev").should eq 0
     io.to_s.should eq "Hello, Dev!\n"
   end
 
   it "tests the main command with flag" do
     io = IO::Memory.new
     command.stdout = io
-    command.execute %w(-c Dev)
 
+    command.execute("-c Dev").should eq 0
     io.to_s.should eq "HELLO, DEV!\n"
   end
 end

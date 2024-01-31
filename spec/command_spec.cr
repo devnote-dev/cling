@@ -94,7 +94,7 @@ errors_command = TestErrorsCommand.new
 
 describe Cling::Command do
   it "executes the pre_run only" do
-    arguments_command.execute %w(--skip)
+    arguments_command.execute("--skip").should eq 0
   end
 
   it "fails on missing arguments" do
@@ -104,13 +104,13 @@ describe Cling::Command do
   end
 
   it "executes without errors" do
-    arguments_command.execute %w(foo bar)
-    arguments_command.execute %w(foo bar baz qux)
+    arguments_command.execute("foo bar").should eq 0
+    arguments_command.execute("foo bar baz qux").should eq 0
   end
 
   it "fails on unknown values" do
     expect_raises Cling::ValueNotFound do
-      arguments_command.execute %w(foo)
+      arguments_command.execute "foo"
     end
   end
 
@@ -121,18 +121,18 @@ describe Cling::Command do
   end
 
   it "executes without errors" do
-    options_command.execute %w(--double-foo --bar=true)
+    options_command.execute("--double-foo --bar=true").should eq 0
   end
 
   it "fails on unknown options" do
     expect_raises Cling::CommandError do
-      options_command.execute %w(--double-foo --double-bar)
+      options_command.execute "--double-foo --double-bar"
     end
   end
 
   it "fails on invalid options" do
     expect_raises Cling::CommandError do
-      options_command.execute %w(--foo=true --double-foo)
+      options_command.execute "--foo=true --double-foo"
     end
 
     expect_raises Cling::CommandError do
@@ -143,45 +143,44 @@ describe Cling::Command do
   it "catches missing required arguments" do
     io = IO::Memory.new
     hooks_command.stderr = io
-    hooks_command.execute "--double-foo"
 
+    hooks_command.execute("--double-foo").should eq 0
     io.to_s.should eq "foo\n"
   end
 
   it "catches unknown arguments" do
     io = IO::Memory.new
     hooks_command.stderr = io
-    hooks_command.execute "foo --double-foo bar baz"
 
+    hooks_command.execute("foo --double-foo bar baz").should eq 0
     io.to_s.should eq "bar, baz\n"
   end
 
   it "catches an invalid option" do
     io = IO::Memory.new
     hooks_command.stderr = io
-    hooks_command.execute "foo --double-foo=true\n"
 
+    hooks_command.execute("foo --double-foo=true\n").should eq 1
     io.to_s.should eq "Option 'double-foo' takes no arguments\n"
   end
 
   it "catches missing required values for options" do
     io = IO::Memory.new
     hooks_command.stderr = io
-    hooks_command.execute "foo --double-foo --bar"
 
+    hooks_command.execute("foo --double-foo --bar").should eq 1
     io.to_s.should eq "Missing required argument for option 'bar'\n"
 
     io.rewind
-    hooks_command.execute "foo --double-foo -n"
-
+    hooks_command.execute("foo --double-foo -n").should eq 1
     io.to_s.should eq "Missing required arguments for option 'num'\n"
   end
 
   it "catches exceptions for program exit and other errors" do
-    errors_command.execute %w(--fail-fast)
+    errors_command.execute("--fail-fast").should eq 1
 
     expect_raises(Exception, "failed slowly") do
-      errors_command.execute %w()
+      errors_command.execute ""
     end
   end
 end

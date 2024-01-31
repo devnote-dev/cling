@@ -43,8 +43,8 @@ describe Cling::MainCommand do
   it "prints the help message" do
     io = IO::Memory.new
     command.stdout = io
-    command.execute ""
 
+    command.execute("").should eq 0
     io.to_s.chomp.should eq <<-HELP
       Runs some Crystal commands
 
@@ -64,16 +64,16 @@ describe Cling::MainCommand do
   it "runs the context command" do
     io = IO::Memory.new
     command.children["context"].stdout = io
-    command.execute "context"
 
+    command.execute("context").should eq 0
     io.to_s.should eq "Fake crystal context command!\n"
   end
 
   it "runs the format command" do
     io = IO::Memory.new
     command.children["format"].stdout = io
-    command.execute "format"
 
+    command.execute("format").should eq 0
     io.to_s.should eq "Fake crystal format command!\n"
   end
 end
