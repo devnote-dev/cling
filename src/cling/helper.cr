@@ -10,23 +10,21 @@ module Cling
       add_option 'v', "version", description: "sends the app version"
     end
 
-    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
+    def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
       if arguments.empty? && options.empty?
         Formatter.new.generate(self).to_s(stdout)
-        return false
+        exit_program 0
       end
 
       case options
       when .has? "help"
         Formatter.new.generate(self).to_s(stdout)
 
-        false
+        exit_program 0
       when .has? "version"
         puts @version
 
-        false
-      else
-        true
+        exit_program 0
       end
     end
   end
