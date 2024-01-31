@@ -17,7 +17,8 @@ module Cling::Executor
     end
   end
 
-  # Handles the execution of a command using the given results from the parser.
+  # Handles the execution of a command using the given results from the parser. Returns the program
+  # exit code from the command, by default it is `0`.
   #
   # ### Process
   #
@@ -27,26 +28,28 @@ module Cling::Executor
   # 2. The results are evaluated with the command arguments and options to set their values and
   # move the missing, unknown and invalid arguments/options into place.
   #
-  # 3. The `Command#pre_run` hook is executed with the resolved arguments and options, and the
-  # response is checked for continuation.
+  # 3. The `Command#pre_run` hook is executed with the resolved arguments and options.
   #
   # 4. The evaluated arguments and options are finalized: missing, unknown and invalid arguments/
   # options trigger the necessary missing/unknown/invalid command hooks.
   #
-  # 5. The main `Command#run` and `Command#post_run` methods are executed with the evaluated
-  # arguments and options.
-  def self.handle(command : Command, results : Array(Parser::Result)) : Nil
+  # 5. The `Command#run` and `Command#post_run` methods are executed with the evaluated arguments
+  # and options.
+  #
+  # 6. The program exit code is returned from the command, or `0` if no `ExitProgram` exception was
+  # raised during the command's execution.
+  def self.handle(command : Command, results : Array(Parser::Result)) : Int32
     resolved_command = resolve_command command, results
     unless resolved_command
       command.on_error CommandError.new("Command '#{results.first.value}' not found")
-      return
+      return 1
     end
 
     begin
       executed = get_in_position resolved_command, results
     rescue ex : ExecutionError
       resolved_command.on_invalid_option ex.to_s
-      return
+      return 1
     end
 
     begin
@@ -55,7 +58,7 @@ module Cling::Executor
         resolved_command.pre_run(executed.parsed_arguments, executed.parsed_options)
       )
     rescue ex : ExitProgram
-      return handle_exit ex
+      return ex.code
     rescue ex
       resolved_command.on_error ex
     end
@@ -66,10 +69,12 @@ module Cling::Executor
       resolved_command.run executed.parsed_arguments, executed.parsed_options
       resolved_command.post_run executed.parsed_arguments, executed.parsed_options
     rescue ex : ExitProgram
-      handle_exit ex
+      return ex.code
     rescue ex
       resolved_command.on_error ex
     end
+
+    0
   end
 
   private def self.deprecation_helper(type : T, value : Bool?) : Nil forall T
@@ -230,9 +235,5 @@ module Cling::Executor
     command.on_missing_options(res.missing_options) unless res.missing_options.empty?
     command.on_missing_arguments(res.missing_arguments) unless res.missing_arguments.empty?
     command.on_unknown_arguments(res.unknown_arguments) unless res.unknown_arguments.empty?
-  end
-
-  private def self.handle_exit(ex : ExitProgram) : NoReturn
-    exit ex.code
   end
 end

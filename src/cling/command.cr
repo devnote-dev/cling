@@ -169,12 +169,22 @@ module Cling
       @options[long] = Option.new(long, short, description, required, hidden, type, default)
     end
 
-    # Executes the command with the given input and parser (see `Parser`).
-    def execute(input : String | Array(String), *, parser : Parser? = nil) : Nil
-      parser ||= Parser.new input
-      results = parser.parse
-      Executor.handle self, results
-    end
+    {% begin %}
+      # Executes the command with the given input and parser (see `Parser`). Returns the program exit
+      # status code, by default it is `0`.
+      {% if @top_level.has_constant?("Spec") %}
+        def execute(input : String | Array(String), *, parser : Parser? = nil, terminate : Bool = false) : Int32
+      {% else %}
+        def execute(input : String | Array(String), *, parser : Parser? = nil, terminate : Bool = true) : Int32
+      {% end %}
+        parser ||= Parser.new input
+        results = parser.parse
+        code = Executor.handle self, results
+        exit code if terminate
+
+        code
+      end
+    {% end %}
 
     # A hook method to run once the command/subcommands, arguments and options have been parsed.
     # This has access to the parsed arguments and options from the command line. This is useful if
