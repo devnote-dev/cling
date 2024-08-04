@@ -57,21 +57,21 @@ module Cling::Executor
         resolved_command,
         resolved_command.pre_run(executed.parsed_arguments, executed.parsed_options)
       )
-    rescue ex : ExitProgram
-      return ex.code
-    rescue ex
-      resolved_command.on_error ex
-    end
 
-    finalize resolved_command, executed
+      finalize resolved_command, executed
 
-    begin
       resolved_command.run executed.parsed_arguments, executed.parsed_options
       resolved_command.post_run executed.parsed_arguments, executed.parsed_options
     rescue ex : ExitProgram
       return ex.code
     rescue ex
-      resolved_command.on_error ex
+      begin
+        resolved_command.on_error ex
+      rescue ex : ExitProgram
+        return ex.code
+      rescue ex
+        raise ExecutionError.new "Error while executing command error handler:\n#{ex.message}", cause: ex
+      end
     end
 
     0
