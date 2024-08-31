@@ -41,6 +41,7 @@ module Cling::Executor
   def self.handle(command : Command, results : Array(Parser::Result)) : Int32
     resolved_command = resolve_command command, results
     unless resolved_command
+      # TODO: should this be an ExecutionError?
       command.on_error CommandError.new("Command '#{results.first.value}' not found")
       return 1
     end

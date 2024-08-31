@@ -98,7 +98,8 @@ describe Cling::Command do
   end
 
   it "fails on missing arguments" do
-    expect_raises Cling::CommandError do
+    expect_raises Cling::ExecutionError, "Error while executing command error handler:\n\
+      Missing required argument: first" do
       arguments_command.execute ""
     end
   end
@@ -109,13 +110,15 @@ describe Cling::Command do
   end
 
   it "fails on unknown values" do
-    expect_raises Cling::ValueNotFound do
+    expect_raises Cling::ExecutionError, "Error while executing command error handler:\n\
+      Value not found for key: second" do
       arguments_command.execute "foo"
     end
   end
 
   it "fails on missing options" do
-    expect_raises Cling::CommandError do
+    expect_raises Cling::ExecutionError, "Error while executing command error handler:\n\
+      Missing required options: double-foo, bar" do
       options_command.execute ""
     end
   end
@@ -125,7 +128,8 @@ describe Cling::Command do
   end
 
   it "fails on unknown options" do
-    expect_raises Cling::CommandError do
+    expect_raises Cling::ExecutionError, "Error while executing command error handler:\n\
+      Unknown option: double-bar" do
       options_command.execute "--double-foo --double-bar"
     end
   end
