@@ -41,16 +41,28 @@ module Cling::Executor
   def self.handle(command : Command, results : Array(Parser::Result)) : Int32
     resolved_command = resolve_command command, results
     unless resolved_command
-      # TODO: should this be an ExecutionError?
-      command.on_error CommandError.new("Command '#{results.first.value}' not found")
-      return 1
+      begin
+        # TODO: should this be an ExecutionError?
+        command.on_error CommandError.new("Command '#{results.first.value}' not found")
+        return 1
+      rescue ex : ExitProgram
+        return ex.code
+      rescue ex
+        raise ExecutionError.new "Error while executing command error handler:\n#{ex.message}", cause: ex
+      end
     end
 
     begin
       executed = get_in_position resolved_command, results
     rescue ex : ExecutionError
-      resolved_command.on_invalid_option ex.to_s
-      return 1
+      begin
+        resolved_command.on_invalid_option ex.to_s
+        return 1
+      rescue ex : ExitProgram
+        return ex.code
+      rescue ex
+        raise ExecutionError.new "Error while executing command error handler:\n#{ex.message}", cause: ex
+      end
     end
 
     begin
