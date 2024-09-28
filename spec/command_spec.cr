@@ -135,11 +135,13 @@ describe Cling::Command do
   end
 
   it "fails on invalid options" do
-    expect_raises Cling::CommandError do
+    expect_raises Cling::ExecutionError, "Error while executing command error handler:\n\
+      Option 'foo' takes no arguments" do
       options_command.execute "--foo=true --double-foo"
     end
 
-    expect_raises Cling::CommandError do
+    expect_raises Cling::ExecutionError, "Error while executing command error handler:\n\
+      Option 'double-foo' takes no arguments" do
       options_command.execute "--double-foo=true --bar baz"
     end
   end
