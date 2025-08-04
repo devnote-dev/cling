@@ -3,12 +3,8 @@ description: A modular, non-macro-based command line interface library
 authors:
   - Devonte W <https://github.com/devnote-dev>
 
-version: 3.0.0
+version: 3.1.0
 crystal: '>= 1.8.0'
 license: MPL
+documentation: https://crystaldoc.info/github/devnote-dev/cling
 repository: https://github.com/devnote-dev/cling
-
-development_dependencies:
-  ameba:
-    github: crystal-ameba/ameba
-    version: ~> 1.5.0
