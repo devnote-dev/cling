@@ -23,7 +23,6 @@ Based on [spf13/cobra](https://github.com/spf13/cobra), Cling is built to be alm
 dependencies:
   cling:
     github: devnote-dev/cling
-    version: ">= 3.0.0"
 ```
 
 2. Run `shards install`
@@ -42,13 +41,10 @@ class MainCommand < Cling::Command
     add_option 'h', "help", description: "sends help information"
   end
 
-  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     if options.has? "help"
       puts help_template # generated using Cling::Formatter
-
-      false
-    else
-      true
+      exit_program 0 # exit code 0 for successful
     end
   end
 
@@ -69,6 +65,8 @@ main.execute ARGV
 
 ```
 $ crystal greet.cr -h
+Greets a person
+
 Usage:
         greet <arguments> [options]
 
@@ -76,8 +74,8 @@ Arguments:
         name    the name of the person to greet (required)
 
 Options:
-        -c, --caps  greet with capitals
-        -h, --help  sends help information
+        -c, --caps    greet with capitals
+        -h, --help    sends help information
 
 $ crystal greet.cr Dev
 Hello, Dev!
@@ -126,6 +124,8 @@ main.execute ARGV
 
 ```
 $ crystal greet.cr -h
+Greets a person
+
 Usage:
         greet <arguments> [options]
 
@@ -136,8 +136,8 @@ Arguments:
         name    the name of person to greet (required)
 
 Options:
-        -c, --caps  greet with capitals
-        -h, --help  sends help information
+        -c, --caps    greet with capitals
+        -h, --help    sends help information
 
 $ crystal greet.cr welcome Dev
 Welcome to the CLI world, Dev!
@@ -206,19 +206,14 @@ These arguments and options can then be accessed at execution time via the `argu
 class MainCommand < Cling::Command
   # ...
 
-  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Bool # can also be `Nil`
+  def pre_run(arguments : Cling::Arguments, options : Cling::Options) : Nil
     if arguments.get("name").as_s.blank?
       stderr.puts "Your name can't be blank!"
-
-      false
-    else
-      true
+      exit_program # defaults to exit code 1 for failed
     end
   end
 end
 ```
-
-The `pre_run` method is slightly different to the other run methods: it allows returning a boolean to the command executor, which will determine whether the command should continue running – `false` will stop the command, `true` will continue. Explicitly returning `nil` or not specifying a return type is the same as returning `true`; the command will continue to run.
 
 If you try to access the value of an argument or option that isn't set, it will raise a `ValueNotFound` exception. To avoid this, use the `get?` method and check accordingly:
 
@@ -244,7 +239,7 @@ The help template is divided into the following sections:
 [DESCRIPTION]
 
 [USAGE]
-    <NAME> <USE | "[<arguments>]" "[<options>]">
+    <NAME> <USE | "[<command>]" "[<arguments>]" "[<options>]">
 
 [COMMANDS]
     [ALIASES] <NAME> <SUMMARY>
