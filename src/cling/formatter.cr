@@ -63,6 +63,10 @@ module Cling
 
       if command.usage.empty?
         io << "\n\t" << command.name
+        unless command.children.empty?
+          io << " <command>"
+        end
+
         unless command.arguments.empty?
           if command.arguments.values.any? &.required?
             io << " <arguments>"

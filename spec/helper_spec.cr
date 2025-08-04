@@ -49,7 +49,7 @@ describe Cling::MainCommand do
       Runs some Crystal commands
 
       Usage:
-      \tmain [options]
+      \tmain <command> [options]
 
       Commands:
       \tcontext
